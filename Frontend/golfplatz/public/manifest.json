@@ -1,9 +1,0 @@
-{
-  "short_name": "golfplatz",
-  "name": "golfplatz",
-  "start_url": "file:///media/DATA/aProjects/golfplatz/build/",
-  "homepage": "file:///media/DATA/aProjects/golfplatz/build/",
-  "display": "standalone",
-  "theme_color": "#ffcc33",
-  "background_color": "#ffffff"
-}
