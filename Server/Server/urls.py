@@ -19,5 +19,6 @@ from . import views
 
 urlpatterns = [
     path('', include('frontend.urls')),
+    path('api/', include('golfplatz.urls')),
     path('admin/', admin.site.urls),
 ]
