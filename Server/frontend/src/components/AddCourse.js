@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { addCourse } from '../../actions/course';
+import { addCourse } from '../actions/course';
 
 export class AddCourse extends Component {
   state = {
