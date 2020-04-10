@@ -10,7 +10,7 @@ class AddCourseForm(ModelFormCustomValid):
     def is_valid(self):
         if not super().is_valid():
             return False
-        if bool(len(Course.objects.filter(name=self.cleaned_data['name']))):
+        if Course.objects.filter(course_name=self.cleaned_data['course_name']):
             self._errors['error_message'] = 'Ten kurs już istnieje'
             return False
         return True

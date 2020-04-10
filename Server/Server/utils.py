@@ -1,21 +1,15 @@
 from django.forms import ModelForm
 from rest_framework.response import Response
+from rest_framework import status
 
 
 class JsonResponse:
-    status = True
-    data = {}
-
-    def __init__(self, data=None, status=True):
+    def __init__(self, data: dict, response_code: status = status.HTTP_200_OK):
         self.data = data
-        self.status = status
+        self.response_code = response_code
 
-    def parse(self):
-        return Response({"status": self.status, "data": self.data})
-
-    @staticmethod
-    def not_found_error():
-        return Response({"status": False, "data": {'error_message': 'Not found.'}})
+    def get_response(self):
+        return Response(self.data, status=self.response_code)
 
 
 class ModelFormCustomValid(ModelForm):
