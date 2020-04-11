@@ -1,10 +1,10 @@
+from django.contrib.auth.models import Group
 from rest_framework.views import APIView
 from rest_framework import status
 
 from .utils import JsonResponse
 from .models import Course
-from .serializers import CourseSerializer
-from .forms import RegisterStudentForm, RegisterTutorForm
+from .serializers import CourseSerializer, ParticipantSerializer
 
 
 class CourseView(APIView):
@@ -18,24 +18,31 @@ class CourseView(APIView):
             course.save()
             return JsonResponse(course.data).get_response()
         else:
-            return JsonResponse(course.errors, response_code=status.HTTP_409_CONFLICT).get_response()
+            return JsonResponse(course.errors, response_code=status.HTTP_400_BAD_REQUEST).get_response()
 
 
 class RegisterStudent(APIView):
     def post(self, request, format=None):
-        student = RegisterStudentForm(request.data)
-        if student.is_valid():
+        student_serializer = ParticipantSerializer(data=request.data)
+        if student_serializer.is_valid():
+            student = student_serializer.save()
+            group, _ = Group.objects.get_or_create(name='student')
+            group.user_set.add(student)
             student.save()
-            return JsonResponse({'status': 'student registered'}).get_response()
+            return JsonResponse(student_serializer.data).get_response()
         else:
-            return JsonResponse({'error': student.errors}, response_code=status.HTTP_409_CONFLICT).get_response()
+            print(student_serializer.errors)
+            return JsonResponse(student_serializer.errors, response_code=status.HTTP_400_BAD_REQUEST).get_response()
 
 
 class RegisterTutor(APIView):
     def post(self, request, format=None):
-        tutor = RegisterTutorForm(request.data)
-        if tutor.is_valid():
+        tutor_serializer = ParticipantSerializer(data=request.data)
+        if tutor_serializer.is_valid():
+            tutor = tutor_serializer.save()
+            group, _ = Group.objects.get_or_create(name='tutor')
+            group.user_set.add(tutor)
             tutor.save()
-            return JsonResponse({'status': 'tutor registered'}).get_response()
+            return JsonResponse(tutor_serializer.data).get_response()
         else:
-            return JsonResponse({'error': tutor.errors}, response_code=status.HTTP_409_CONFLICT).get_response()
+            return JsonResponse(tutor_serializer.errors, response_code=status.HTTP_400_BAD_REQUEST).get_response()

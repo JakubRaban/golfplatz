@@ -86,7 +86,7 @@ export class RegisterStudent extends Component {
             <label>Powtórz hasło</label>
             <input
               type="password"
-              name="password_confirm"
+              name="password2"
               onChange={this.onChange}
               value={password2}
             />

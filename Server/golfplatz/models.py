@@ -25,7 +25,7 @@ class Participant(AbstractUser):
     objects = ParticipantManager()
 
     def __str__(self):
-        return self.get_full_name() + ' (' + self.username + ', ' + self.email + ')'
+        return self.get_full_name() + ' (' + self.email + ')'
 
 
 class AutoCheckedGrade(models.Model):
