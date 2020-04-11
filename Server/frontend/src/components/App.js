@@ -1,8 +1,11 @@
 import React from 'react';
 
 import {Provider} from 'react-redux';
+import {Switch, Route, HashRouter as Router} from 'react-router-dom';
 import store from '../store';
-import AddCourse from './AddCourse.js'
+import AddCourse from './AddCourse.js';
+import RegisterStudent from './RegisterStudent.js';
+import RegisterTutor from './RegisterTutor.js';
 
 import {Provider as AlertProvider} from "react-alert"
 import AlertTemplate from "react-alert-template-basic";
@@ -21,12 +24,18 @@ class App extends React.Component {
       <Provider store={store}>
         <AlertProvider template={AlertTemplate} {...alertOptions}>
           <Alerts/>
+          <Router>
+            <Switch>
+              <Route exact path="/" component={AddCourse}/>
+              <Route exact path="/register-student" component={RegisterStudent}/>
+              <Route exact path="/register-tutor" component={RegisterTutor}/>
+            </Switch>
+          </Router>
           <p>Long have I waited</p>
           <GetCourses/>
           <AddCourse/>
         </AlertProvider>
       </Provider>
-
     );
   }
 }
