@@ -26,7 +26,7 @@ class RegisterStudent(APIView):
         student_serializer = ParticipantSerializer(data=request.data)
         if student_serializer.is_valid():
             student = student_serializer.save()
-            group, _ = Group.objects.get_or_create(name='student')
+            group, _ = Group.objects.get_or_create(name='student')[0]
             group.user_set.add(student)
             student.save()
             return JsonResponse(student_serializer.data).get_response()
@@ -40,7 +40,7 @@ class RegisterTutor(APIView):
         tutor_serializer = ParticipantSerializer(data=request.data)
         if tutor_serializer.is_valid():
             tutor = tutor_serializer.save()
-            group, _ = Group.objects.get_or_create(name='tutor')
+            group, _ = Group.objects.get_or_create(name='tutor')[0]
             group.user_set.add(tutor)
             tutor.save()
             return JsonResponse(tutor_serializer.data).get_response()
