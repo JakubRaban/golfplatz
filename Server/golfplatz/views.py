@@ -4,18 +4,21 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
 
-from Server.utils import JsonResponse
-from golfplatz.forms import AddCourseForm
+from .utils import JsonResponse
+from .models import Course
+from .serializers import CourseSerializer
 
 
-class AddCourse(APIView):
+class CourseView(APIView):
+    def get(self, request, format=None):
+        serializer = CourseSerializer(Course.objects.all(), many=True)
+        return JsonResponse(serializer.data).get_response()
+
     def post(self, request, format=None):
-        course = AddCourseForm(request.data)
+        course = CourseSerializer(data=request.data)
         if course.is_valid():
-            course = course.save(commit=False)
-            course.user = request.user
             course.save()
-            return JsonResponse({'status': 'course added'}).get_response()
+            return JsonResponse(course.data).get_response()
         else:
-            return JsonResponse({'error': course.errors}, response_code=status.HTTP_409_CONFLICT).get_response()
+            return JsonResponse(course.errors, response_code=status.HTTP_409_CONFLICT).get_response()
 

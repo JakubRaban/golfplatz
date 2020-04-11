@@ -1,8 +1,8 @@
-import { ADD_COURSE } from '../actions/types.js';
+import { ADD_COURSE, GET_COURSES } from '../actions/types.js';
 
 const initialState = {
   course: []
-}
+};
 
 export default function(state = initialState, action) {
   switch(action.type) {
@@ -10,7 +10,12 @@ export default function(state = initialState, action) {
       return {
         ...state,
         course: [...state.course, action.payload]
-      }
+      };
+    case GET_COURSES:
+      return {
+        ...state,
+        course: action.payload
+      };
     default:
       return state;
   }

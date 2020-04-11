@@ -1,4 +1,4 @@
-from Server.utils import ModelFormCustomValid
+from .utils import ModelFormCustomValid
 from .models import Course
 
 
@@ -14,7 +14,3 @@ class AddCourseForm(ModelFormCustomValid):
             self._errors['error_message'] = 'Ten kurs już istnieje'
             return False
         return True
-
-
-
-
