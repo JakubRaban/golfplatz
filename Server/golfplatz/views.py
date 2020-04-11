@@ -4,7 +4,7 @@ from rest_framework import status
 from .utils import JsonResponse
 from .models import Course
 from .serializers import CourseSerializer
-from .forms import AddCourseForm, RegisterStudentForm, RegisterTutorForm
+from .forms import RegisterStudentForm, RegisterTutorForm
 
 
 class CourseView(APIView):
