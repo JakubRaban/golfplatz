@@ -1,12 +1,13 @@
+
 from django.contrib.auth.models import Group
-from rest_framework.views import APIView
+from knox.models import AuthToken
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsStudent, IsTutor
-from knox.models import AuthToken
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .utils import JsonResponse
 from .models import Course
+from .permissions import IsTutor
 from .serializers import CourseSerializer, ParticipantSerializer, LoginSerializer
 
 
@@ -15,15 +16,15 @@ class CourseView(APIView):
 
     def get(self, request, format=None):
         serializer = CourseSerializer(Course.objects.all(), many=True)
-        return JsonResponse(serializer.data)
+        return Response(serializer.data)
 
     def post(self, request, format=None):
         course = CourseSerializer(data=request.data)
         if course.is_valid():
             course.save()
-            return JsonResponse(course.data)
+            return Response(course.data)
         else:
-            return JsonResponse(course.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(course.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RegisterStudentView(APIView):
@@ -43,12 +44,12 @@ def save_participant(request, group_name):
         group, _ = Group.objects.get_or_create(name=group_name)
         group.user_set.add(participant)
         _, user_token = AuthToken.objects.create(participant)
-        return JsonResponse({
+        return Response({
             "user": participant_serializer.data,
             "token": user_token
         })
     else:
-        return JsonResponse(participant_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(participant_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(APIView):
@@ -57,7 +58,7 @@ class LoginView(APIView):
         login_serializer.is_valid(raise_exception=True)
         user = login_serializer.validated_data
         _, user_token = AuthToken.objects.create(user)
-        return JsonResponse({
+        return Response({
             "user": ParticipantSerializer(user).data,
             "token": user_token
         })

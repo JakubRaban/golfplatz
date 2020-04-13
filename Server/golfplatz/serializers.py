@@ -16,11 +16,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        return Participant.objects.create_user(email=validated_data['email'], password=validated_data['password'],
-                                               first_name=validated_data['first_name'],
-                                               last_name=validated_data['last_name'],
-                                               phone_number=validated_data['phone_number'],
-                                               student_number=validated_data['student_number'])
+        return Participant.objects.create_user(**validated_data)
 
     def update(self, *args, **kwargs):
         user = super().update(*args, **kwargs)
