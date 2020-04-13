@@ -10,12 +10,3 @@ class JsonResponse:
 
     def get_response(self):
         return Response(self.data, status=self.response_code)
-
-
-class ModelFormCustomValid(ModelForm):
-    @property
-    def errors(self):
-        errors = {}
-        errors.update(super().errors)
-        errors.update(self._errors)
-        return errors

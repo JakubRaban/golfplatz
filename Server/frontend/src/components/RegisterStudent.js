@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
-import { registerStudent } from '../actions/auth';
-import { createMessage } from '../actions/messages';
+import {registerStudent} from '../actions/auth';
+import {createMessage} from '../actions/messages';
 
 
 export class RegisterStudent extends Component {
   state = {
-    name: '',
-    surname: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     password2: '',
-    indexNumber: '',
+    studentNumber: '',
     phoneNumber: '',
   };
 
@@ -22,26 +22,27 @@ export class RegisterStudent extends Component {
 
   onSubmit = (e) => {
     e.preventDefault();
-    const { name, surname, email, password, password2, indexNumber, phoneNumber } = this.state;
+    const {firstName, lastName, email, password, password2, studentNumber, phoneNumber} = this.state;
     if (password !== password2) {
-      this.props.createMessage({ passwordNotMatch: 'Podane hasła są różne' });
+      this.props.createMessage({passwordNotMatch: 'Podane hasła są różne'});
     } else {
       const newStudent = {
-        name,
-        surname,
+        firstName,
+        lastName,
         email,
         password,
-        indexNumber,
-        phoneNumber,
+        password2,
+        studentNumber,
+        phoneNumber
       };
       this.props.registerStudent(newStudent);
     }
   };
 
-  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
+  onChange = (e) => this.setState({[e.target.name]: e.target.value});
 
   render() {
-    const { name, surname, email, password, password2, indexNumber, phoneNumber } = this.state;
+    const {firstName, lastName, email, password, password2, studentNumber, phoneNumber} = this.state;
     return (
       <div>
         <h2>Rejestracja studenta</h2>
@@ -49,19 +50,19 @@ export class RegisterStudent extends Component {
           <div>
             <label>Imię</label>
             <input
-              type="name"
-              name="name"
+              type="text"
+              name="firstName"
               onChange={this.onChange}
-              value={name}
+              value={firstName}
             />
           </div>
           <div>
             <label>Nazwisko</label>
             <input
-              type="surname"
-              name="surname"
+              type="text"
+              name="lastName"
               onChange={this.onChange}
-              value={surname}
+              value={lastName}
             />
           </div>
           <div>
@@ -94,16 +95,16 @@ export class RegisterStudent extends Component {
           <div>
             <label>Numer indeksu</label>
             <input
-              type="indexNumber"
-              name="indexNumber"
+              type="text"
+              name="studentNumber"
               onChange={this.onChange}
-              value={indexNumber}
+              value={studentNumber}
             />
           </div>
           <div>
             <label>Numer telefonu</label>
             <input
-              type="phoneNumber"
+              type="text"
               name="phoneNumber"
               onChange={this.onChange}
               value={phoneNumber}
@@ -123,4 +124,4 @@ export class RegisterStudent extends Component {
   }
 }
 
-export default connect(null, { registerStudent, createMessage })(RegisterStudent);
+export default connect(null, {registerStudent, createMessage})(RegisterStudent);

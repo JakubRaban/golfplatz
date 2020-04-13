@@ -4,14 +4,14 @@ import axios from 'axios';
 
 
 
-export const registerTutor = ({ name, surname, email, password }) => (dispatch) => {
-    const body = JSON.stringify({ name, surname, email, password });
+export const registerTutor = ({ firstName, lastName, email, password }) => (dispatch) => {
+    const body = JSON.stringify({ firstName, lastName, email, password });
 
     postRegisterRequest('tutor/', body, dispatch);
 };
 
-export const registerStudent = ({ name, surname, email, password, indexNumber, phoneNumber }) => (dispatch) => {
-    const body = JSON.stringify({ name, surname, email, password, indexNumber, phoneNumber });
+export const registerStudent = ({ firstName, lastName, email, password, studentNumber, phoneNumber }) => (dispatch) => {
+    const body = JSON.stringify({ firstName, lastName, email, password, studentNumber, phoneNumber });
 
     postRegisterRequest('student/', body, dispatch);
 };

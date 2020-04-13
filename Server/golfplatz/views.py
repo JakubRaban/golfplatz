@@ -23,26 +23,21 @@ class CourseView(APIView):
 
 class RegisterStudent(APIView):
     def post(self, request, format=None):
-        student_serializer = ParticipantSerializer(data=request.data)
-        if student_serializer.is_valid():
-            student = student_serializer.save()
-            group, _ = Group.objects.get_or_create(name='student')[0]
-            group.user_set.add(student)
-            student.save()
-            return JsonResponse(student_serializer.data).get_response()
-        else:
-            print(student_serializer.errors)
-            return JsonResponse(student_serializer.errors, response_code=status.HTTP_400_BAD_REQUEST).get_response()
+        return save_participant(request, group_name='student')
 
 
 class RegisterTutor(APIView):
     def post(self, request, format=None):
-        tutor_serializer = ParticipantSerializer(data=request.data)
-        if tutor_serializer.is_valid():
-            tutor = tutor_serializer.save()
-            group, _ = Group.objects.get_or_create(name='tutor')[0]
-            group.user_set.add(tutor)
-            tutor.save()
-            return JsonResponse(tutor_serializer.data).get_response()
-        else:
-            return JsonResponse(tutor_serializer.errors, response_code=status.HTTP_400_BAD_REQUEST).get_response()
+        return save_participant(request, group_name='tutor')
+
+
+def save_participant(request, group_name):
+    participant_serializer = ParticipantSerializer(data=request.data)
+    if participant_serializer.is_valid():
+        participant = participant_serializer.save()
+        group, _ = Group.objects.get_or_create(name=group_name)
+        group.user_set.add(participant)
+        participant.save()
+        return JsonResponse(participant_serializer.data).get_response()
+    else:
+        return JsonResponse(participant_serializer.errors, response_code=status.HTTP_400_BAD_REQUEST).get_response()
