@@ -15,8 +15,8 @@ class Participant(AbstractUser):
     phone_validator = RegexValidator(regex=r'^\d{9}$', message="Phone number must be exactly 9 digits long")
 
     username = None
-    first_name = models.CharField('first name', max_length=30)
-    last_name = models.CharField('last name', max_length=150)
+    first_name = models.CharField('first name', max_length=30, blank=False)
+    last_name = models.CharField('last name', max_length=150, blank=False)
     email = models.EmailField('email address', unique=True)
     student_number = models.CharField(max_length=10, unique=True, null=True, blank=False)
     phone_number = models.CharField(validators=[phone_validator], max_length=9, unique=True, null=True, blank=False)
