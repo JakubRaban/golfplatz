@@ -4,10 +4,14 @@ import React, { Component } from 'react';
 export class Dashboard extends Component {
 
 	static propTypes = {
+    isAuthenticated: PropTypes.bool,
     logout: PropTypes.func.isRequired,
   };
 
 	render() {
+    if (!this.props.isAuthenticated) {
+      return <Redirect to="/login" />;
+    }
 		return (
       <div>
         <h3>Panel prowadzącego</h3>
@@ -21,4 +25,8 @@ export class Dashboard extends Component {
 	}
 }
   
-export default Dashboard;
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+});
+
+export default connect(mapStateToProps, {logout})(Dashboard);

@@ -15,6 +15,7 @@ export class RegisterTutor extends Component {
 
   static propTypes = {
     registerTutor: PropTypes.func.isRequired,
+    isAuthenticated: PropTypes.bool,
   };
 
   onSubmit = (e) => {
@@ -37,6 +38,9 @@ export class RegisterTutor extends Component {
 
   render() {
     const { name, surname, email, password, password2 } = this.state;
+    if (this.props.isAuthenticated) {
+      return <Redirect to="/courses" />;
+    }
     return (
       <div>
         <h2>Rejestracja prowadzącego</h2>
@@ -100,4 +104,8 @@ export class RegisterTutor extends Component {
   }
 }
 
-export default connect(null, { registerTutor, createMessage })(RegisterTutor);
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+});
+
+export default connect(mapStateToProps, { registerTutor, createMessage })(RegisterTutor);

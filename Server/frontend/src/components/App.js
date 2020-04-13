@@ -6,7 +6,8 @@ import store from '../store';
 import AddCourse from './AddCourse.js';
 import RegisterStudent from './RegisterStudent.js';
 import RegisterTutor from './RegisterTutor.js';
-
+import TutorDashboard from './TutorDashboard.js';
+import Login from './Login.js';
 import {Provider as AlertProvider} from "react-alert"
 import AlertTemplate from "react-alert-template-basic";
 import Alerts from "./layout/Alerts";
@@ -27,6 +28,8 @@ class App extends React.Component {
           <Router>
             <Switch>
               {/* <Route exact path="/" component={}/> */}
+              <Route exact path="/tutor-dashboard" component={TutorDashboard}/>
+              <Route exact path="/login" component={Login}/>
               <Route exact path="/add-courses" component={AddCourse}/>
               <Route exact path="/courses" component={GetCourses}/>
               <Route exact path="/register-student" component={RegisterStudent}/>
