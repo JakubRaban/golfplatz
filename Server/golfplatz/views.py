@@ -1,6 +1,8 @@
 from django.contrib.auth.models import Group
 from rest_framework.views import APIView
-from rest_framework import status, permissions, generics
+from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsStudent, IsTutor
 from knox.models import AuthToken
 
 from .utils import JsonResponse
@@ -9,7 +11,7 @@ from .serializers import CourseSerializer, ParticipantSerializer, LoginSerialize
 
 
 class CourseView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsTutor]
 
     def get(self, request, format=None):
         serializer = CourseSerializer(Course.objects.all(), many=True)
@@ -62,7 +64,7 @@ class LoginView(APIView):
 
 
 class WhoAmIView(generics.RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = ParticipantSerializer
 
     def get_object(self):
