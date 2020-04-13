@@ -1,21 +1,9 @@
-from django.forms import ModelForm
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status as response_code
 
 
-class JsonResponse:
-    def __init__(self, data: dict, response_code: status = status.HTTP_200_OK):
-        self.data = data
-        self.response_code = response_code
-
-    def get_response(self):
-        return Response(self.data, status=self.response_code)
-
-
-class ModelFormCustomValid(ModelForm):
-    @property
-    def errors(self):
-        errors = {}
-        errors.update(super().errors)
-        errors.update(self._errors)
-        return errors
+class JsonResponse(Response):
+    def __init__(self, data: dict, status: response_code = response_code.HTTP_200_OK):
+        if not isinstance(data, dict):
+            raise ValueError("Response body must be a dict")
+        super().__init__(data, status)

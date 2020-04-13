@@ -1,23 +1,17 @@
 import axios from 'axios';
 
-import { ADD_COURSE, GET_ERRORS } from './types.js';
-import {GET_COURSES} from "./types";
+import { ADD_COURSE, GET_ERRORS, GET_COURSES, CREATE_MESSAGE } from './types.js';
+import {createMessage, returnErrors} from "./messages";
 
 export const addCourse = course => dispatch => {
   axios.post("/api/courses/", course).then(res => {
+    dispatch(createMessage({courseAdded: "Course successfully created"}));
     dispatch({
       type: ADD_COURSE,
       payload: res.data
     });
   }).catch(err => {
-    const errors = {
-      msg: err.response.data,
-      status: err.response.status
-    };
-    dispatch({
-      type: GET_ERRORS,
-      payload: errors
-    });
+    dispatch(returnErrors(err.response.data, err.response.status));
   });
 };
 
