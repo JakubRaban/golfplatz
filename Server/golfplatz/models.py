@@ -6,7 +6,7 @@ from .managers import ParticipantManager
 
 
 class Course(models.Model):
-    course_name = models.CharField(max_length=100)
+    course_name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
 
