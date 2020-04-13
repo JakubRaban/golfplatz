@@ -26,14 +26,14 @@ class App extends React.Component {
           <Alerts/>
           <Router>
             <Switch>
-              <Route exact path="/" component={AddCourse}/>
+              {/* <Route exact path="/" component={}/> */}
+              <Route exact path="/add-courses" component={AddCourse}/>
+              <Route exact path="/courses" component={GetCourses}/>
               <Route exact path="/register-student" component={RegisterStudent}/>
               <Route exact path="/register-tutor" component={RegisterTutor}/>
             </Switch>
           </Router>
           <p>Long have I waited</p>
-          <GetCourses/>
-          <AddCourse/>
         </AlertProvider>
       </Provider>
     );
