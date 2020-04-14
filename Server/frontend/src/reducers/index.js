@@ -4,5 +4,5 @@ import errors from "./errors"
 import messages from "./messages";
 
 export default combineReducers({
-  course, errors, messages
+  course, errors, messages, auth
 });

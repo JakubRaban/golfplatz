@@ -1,7 +1,22 @@
-import {REGISTER_SUCCESS, REGISTER_FAIL, LOGIN_SUCCESS, LOGIN_FAIL} from './types';
+import {REGISTER_SUCCESS, REGISTER_FAIL, LOGIN_SUCCESS, LOGIN_FAIL, LOGOUT_SUCCESS} from './types';
 import {createMessage, returnErrors} from './messages';
 import axios from 'axios';
 
+
+export const logout = () => (dispatch) => {
+  const config = getHeader();
+
+  axios
+    .post('/api/logout/', null, config)
+    .then((res) => {
+      dispatch({
+        type: LOGOUT_SUCCESS,
+      });
+    })
+    .catch((err) => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
+};
 
 export const login = (email, password) => (dispatch) => {
   const config = getHeader();

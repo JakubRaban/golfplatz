@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { logout } from '../actions/auth';
 
 
 export class Dashboard extends Component {
-
 	static propTypes = {
-    isAuthenticated: PropTypes.bool,
     logout: PropTypes.func.isRequired,
   };
 
 	render() {
-    if (!this.props.isAuthenticated) {
-      return <Redirect to="/login" />;
-    }
 		return (
       <div>
         <h3>Panel prowadzącego</h3>
@@ -24,9 +22,5 @@ export class Dashboard extends Component {
 		);
 	}
 }
-  
-const mapStateToProps = (state) => ({
-  isAuthenticated: state.auth.isAuthenticated,
-});
 
-export default connect(mapStateToProps, {logout})(Dashboard);
+export default connect(null, { logout })(Dashboard);

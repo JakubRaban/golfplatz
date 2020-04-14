@@ -12,6 +12,8 @@ import {Provider as AlertProvider} from "react-alert"
 import AlertTemplate from "react-alert-template-basic";
 import Alerts from "./layout/Alerts";
 import GetCourses from "./GetCourses";
+import PrivateRoute from './PrivateRoute';
+
 
 const alertOptions = {
   timeout: 3000,
@@ -19,6 +21,10 @@ const alertOptions = {
 };
 
 class App extends React.Component {
+  componentDidMount() {
+
+  }
+
 
   render() {
     return (
@@ -28,7 +34,7 @@ class App extends React.Component {
           <Router>
             <Switch>
               {/* <Route exact path="/" component={}/> */}
-              <Route exact path="/tutor-dashboard" component={TutorDashboard}/>
+              <PrivateRoute exact path="/tutor-dashboard" component={TutorDashboard}/>
               <Route exact path="/login" component={Login}/>
               <Route exact path="/add-courses" component={AddCourse}/>
               <Route exact path="/courses" component={GetCourses}/>
