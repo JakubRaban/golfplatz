@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {registerStudent} from '../actions/auth';
 import {createMessage} from '../actions/messages';
+import { Redirect } from 'react-router-dom';
 
 
 export class RegisterStudent extends Component {
