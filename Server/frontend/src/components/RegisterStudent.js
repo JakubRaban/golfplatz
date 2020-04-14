@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {registerStudent} from '../actions/auth';
 import {createMessage} from '../actions/messages';
+import { Redirect } from 'react-router-dom';
 
 
 export class RegisterStudent extends Component {
@@ -18,6 +19,7 @@ export class RegisterStudent extends Component {
 
   static propTypes = {
     registerStudent: PropTypes.func.isRequired,
+    isAuthenticated: PropTypes.bool,
   };
 
   onSubmit = (e) => {
@@ -43,6 +45,9 @@ export class RegisterStudent extends Component {
 
   render() {
     const {firstName, lastName, email, password, password2, studentNumber, phoneNumber} = this.state;
+    if (this.props.isAuthenticated) {
+      return <Redirect to="/courses" />;
+    }
     return (
       <div>
         <h2>Rejestracja studenta</h2>
@@ -124,4 +129,8 @@ export class RegisterStudent extends Component {
   }
 }
 
-export default connect(null, {registerStudent, createMessage})(RegisterStudent);
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+});
+
+export default connect(mapStateToProps, {registerStudent, createMessage})(RegisterStudent);
