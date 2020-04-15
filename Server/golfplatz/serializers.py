@@ -18,13 +18,6 @@ class ParticipantSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return Participant.objects.create_user(**validated_data)
 
-    def update(self, *args, **kwargs):
-        user = super().update(*args, **kwargs)
-        p = user.password
-        user.set_password(p)
-        user.save()
-        return user
-
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
