@@ -39,17 +39,13 @@ class RegisterTutorView(APIView):
 
 def save_participant(request, group_name):
     participant_serializer = ParticipantSerializer(data=request.data)
-    if participant_serializer.is_valid():
-        participant = participant_serializer.save()
-        group, _ = Group.objects.get_or_create(name=group_name)
-        group.user_set.add(participant)
-        _, user_token = AuthToken.objects.create(participant)
-        return Response({
-            "user": participant_serializer.data,
-            "token": user_token
-        })
-    else:
-        return Response(participant_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    participant_serializer.is_valid(raise_exception=True)
+    participant = participant_serializer.validated_data
+    user_token = participant.register(group_name=group_name)
+    return Response({
+        "user": participant_serializer.data,
+        "token": user_token
+    })
 
 
 class LoginView(APIView):

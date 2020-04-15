@@ -1,8 +1,9 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
 from django.conf import settings
 from django.db.models import Max
+from knox.models import AuthToken
 
 from .managers import ParticipantManager
 
@@ -21,6 +22,12 @@ class Participant(AbstractUser):
     REQUIRED_FIELDS = []
 
     objects = ParticipantManager()
+
+    def register(self, group_name):
+        group, _ = Group.objects.get_or_create(name=group_name)
+        group.user_set.add(self)
+        _, user_token = AuthToken.objects.create(self)
+        return user_token
 
     def __str__(self):
         return self.get_full_name() + ' (' + self.email + ')'

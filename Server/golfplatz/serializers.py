@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
 from .models import Course, Participant
@@ -27,4 +28,4 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(**attrs)
         if user and user.is_active:
             return user
-        raise serializers.ValidationError("Incorrect credentials")
+        raise PermissionDenied()
