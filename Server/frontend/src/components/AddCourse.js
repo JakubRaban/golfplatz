@@ -5,7 +5,7 @@ import { addCourse } from '../actions/course';
 
 export class AddCourse extends Component {
   state = {
-    courseName: '',
+    name: '',
     description: '',
   };
 
@@ -17,17 +17,17 @@ export class AddCourse extends Component {
 
   onSubmit = (e) => {
     e.preventDefault();
-    const { courseName, description } = this.state;
-    const course = { courseName, description };
+    const { name, description } = this.state;
+    const course = { name, description };
     this.props.addCourse(course);
     this.setState({
-      courseName: '',
+      name: '',
       description: '',
     });
   };
 
   render() {
-    const { courseName, description } = this.state;
+    const { name, description } = this.state;
     return (
       <div>
         <h2>Dodaj kurs</h2>
@@ -36,9 +36,9 @@ export class AddCourse extends Component {
             <label>Podaj nazwę kursu</label>
             <input
               type="text"
-              name="courseName"
+              name="name"
               onChange={this.onChange}
-              value={courseName}
+              value={name}
             />
           </div>
           <div>

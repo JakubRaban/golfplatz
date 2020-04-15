@@ -30,7 +30,7 @@ export class GetCourses extends Component {
           { this.props.course.map(course => (
             <tr key={course.id}>
               <td>{course.id}</td>
-              <td>{course.courseName}</td>
+              <td>{course.name}</td>
               <td>{course.description}</td>
               <td>{course.createdOn}</td>
             </tr>
