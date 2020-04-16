@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { addCourse } from '../actions/course';
+import { NavLink, Redirect } from 'react-router-dom';
+
 
 export class AddCourse extends Component {
   state = {
     courseName: '',
     description: '',
+    redirect: false,
   };
 
   static propTypes = {
@@ -23,11 +26,17 @@ export class AddCourse extends Component {
     this.setState({
       courseName: '',
       description: '',
+      redirect: true,
     });
   };
 
   render() {
     const { courseName, description } = this.state;
+    if (this.state.redirect) {
+      return (
+        <Redirect to="/courses"/>
+      )
+    }
     return (
       <div>
         <h2>Dodaj kurs</h2>
@@ -56,6 +65,7 @@ export class AddCourse extends Component {
             </button>
           </div>
         </form>
+        <NavLink to="/tutor-dashboard">Powrót</NavLink>
       </div>
     );
   }

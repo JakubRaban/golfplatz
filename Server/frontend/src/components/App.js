@@ -1,5 +1,4 @@
 import React from 'react';
-
 import {Provider} from 'react-redux';
 import {Switch, Route, HashRouter as Router} from 'react-router-dom';
 import store from '../store';
@@ -12,6 +11,7 @@ import {Provider as AlertProvider} from "react-alert"
 import AlertTemplate from "react-alert-template-basic";
 import Alerts from "./layout/Alerts";
 import GetCourses from "./GetCourses";
+import Marks from "./Marks";
 import PrivateRoute from './PrivateRoute';
 
 
@@ -41,6 +41,7 @@ class App extends React.Component {
               <Route exact path="/courses" component={GetCourses}/>
               <Route exact path="/register-student" component={RegisterStudent}/>
               <Route exact path="/register-tutor" component={RegisterTutor}/>
+              <Route exact path="/marks" component={Marks}/>
             </Switch>
           </Router>
         </AlertProvider>
