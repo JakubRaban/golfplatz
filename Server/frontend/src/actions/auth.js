@@ -3,11 +3,9 @@ import {createMessage, returnErrors} from './messages';
 import axios from 'axios';
 
 
-export const logout = () => (dispatch) => {
-  const config = getHeader();
-
+export const logout = () => (dispatch, getState) => {
   axios
-    .post('/api/logout/', null, config)
+    .post('/api/logout/', null, tokenConfig(getState))
     .then((res) => {
       dispatch({
         type: LOGOUT_SUCCESS,
@@ -19,7 +17,7 @@ export const logout = () => (dispatch) => {
 };
 
 export const login = (email, password) => (dispatch) => {
-  const config = getHeader();
+  const config = getBasicHeader();
   const body = JSON.stringify({ email, password });
 
   axios
@@ -51,7 +49,7 @@ export const registerStudent = ({firstName, lastName, email, password, studentNu
 };
 
 function postRegisterRequest(user, body, dispatch) {
-  const config = getHeader();
+  const config = getBasicHeader();
   const apiAddress = '/api/register/' + user + '/';
   axios
     .post(apiAddress, body, config)
@@ -70,10 +68,22 @@ function postRegisterRequest(user, body, dispatch) {
     });
 }
 
-function getHeader() {
+function getBasicHeader() {
   return {
     headers: {
       'Content-Type': 'application/json',
     },
   };
 }
+
+export const tokenConfig = (getState) => {
+  const token = getState().auth.token;
+
+  const config = getBasicHeader();
+
+  if (token) {
+    config.headers['Authorization'] = `Token ${token}`;
+  }
+
+  return config;
+};
