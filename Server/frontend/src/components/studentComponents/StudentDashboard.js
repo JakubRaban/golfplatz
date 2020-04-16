@@ -7,10 +7,10 @@ import store from '../../store'
 
 
 export class StudentDashboard extends Component {
-  static propTypes = {
-    // logout: PropTypes.func.isRequired,
-    user: PropTypes.any,
-  };
+  // static propTypes = {
+  //   // logout: PropTypes.func.isRequired,
+  //   // user: PropTypes.any,
+  // };
 
   render() {;
     //rozwiazanie store.getState().... jest tymczasowe (bug z this.props..)
