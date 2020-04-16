@@ -1,6 +1,26 @@
-import {REGISTER_SUCCESS, REGISTER_FAIL, LOGIN_SUCCESS, LOGIN_FAIL, LOGOUT_SUCCESS} from './types';
+import {AUTH_ERROR, REGISTER_SUCCESS, USER_LOADING, REGISTER_FAIL, LOGIN_SUCCESS, LOGIN_FAIL, LOGOUT_SUCCESS} from './types';
 import {createMessage, returnErrors} from './messages';
 import axios from 'axios';
+
+
+export const loadUser = () => (dispatch, getState) => {
+  dispatch({ type: USER_LOADING });
+
+  axios
+    .get('/api/whoami/', tokenConfig(getState))
+    .then((res) => {
+      dispatch({
+        type: USER_LOADED,
+        payload: res.data,
+      });
+    })
+    .catch((err) => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+      dispatch({
+        type: AUTH_ERROR,
+      });
+    });
+};
 
 
 export const logout = () => (dispatch, getState) => {

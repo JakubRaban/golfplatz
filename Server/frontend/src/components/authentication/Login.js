@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { login } from '../actions/auth';
+import { login } from '../../actions/auth';
 
 
 export class Login extends Component {
@@ -25,7 +25,7 @@ export class Login extends Component {
 
   render() {
     if (this.props.isAuthenticated) {
-      return <Redirect to="/courses" />;
+      return <Redirect to="/" />;
     }
     const { email, password } = this.state;
     return (

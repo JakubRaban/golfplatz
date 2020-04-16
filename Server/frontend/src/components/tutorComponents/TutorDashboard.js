@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { logout } from '../actions/auth';
+import { logout } from '../../actions/auth';
 import { Link } from 'react-router-dom';
 
 
-export class Dashboard extends Component {
+export class TutorDashboard extends Component {
 	static propTypes = {
     logout: PropTypes.func.isRequired,
   };
@@ -24,4 +24,4 @@ export class Dashboard extends Component {
 	}
 }
 
-export default connect(null, { logout })(Dashboard);
+export default connect(null, { logout })(TutorDashboard);
