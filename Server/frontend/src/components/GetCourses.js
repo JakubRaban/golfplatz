@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import { getCourses } from "../actions/course";
 import {connect} from "react-redux";
 import PropTypes from "prop-types"
+import { NavLink } from 'react-router-dom';
+
 
 export class GetCourses extends Component {
 
@@ -37,6 +39,7 @@ export class GetCourses extends Component {
           ))}
           </tbody>
         </table>
+        <NavLink to="/">Powrót</NavLink>
       </div>
     );
   }

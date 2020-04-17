@@ -6,7 +6,7 @@ import {createMessage, returnErrors} from "./messages";
 
 export const addCourse = course => (dispatch, getState) => {
   axios.post("/api/courses/", course, tokenConfig(getState)).then(res => {
-    dispatch(createMessage({courseAdded: "Course successfully created"}));
+    dispatch(createMessage({courseAdded: "Kurs dodany pomyślnie"}));
     dispatch({
       type: ADD_COURSE,
       payload: res.data

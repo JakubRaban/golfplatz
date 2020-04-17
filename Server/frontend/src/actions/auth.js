@@ -36,6 +36,7 @@ export const logout = () => (dispatch, getState) => {
   axios
     .post('/api/logout/', null, tokenConfig(getState))
     .then((res) => {
+      dispatch(createMessage({logout: "Wylogowano pomyślnie"}));
       dispatch({
         type: LOGOUT_SUCCESS,
       });
@@ -83,7 +84,7 @@ function postRegisterRequest(user, body, dispatch) {
   axios
     .post(apiAddress, body, config)
     .then((res) => {
-      dispatch(createMessage({userRegistered: `New ${user} successfully registered`}));
+      dispatch(createMessage({userRegistered: `${user} pomyślnie zarejestrowany`}));
       dispatch({
         type: REGISTER_SUCCESS,
         payload: res.data,
