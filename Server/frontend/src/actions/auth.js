@@ -1,4 +1,13 @@
-import {AUTH_ERROR, REGISTER_SUCCESS, USER_LOADING, REGISTER_FAIL, LOGIN_SUCCESS, LOGIN_FAIL, LOGOUT_SUCCESS} from './types';
+import {
+  AUTH_ERROR,
+  REGISTER_SUCCESS,
+  USER_LOADING,
+  REGISTER_FAIL,
+  LOGIN_SUCCESS,
+  LOGIN_FAIL,
+  LOGOUT_SUCCESS,
+  USER_LOADED
+} from './types';
 import {createMessage, returnErrors} from './messages';
 import axios from 'axios';
 

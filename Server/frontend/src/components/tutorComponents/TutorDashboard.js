@@ -6,12 +6,12 @@ import { Link } from 'react-router-dom';
 
 
 export class TutorDashboard extends Component {
-	static propTypes = {
+  static propTypes = {
     logout: PropTypes.func.isRequired,
   };
 
-	render() {
-		return (
+  render() {
+    return (
       <div>
         <h3>Panel prowadzącego</h3>
         <Link to="/add-courses">Dodaj nowy kurs</Link> 
@@ -20,8 +20,8 @@ export class TutorDashboard extends Component {
         <button onClick={this.props.logout.bind(this)}>Wyloguj się</button>
 
       </div>
-		);
-	}
+    );
+  }
 }
 
 export default connect(null, { logout })(TutorDashboard);
