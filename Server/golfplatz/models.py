@@ -1,3 +1,5 @@
+from typing import List
+
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
@@ -45,8 +47,8 @@ class Course(models.Model):
         new_plot_part.position_in_course = last_part_index + 1
         new_plot_part.save()
 
-    def add_course_group(self, name):
-        CourseGroup.objects.create(group_name=name, course=self)
+    def add_course_groups(self, names: List[str]):
+        return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]
 
     def __str__(self):
         return 'Course ' + self.name
@@ -65,12 +67,16 @@ class TutorCheckedGrade(models.Model):
 
 
 class CourseGroup(models.Model):
-    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='course_groups')
     group_name = models.CharField(max_length=40)
     students = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=['course', 'group_name'], name='group_name_constraint')]
+        unique_together = ['course', 'group_name']
+        # constraints = [models.UniqueConstraint(fields=['course', 'group_name'], name='group_name_constraint')]
+
+    def __str__(self):
+        return self.group_name
 
 
 class PlotPart(models.Model):

@@ -2,12 +2,20 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
-from .models import Course, Participant
+from .models import Course, CourseGroup, Participant
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    course_groups = serializers.StringRelatedField(many=True)
+
     class Meta:
         model = Course
+        fields = '__all__'
+
+
+class CourseGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseGroup
         fields = '__all__'
 
 
