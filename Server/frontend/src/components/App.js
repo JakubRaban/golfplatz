@@ -12,6 +12,10 @@ import AlertTemplate from "react-alert-template-basic";
 import Alerts from "./layout/Alerts";
 import GetCourses from "./GetCourses";
 import Marks from "./tutorComponents/Marks";
+import Ranking from "./studentComponents/Ranking";
+import Achievements from "./studentComponents/Achievements";
+import GameCard from "./studentComponents/GameCard";
+import StudentMarks from "./studentComponents/StudentMarks";
 import PrivateRoute from './PrivateRoute';
 import { loadUser } from '../actions/auth';
 
@@ -43,6 +47,10 @@ class App extends React.Component {
               <Route exact path="/register-student" component={RegisterStudent}/>
               <Route exact path="/register-tutor" component={RegisterTutor}/>
               <Route exact path="/marks" component={Marks}/>
+              <Route exact path="/game-card" component = {GameCard}/>
+              <Route exact path="/ranking" component = {Ranking}/>
+              <Route exact path="/achievements" component = {Achievements}/>
+              <Route exact path="/student-marks" component = {StudentMarks}/>
             </Switch>
           </Router>
         </AlertProvider>
