@@ -72,8 +72,7 @@ class CourseGroup(models.Model):
     students = models.ManyToManyField(settings.AUTH_USER_MODEL)
 
     class Meta:
-        unique_together = ['course', 'group_name']
-        # constraints = [models.UniqueConstraint(fields=['course', 'group_name'], name='group_name_constraint')]
+        constraints = [models.UniqueConstraint(fields=['course', 'group_name'], name='group_name_constraint')]
 
     def __str__(self):
         return self.group_name
