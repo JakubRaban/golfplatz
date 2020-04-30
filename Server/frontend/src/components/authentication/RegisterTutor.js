@@ -1,56 +1,51 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import {registerStudent} from '../actions/auth';
-import {createMessage} from '../actions/messages';
+import { registerTutor } from '../../actions/auth';
+import { createMessage } from '../../actions/messages';
 import { Redirect } from 'react-router-dom';
 
 
-export class RegisterStudent extends Component {
+export class RegisterTutor extends Component {
   state = {
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     password2: '',
-    studentNumber: '',
-    phoneNumber: '',
   };
 
   static propTypes = {
-    registerStudent: PropTypes.func.isRequired,
+    registerTutor: PropTypes.func.isRequired,
     isAuthenticated: PropTypes.bool,
   };
 
   onSubmit = (e) => {
     e.preventDefault();
-    const {firstName, lastName, email, password, password2, studentNumber, phoneNumber} = this.state;
+    const { firstName, lastName, email, password, password2 } = this.state;
     if (password !== password2) {
-      this.props.createMessage({passwordNotMatch: 'Podane hasła są różne'});
+      this.props.createMessage({ passwordNotMatch: 'Podane hasła są różne' });
     } else {
-      const newStudent = {
+      const newTutor = {
         firstName,
         lastName,
         email,
         password,
-        password2,
-        studentNumber,
-        phoneNumber
       };
-      this.props.registerStudent(newStudent);
+      this.props.registerTutor(newTutor);
     }
   };
 
-  onChange = (e) => this.setState({[e.target.name]: e.target.value});
+  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
   render() {
-    const {firstName, lastName, email, password, password2, studentNumber, phoneNumber} = this.state;
+    const { firstName, lastName, email, password, password2 } = this.state;
     if (this.props.isAuthenticated) {
-      return <Redirect to="/courses" />;
+      return <Redirect to="/" />;
     }
     return (
       <div>
-        <h2>Rejestracja studenta</h2>
+        <h2>Rejestracja prowadzącego</h2>
         <form onSubmit={this.onSubmit}>
           <div>
             <label>Imię</label>
@@ -98,24 +93,6 @@ export class RegisterStudent extends Component {
             />
           </div>
           <div>
-            <label>Numer indeksu</label>
-            <input
-              type="text"
-              name="studentNumber"
-              onChange={this.onChange}
-              value={studentNumber}
-            />
-          </div>
-          <div>
-            <label>Numer telefonu</label>
-            <input
-              type="text"
-              name="phoneNumber"
-              onChange={this.onChange}
-              value={phoneNumber}
-            />
-          </div>
-          <div>
             <button type="submit">
               Zarejestruj się
             </button>
@@ -133,4 +110,4 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, {registerStudent, createMessage})(RegisterStudent);
+export default connect(mapStateToProps, { registerTutor, createMessage })(RegisterTutor);

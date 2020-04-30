@@ -1,11 +1,12 @@
 import axios from 'axios';
-
-import { ADD_COURSE, GET_ERRORS, GET_COURSES, CREATE_MESSAGE } from './types.js';
+import { tokenConfig } from './auth.js'; 
+import { ADD_COURSE, GET_COURSES } from './types.js';
 import {createMessage, returnErrors} from "./messages";
 
-export const addCourse = course => dispatch => {
-  axios.post("/api/courses/", course).then(res => {
-    dispatch(createMessage({courseAdded: "Course successfully created"}));
+
+export const addCourse = course => (dispatch, getState) => {
+  axios.post("/api/courses/", course, tokenConfig(getState)).then(res => {
+    dispatch(createMessage({courseAdded: "Kurs dodany pomyślnie"}));
     dispatch({
       type: ADD_COURSE,
       payload: res.data
@@ -15,8 +16,8 @@ export const addCourse = course => dispatch => {
   });
 };
 
-export const getCourses = () => dispatch => {
-  axios.get("/api/courses/").then(res => {
+export const getCourses = () => (dispatch, getState) => {
+  axios.get("/api/courses/", tokenConfig(getState)).then(res => {
     dispatch({
       type: GET_COURSES,
       payload: res.data

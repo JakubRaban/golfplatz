@@ -2,7 +2,12 @@ import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { login } from '../actions/auth';
+import { login } from '../../actions/auth';
+import TextField, { Input } from '@material/react-text-field';
+import '@material/react-text-field/dist/text-field.css';
+import '../../../style/login.css'
+import '@material/react-button/dist/button.css';
+import Button from '@material/react-button';
 
 
 export class Login extends Component {
@@ -25,38 +30,36 @@ export class Login extends Component {
 
   render() {
     if (this.props.isAuthenticated) {
-      return <Redirect to="/courses" />;
+      return <Redirect to="/" />;
     }
     const { email, password } = this.state;
     return (
-      <div>
+      <div className="login-container">
         <div>
           <h2>Login</h2>
           <form onSubmit={this.onSubmit}>
-            <div>
-              <label>Adres e-mail:</label>
-              <input
+            <TextField className="mail" label="Adres e-mail:">
+              <Input
                 type="text"
                 name="email"
                 onChange={this.onChange}
                 value={email}
               />
-            </div>
+            </TextField>
 
-            <div>
-              <label>Hasło:</label>
-              <input
+            <TextField className="password" label="Hasło:">
+              <Input
                 type="password"
                 name="password"
                 onChange={this.onChange}
                 value={password}
               />
-            </div>
+            </TextField>
 
-            <div>
-              <button type="submit">
-                Login
-              </button>
+            <div className="button-container">
+              <Button className="login-button" type="submit">
+                Zaloguj się
+              </Button>
             </div>
             <p> Nie masz konta? </p>
             <p> Rejestracja prowadzącego:    

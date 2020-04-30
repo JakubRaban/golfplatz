@@ -1,16 +1,21 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { addCourse } from '../actions/course';
+import { addCourse } from '../../actions/course';
+import { NavLink, Redirect } from 'react-router-dom';
+
 
 export class AddCourse extends Component {
   state = {
     name: '',
     description: '',
+    redirect: false,
   };
 
   static propTypes = {
     addCourse: PropTypes.func.isRequired,
+    user: PropTypes.any,
+    isAuthenticated: PropTypes.bool,
   };
 
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
@@ -23,11 +28,27 @@ export class AddCourse extends Component {
     this.setState({
       name: '',
       description: '',
+      redirect: true,
     });
   };
 
   render() {
     const { name, description } = this.state;
+    if (this.state.redirect) {
+      return (
+        <Redirect to="/courses"/>
+      )
+    }
+    if (!this.props.isAuthenticated) {
+      return (
+        <Redirect to="/login"/>
+      )
+    }
+    if (this.props.user.groups[0] === 1) {
+      return (
+        <Redirect to="/"/>
+      )
+    }
     return (
       <div>
         <h2>Dodaj kurs</h2>
@@ -56,9 +77,16 @@ export class AddCourse extends Component {
             </button>
           </div>
         </form>
+        <NavLink to="/">Powrót</NavLink>
       </div>
     );
   }
 }
-export default connect(null, { addCourse })(AddCourse);
+
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+  user: state.auth.user,
+});
+
+export default connect(mapStateToProps, { addCourse })(AddCourse);
 
