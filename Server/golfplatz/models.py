@@ -26,7 +26,7 @@ class Participant(AbstractUser):
     objects = ParticipantManager()
 
     def register(self, group_name):
-        group, _ = Group.objects.get_or_create(name=group_name)
+        group, _ = Group.objects.get(name=group_name)
         group.user_set.add(self)
         _, user_token = AuthToken.objects.create(self)
         return user_token
@@ -40,12 +40,13 @@ class Course(models.Model):
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
 
-    def add_plot_part(self, name, introduction):
-        new_plot_part = PlotPart(name=name, introduction=introduction, course=self)
+    def add_plot_part(self, **kwargs):
+        new_plot_part = PlotPart(name=kwargs['name'], introduction=kwargs['introduction'], course=self)
         current_parts = PlotPart.objects.filter(course=self)
         last_part_index = current_parts.aggregate(index=Max('position_in_course'))['index'] or 0
         new_plot_part.position_in_course = last_part_index + 1
         new_plot_part.save()
+        return new_plot_part
 
     def add_course_groups(self, names: List[str]):
         return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]
@@ -81,7 +82,7 @@ class CourseGroup(models.Model):
 class PlotPart(models.Model):
     name = models.CharField(max_length=50)
     introduction = models.TextField()
-    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='plot_parts')
     position_in_course = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -91,12 +92,13 @@ class PlotPart(models.Model):
             models.UniqueConstraint(fields=['name', 'course'], name='plot_part_name_constraint')
         ]
 
-    def add_chapter(self, name, description):
-        new_chapter = Chapter(name=name, description=description, plot_part=self)
+    def add_chapter(self, **kwargs):
+        new_chapter = Chapter(name=kwargs['name'], description=kwargs['description'], plot_part=self)
         current_chapters = Chapter.objects.filter(plot_part=self)
         last_part_index = current_chapters.aggregate(index=Max('position_in_plot_part'))['index'] or 0
         new_chapter.position_in_course = last_part_index + 1
         new_chapter.save()
+        return new_chapter
 
     def __str__(self):
         return 'Plot part ' + self.name + ' in ' + self.course.name

@@ -7,23 +7,24 @@ from rest_framework.views import APIView
 
 from .models import Course
 from .permissions import IsTutor
-from .serializers import CourseSerializer, ParticipantSerializer, LoginSerializer, CourseGroupSerializer
+from .serializers import *
 
 
 class CourseView(APIView):
     permission_classes = [IsTutor]
 
-    def get(self, request, format=None):
-        serializer = CourseSerializer(Course.objects.all(), many=True)
+    def get(self, request, course_id=None, format=None):
+        if not course_id:
+            serializer = CourseSerializer(Course.objects.all(), many=True)
+        else:
+            serializer = CourseSerializer(Course.objects.get(pk=course_id))
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        course = CourseSerializer(data=request.data)
-        if course.is_valid():
-            course.save()
-            return Response(course.data)
-        else:
-            return Response(course.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CreateCourseSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        course = Course.objects.create(**serializer.validated_data)
+        return Response(CourseSerializer(course).data)
 
 
 class RegisterStudentView(APIView):
@@ -39,7 +40,7 @@ class RegisterTutorView(APIView):
 def save_participant(request, group_name):
     participant_serializer = ParticipantSerializer(data=request.data)
     participant_serializer.is_valid(raise_exception=True)
-    participant = participant_serializer.validated_data
+    participant = participant_serializer.save()
     user_token = participant.register(group_name=group_name)
     return Response({
         "user": participant_serializer.data,
@@ -69,7 +70,37 @@ class CourseGroupView(APIView):
 
 
 class PlotPartView(APIView):
-    pass
+    permission_classes = [IsTutor]
+
+    def get(self, request, course_id):
+        serializer = PlotPartSerializer(PlotPart.objects.get(pk=course_id))
+        return Response(serializer.data)
+
+    def post(self, request, course_id):
+        serializer = CreatePlotPartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        course = Course.objects.get(pk=course_id)
+        plot_part = course.add_plot_part(**serializer.validated_data)
+        return Response(PlotPartSerializer(plot_part).data)
+
+
+class SpecificPlotPartView(APIView):
+    permission_classes = [IsTutor]
+
+    def get(self, request, plot_part_id):
+        serializer = PlotPartSerializer(PlotPart.objects.get(pk=plot_part_id), many=True)
+        return Response(serializer.data)
+
+
+class ChapterView(APIView):
+    permission_classes = [IsTutor]
+
+    def post(self, request, plot_part_id):
+        serializer = CreateChapterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        plot_part = PlotPart.objects.get(pk=plot_part_id)
+        chapter = plot_part.add_chapter(**serializer.validated_data)
+        return Response(ChapterSerializer(chapter).data)
 
 
 class WhoAmIView(generics.RetrieveAPIView):

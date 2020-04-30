@@ -2,15 +2,13 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
-from .models import Course, CourseGroup, Participant
+from .models import Course, CourseGroup, Participant, PlotPart, Chapter
 
 
-class CourseSerializer(serializers.ModelSerializer):
-    course_groups = serializers.StringRelatedField(many=True)
-
+class CreateCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = '__all__'
+        fields = ['name', 'description']
 
 
 class CourseGroupSerializer(serializers.ModelSerializer):
@@ -37,3 +35,36 @@ class LoginSerializer(serializers.Serializer):
         if user and user.is_active:
             return user
         raise PermissionDenied()
+
+
+class ChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapter
+        fields = '__all__'
+
+
+class CreateChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapter
+        fields = ['name', 'description']
+
+
+class PlotPartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlotPart
+        fields = '__all__'
+
+
+class CreatePlotPartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlotPart
+        fields = ['name', 'introduction']
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    course_groups = serializers.StringRelatedField(many=True)
+    plot_parts = PlotPartSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Course
+        fields = '__all__'
