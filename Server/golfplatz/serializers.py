@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
-from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure
+from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, Question, Answer
 
 
 class CreateCourseSerializer(serializers.ModelSerializer):
@@ -37,10 +37,43 @@ class LoginSerializer(serializers.Serializer):
         raise PermissionDenied()
 
 
+class AnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        exclude = ['question']
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    answers = AnswerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Question
+        exclude = ['point_source', 'auto_checked_grade']
+
+
+class TimerRuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimerRule
+        exclude = ['adventure']
+
+
 class AdventureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Adventure
         fields = '__all__'
+
+
+class CreateAdventuresSerializer(serializers.ModelSerializer):
+    internal_id = serializers.IntegerField()
+    questions = QuestionSerializer(many=True, read_only=True)
+    timer_rules = TimerRuleSerializer(many=True, read_only=True)
+    next_adventures = serializers.ListField(
+        child=serializers.IntegerField()
+    )
+
+    class Meta:
+        model = Adventure
+        exclude = ['chapter', 'point_source']
 
 
 class ChapterSerializer(serializers.ModelSerializer):

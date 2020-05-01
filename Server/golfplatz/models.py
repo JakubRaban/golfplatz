@@ -134,6 +134,7 @@ class Adventure(models.Model):
     point_source = models.OneToOneField('PointSource', on_delete=models.PROTECT, null=True, default=None)
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
+    has_time_limit = models.BooleanField(default=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['chapter', 'name'], name='adventure_name_constraint')]
