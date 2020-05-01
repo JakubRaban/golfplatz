@@ -118,11 +118,17 @@ class Chapter(models.Model):
             models.UniqueConstraint(fields=['name', 'plot_part'], name='chapter_name_constraint')
         ]
 
-    def add_adventure(self, name, description):
-        new_adventure = Adventure(name=name, task_description=description, chapter=self)
-        if not self.adventure_set.all():
-            new_adventure.is_initial = True
-        new_adventure.save()
+    def add_adventures(self, adventure_list):
+        created_adventures = {}
+        for adventure in adventure_list:
+            questions = adventure.pop('questions', None)
+            timer_rules = adventure.pop('timer_rules', None)
+            adventure.pop('next_adventures')
+            new_adventure = Adventure.objects.create(**adventure, chapter=self)
+            if timer_rules:
+                for timer_rule in timer_rules:
+                    TimerRule.objects.create(**timer_rule, adventure=new_adventure)
+
 
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
@@ -130,7 +136,7 @@ class Chapter(models.Model):
 
 class Adventure(models.Model):
     name = models.CharField(max_length=50)
-    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE)
+    chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='adventures')
     point_source = models.OneToOneField('PointSource', on_delete=models.PROTECT, null=True, default=None)
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)

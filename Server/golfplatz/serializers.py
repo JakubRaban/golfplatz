@@ -2,7 +2,8 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
-from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, Question, Answer
+from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, Question, Answer, \
+    AutoCheckedPointSource, TutorCheckedPointSource
 
 
 class CreateCourseSerializer(serializers.ModelSerializer):
@@ -44,11 +45,11 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
-    answers = AnswerSerializer(many=True, read_only=True)
+    answers = AnswerSerializer(many=True)
 
     class Meta:
         model = Question
-        exclude = ['point_source', 'auto_checked_grade']
+        exclude = ['point_source', 'auto_checked_grades']
 
 
 class TimerRuleSerializer(serializers.ModelSerializer):
@@ -65,8 +66,12 @@ class AdventureSerializer(serializers.ModelSerializer):
 
 class CreateAdventuresSerializer(serializers.ModelSerializer):
     internal_id = serializers.IntegerField()
-    questions = QuestionSerializer(many=True, read_only=True)
-    timer_rules = TimerRuleSerializer(many=True, read_only=True)
+    questions = QuestionSerializer(many=True, allow_null=True)
+    timer_rules = TimerRuleSerializer(many=True, allow_null=True)
+    category = serializers.ChoiceField(
+        choices=AutoCheckedPointSource.Category.choices + TutorCheckedPointSource.Category.choices,
+        allow_null=True
+    )
     next_adventures = serializers.ListField(
         child=serializers.IntegerField()
     )
@@ -77,6 +82,8 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
 
 
 class ChapterSerializer(serializers.ModelSerializer):
+    adventures = AdventureSerializer(many=True)
+
     class Meta:
         model = Chapter
         fields = '__all__'
