@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
-from .models import Course, CourseGroup, Participant, PlotPart, Chapter
+from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure
 
 
 class CreateCourseSerializer(serializers.ModelSerializer):
@@ -37,6 +37,12 @@ class LoginSerializer(serializers.Serializer):
         raise PermissionDenied()
 
 
+class AdventureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Adventure
+        fields = '__all__'
+
+
 class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
@@ -50,6 +56,8 @@ class CreateChapterSerializer(serializers.ModelSerializer):
 
 
 class PlotPartSerializer(serializers.ModelSerializer):
+    chapters = ChapterSerializer(many=True, read_only=True)
+
     class Meta:
         model = PlotPart
         fields = '__all__'

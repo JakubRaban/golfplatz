@@ -32,7 +32,7 @@ class Participant(AbstractUser):
         return user_token
 
     def __str__(self):
-        return self.get_full_name() + ' (' + self.email + ')'
+        return f'{self.get_full_name()} ({self.email})'
 
 
 class Course(models.Model):
@@ -52,7 +52,7 @@ class Course(models.Model):
         return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]
 
     def __str__(self):
-        return 'Course ' + self.name
+        return f'Course {self.name}'
 
 
 class AutoCheckedGrade(models.Model):
@@ -96,18 +96,18 @@ class PlotPart(models.Model):
         new_chapter = Chapter(name=kwargs['name'], description=kwargs['description'], plot_part=self)
         current_chapters = Chapter.objects.filter(plot_part=self)
         last_part_index = current_chapters.aggregate(index=Max('position_in_plot_part'))['index'] or 0
-        new_chapter.position_in_course = last_part_index + 1
+        new_chapter.position_in_plot_part = last_part_index + 1
         new_chapter.save()
         return new_chapter
 
     def __str__(self):
-        return 'Plot part ' + self.name + ' in ' + self.course.name
+        return f'Plot part {self.name} in {self.course.name}'
 
 
 class Chapter(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
-    plot_part = models.ForeignKey('PlotPart', on_delete=models.CASCADE)
+    plot_part = models.ForeignKey('PlotPart', on_delete=models.CASCADE, related_name='chapters')
     position_in_plot_part = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -125,7 +125,7 @@ class Chapter(models.Model):
         new_adventure.save()
 
     def __str__(self):
-        return 'Chapter ' + self.name + ' in ' + self.plot_part.course.name + '.' + self.plot_part.name
+        return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
 
 
 class Adventure(models.Model):
@@ -145,8 +145,8 @@ class Adventure(models.Model):
         raise NotImplemented()
 
     def __str__(self):
-        return self.name + ' in ' + self.chapter.plot_part.course.name + '.' + self.chapter.plot_part.name + '.' + \
-               self.chapter.name
+        return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.\
+               {self.chapter.name}'
 
 
 class TimerRule(models.Model):

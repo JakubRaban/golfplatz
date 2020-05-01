@@ -1,11 +1,10 @@
 
 from knox.models import AuthToken
-from rest_framework import status, generics
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Course
 from .permissions import IsTutor
 from .serializers import *
 
@@ -73,7 +72,7 @@ class PlotPartView(APIView):
     permission_classes = [IsTutor]
 
     def get(self, request, course_id):
-        serializer = PlotPartSerializer(PlotPart.objects.get(pk=course_id))
+        serializer = PlotPartSerializer(PlotPart.objects.get(course_id=course_id))
         return Response(serializer.data)
 
     def post(self, request, course_id):
@@ -101,6 +100,26 @@ class ChapterView(APIView):
         plot_part = PlotPart.objects.get(pk=plot_part_id)
         chapter = plot_part.add_chapter(**serializer.validated_data)
         return Response(ChapterSerializer(chapter).data)
+
+    def get(self, request, plot_part_id):
+        serializer = ChapterSerializer(Chapter.objects.get(plot_part_id=plot_part_id), many=True)
+        return Response(serializer.data)
+
+
+class SpecificChapterView(APIView):
+    permission_classes = [IsTutor]
+
+    def get(self, request, chapter_id):
+        serializer = ChapterSerializer(Chapter.objects.get(pk=chapter_id), many=True)
+        return Response(serializer.data)
+
+
+class AdventureView(APIView):
+    permission_classes = [IsTutor]
+
+    def get(self, request, adventure_id):
+        serializer = AdventureSerializer(Adventure.objects.get(pk=adventure_id), many=True)
+        return Response(serializer.data)
 
 
 class WhoAmIView(generics.RetrieveAPIView):
