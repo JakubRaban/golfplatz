@@ -55,9 +55,8 @@ export class AddCourse extends Component {
   onSubmit = (e) => {
     // e.preventDefault();
     const { name, description, courseGroups, plotParts } = this.state;
-    const course = { name, description, courseGroups, plotParts };
-    console.log(course);
-    this.props.addCourse(course);
+    const course = { name, description };
+    this.props.addCourse(course, courseGroups, plotParts);
     this.setState({
       name: '',
       description: '',

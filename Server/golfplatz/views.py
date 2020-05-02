@@ -76,6 +76,7 @@ class PlotPartView(APIView):
         return Response(serializer.data)
 
     def post(self, request, course_id):
+        print(request.data)
         serializer = CreatePlotPartSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         course = Course.objects.get(pk=course_id)
