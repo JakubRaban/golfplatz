@@ -76,11 +76,12 @@ class PlotPartView(APIView):
         return Response(serializer.data)
 
     def post(self, request, course_id):
-        serializer = CreatePlotPartSerializer(data=request.data)
+        serializer = CreatePlotPartSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         course = Course.objects.get(pk=course_id)
-        plot_part = course.add_plot_part(**serializer.validated_data)
-        return Response(PlotPartSerializer(plot_part).data)
+        new_plot_parts = [course.add_plot_part(**serialized_plot_part)
+                          for serialized_plot_part in serializer.validated_data]
+        return Response(PlotPartSerializer(new_plot_parts, many=True).data)
 
 
 class SpecificPlotPartView(APIView):
