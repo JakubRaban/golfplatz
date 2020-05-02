@@ -25,6 +25,7 @@ export class GetCourses extends Component {
             <th>ID</th>
             <th>Nazwa kursu</th>
             <th>Opis</th>
+            <th>Cz. fabuły</th>
             <th>Utworzono</th>
           </tr>
           </thead>
@@ -34,6 +35,7 @@ export class GetCourses extends Component {
               <td>{course.id}</td>
               <td>{course.name}</td>
               <td>{course.description}</td>
+              <td>{course.plotParts}</td>
               <td>{course.createdOn}</td>
             </tr>
           ))}

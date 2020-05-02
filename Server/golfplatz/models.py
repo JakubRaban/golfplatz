@@ -26,7 +26,7 @@ class Participant(AbstractUser):
     objects = ParticipantManager()
 
     def register(self, group_name):
-        group, _ = Group.objects.get(name=group_name)
+        group = Group.objects.get(name=group_name)
         group.user_set.add(self)
         _, user_token = AuthToken.objects.create(self)
         return user_token
