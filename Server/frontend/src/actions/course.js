@@ -7,10 +7,10 @@ import {createMessage, returnErrors} from "./messages";
 export const addCourse = (course, courseGroups, plotParts) => (dispatch, getState) => {
   let courseId;
   let body = {plotParts};
-  makeAllRequests(course, plotParts, courseGroups, dispatch, getState);
+  makeAllCourseRequests(course, plotParts, courseGroups, dispatch, getState);
 };
 
-async function makeAllRequests(course, plotParts, courseGroups, dispatch, getState) {
+async function makeAllCourseRequests(course, plotParts, courseGroups, dispatch, getState) {
   let courseId = -1;
   await axios.post("/api/courses/", course, tokenConfig(getState)).then(res=>{
     dispatch({
@@ -23,7 +23,18 @@ async function makeAllRequests(course, plotParts, courseGroups, dispatch, getSta
     dispatch(returnErrors(err.response.data, err.response.status));
   });
 
-  await axios.post("/api/courses/" + courseId + "/plot_parts/", plotParts[0], tokenConfig(getState)).then(res=>{
+  let courseGroupsNames = courseGroups.map(x => x.groupName);
+
+  await axios.post("/api/courses/" + courseId + "/course_groups/", courseGroupsNames, tokenConfig(getState)).then(res => {
+    dispatch({
+      type: ADD_COURSE_GROUPS,
+      payload: res.data
+    });
+  }).catch(err => {
+    dispatch(returnErrors(err.response.data, err.response.status));
+  });
+
+  await axios.post("/api/courses/" + courseId + "/plot_parts/", plotParts, tokenConfig(getState)).then(res=>{
     dispatch(createMessage({courseAdded: "Kurs dodany pomyślnie"}));
     dispatch({
       type: ADD_PLOT_PARTS,
@@ -33,15 +44,6 @@ async function makeAllRequests(course, plotParts, courseGroups, dispatch, getSta
     dispatch(returnErrors(err.response.data, err.response.status));
   });
 
-  await axios.post("/api/courses/" + courseId + "/course_groups/", courseGroups, tokenConfig(getState)).then(res => {
-    dispatch(createMessage({courseAdded: "Kurs dodany pomyślnie"}));
-    dispatch({
-      type: ADD_COURSE_GROUPS,
-      payload: res.data
-    });
-  }).catch(err => {
-    dispatch(returnErrors(err.response.data, err.response.status));
-  });
 }
 
 

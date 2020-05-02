@@ -119,7 +119,7 @@ export class AddCourse extends Component {
                     formApi.addValue("courseGroups", {
                       groupName: "",
                     })}
-                  type="button">Dodaj kolejny termin zajęć</button>
+                  type="button">Dodaj termin zajęć</button>
               </form>
               <form onSubmit={formApi.submitForm} id="plot-form">
                 {formApi.values.plotParts &&
@@ -138,7 +138,7 @@ export class AddCourse extends Component {
                       name: "",
                       introduction: ""
                     })}
-                  type="button">Dodaj kolejną część fabuły</button>
+                  type="button">Dodaj część fabuły</button>
                 <button type="submit">
                   Dalej
                 </button>

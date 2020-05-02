@@ -2,11 +2,16 @@ import React, {Component} from "react";
 import { getCourses } from "../actions/course";
 import {connect} from "react-redux";
 import PropTypes from "prop-types"
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
+import TableRow from '@material-ui/core/TableRow';
+import { withStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
 
 
 export class GetCourses extends Component {
-
   static propTypes = {
     course: PropTypes.array.isRequired
   };
@@ -14,31 +19,31 @@ export class GetCourses extends Component {
   componentDidMount() {
     this.props.getCourses();
   }
-
+  //dodać ładny hover na tabelkę, a wcześniej sprawdzić, czy jest w cssach materiala
   render() {
     return (
       <div>
         <h1>Lista kursów</h1>
-        <table>
-          <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nazwa kursu</th>
-            <th>Opis</th>
-            <th>Utworzono</th>
-          </tr>
-          </thead>
-          <tbody>
+          <Table>
+          <TableHead>
+          <TableRow>
+            <TableCell>ID</TableCell>
+            <TableCell>Nazwa kursu</TableCell>
+            <TableCell>Opis</TableCell>
+            <TableCell>Utworzono</TableCell>
+          </TableRow>
+          </TableHead>
+          <TableBody>
           { this.props.course.map(course => (
-            <tr key={course.id}>
-              <td>{course.id}</td>
-              <td>{course.name}</td>
-              <td>{course.description}</td>
-              <td>{course.createdOn}</td>
-            </tr>
+            <TableRow component={Link} to={`/courses/${course.id}/`} key={course.id}>
+              <TableCell>{course.id}</TableCell>
+              <TableCell>{course.name}</TableCell>
+              <TableCell>{course.description}</TableCell>
+              <TableCell>{course.createdOn}</TableCell>
+            </TableRow>
           ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
         <NavLink to="/">Powrót</NavLink>
       </div>
     );
