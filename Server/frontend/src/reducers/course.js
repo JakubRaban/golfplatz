@@ -1,9 +1,10 @@
-import { ADD_COURSE, GET_COURSES, ADD_PLOT_PARTS, ADD_COURSE_GROUPS } from '../actions/types.js';
+import { ADD_COURSE, GET_COURSES, GET_COURSE, ADD_PLOT_PARTS, ADD_COURSE_GROUPS } from '../actions/types.js';
 
 const initialState = {
-  course: [],
+  courses: [],
   plotParts: [],
   courseGroups: [],
+  courseDetailed: {},
 };
 
 export default function(state = initialState, action) {
@@ -11,7 +12,7 @@ export default function(state = initialState, action) {
     case ADD_COURSE:
       return {
         ...state,
-        course: [...state.course, action.payload]
+        courses: [...state.courses, action.payload]
       };
     case ADD_PLOT_PARTS:
       return {
@@ -26,8 +27,13 @@ export default function(state = initialState, action) {
     case GET_COURSES:
       return {
         ...state,
-        course: action.payload
+        courses: action.payload
       };
+    case GET_COURSE:
+      return {
+        ...state,
+        courseDetailed: action.payload
+      }
     default:
       return state;
   }

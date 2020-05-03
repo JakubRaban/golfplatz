@@ -13,7 +13,7 @@ import TableHead from '@material-ui/core/TableHead';
 
 export class GetCourses extends Component {
   static propTypes = {
-    course: PropTypes.array.isRequired
+    courses: PropTypes.array.isRequired
   };
 
   componentDidMount() {
@@ -34,7 +34,7 @@ export class GetCourses extends Component {
           </TableRow>
           </TableHead>
           <TableBody>
-          { this.props.course.map(course => (
+          { this.props.courses.map(course => (
             <TableRow component={Link} to={`/courses/${course.id}/`} key={course.id}>
               <TableCell>{course.id}</TableCell>
               <TableCell>{course.name}</TableCell>
@@ -52,7 +52,7 @@ export class GetCourses extends Component {
 }
 
 const mapStateToProps = state => ({
-  course: state.course.course
+  courses: state.course.courses
 });
 
 export default connect(mapStateToProps, {getCourses})(GetCourses)
