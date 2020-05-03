@@ -1,10 +1,17 @@
-import { ADD_COURSE, GET_COURSES, GET_COURSE, ADD_PLOT_PARTS, ADD_COURSE_GROUPS } from '../actions/types.js';
+import { ADD_COURSE, 
+        GET_COURSES, 
+        GET_COURSE, 
+        ADD_PLOT_PARTS, 
+        ADD_COURSE_GROUPS,
+        ADD_CHAPTER }
+from '../actions/types.js';
 
 const initialState = {
   courses: [],
   plotParts: [],
   courseGroups: [],
   courseDetailed: {},
+  chapters: [],
 };
 
 export default function(state = initialState, action) {
@@ -27,13 +34,18 @@ export default function(state = initialState, action) {
     case GET_COURSES:
       return {
         ...state,
-        courses: action.payload
+        courses: action.payload,
       };
     case GET_COURSE:
       return {
         ...state,
-        courseDetailed: action.payload
-      }
+        courseDetailed: action.payload,
+      };
+    case ADD_CHAPTER:
+      return {
+        ...state,
+        chapters: action.payload,
+      };
     default:
       return state;
   }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavLink, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { getCourse } from "../../actions/course";
+import { getCourse, addChapters } from "../../actions/course";
 import TableRow from '@material-ui/core/TableRow';
 import { withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -23,7 +23,7 @@ const Chapters = ({ i }) => (
           <label htmlFor={`nested-chapters-first-${i}`}>Nazwa</label>
           <Text field="name" id={`nested-chapters-first-${i}`} />
           <label htmlFor={`nested-chapters-last-${i}`}>Krótki opis</label>
-          <Text field="introduction" id={`nested-chapters-last-${i}`} />
+          <Text field="description" id={`nested-chapters-last-${i}`} />
         </div>
       )}
     </Form>
@@ -36,6 +36,7 @@ export class CourseDetails extends Component {
   };
 
   firstChapter = {};
+  currentPlotPartId = -1;
 
   static propTypes = {
     isAuthenticated: PropTypes.bool,
@@ -48,10 +49,15 @@ export class CourseDetails extends Component {
     this.state.chapters.pop();
     this.state.chapters.unshift(this.firstChapter);
 
-    console.log(this.state.chapters);
+    const { chapters } = this.state;
+    this.props.addChapters(chapters, this.currentPlotPartId);
+    this.setState({
+      chapters: [],
+    });  
   };
 
-  mapAllChapters(chapterValues) {
+  mapAllChapters(chapterValues, id) {
+    this.currentPlotPartId = id;
     if (chapterValues.length === 1) {
       this.firstChapter = chapterValues[0];
     } else {
@@ -111,7 +117,7 @@ export class CourseDetails extends Component {
                           <div key={i}>
                             <Chapters i={i} />
                           </div>
-                        ), this.mapAllChapters(formApi.values.chapters))}
+                        ), this.mapAllChapters(formApi.values.chapters, plotPart.id))}
                       <button
                         onClick={() =>
                           formApi.addValue("chapters", {
@@ -144,4 +150,4 @@ const mapStateToProps = (state) => ({
   course: state.course.courseDetailed,
 });
 
-export default connect(mapStateToProps, {getCourse})(CourseDetails);
+export default connect(mapStateToProps, {getCourse, addChapters})(CourseDetails);

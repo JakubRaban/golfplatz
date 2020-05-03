@@ -1,8 +1,25 @@
 import axios from 'axios';
 import { tokenConfig } from './auth.js'; 
-import { ADD_COURSE, ADD_COURSE_GROUPS, ADD_PLOT_PARTS, GET_COURSES, GET_COURSE } from './types.js';
 import {createMessage, returnErrors} from "./messages";
+import { ADD_COURSE, 
+  GET_COURSES, 
+  GET_COURSE, 
+  ADD_PLOT_PARTS, 
+  ADD_COURSE_GROUPS,
+  ADD_CHAPTER }
+from '../actions/types.js';
 
+
+export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
+  axios.post("/api/plot_parts/" + plotPartId + "/chapters/", chapters[0], tokenConfig(getState)).then(res => {
+    dispatch({
+      type: ADD_CHAPTER,
+      payload: res.data
+    });
+  }).catch(err => {
+    dispatch(returnErrors(err.response.data, err.response.status));
+  });
+}
 
 export const addCourse = (course, courseGroups, plotParts) => (dispatch, getState) => {
   makeAllCourseRequests(course, plotParts, courseGroups, dispatch, getState);
