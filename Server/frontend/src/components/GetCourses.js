@@ -26,12 +26,12 @@ export class GetCourses extends Component {
         <h1>Lista kursów</h1>
           <Table>
           <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Nazwa kursu</TableCell>
-            <TableCell>Opis</TableCell>
-            <TableCell>Utworzono</TableCell>
-          </TableRow>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Nazwa kursu</TableCell>
+              <TableCell>Opis</TableCell>
+              <TableCell>Utworzono</TableCell>
+            </TableRow>
           </TableHead>
           <TableBody>
           { this.props.courses.map(course => (
