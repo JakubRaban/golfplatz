@@ -128,6 +128,7 @@ class Chapter(models.Model):
             else:
                 Path.objects.create(from_adventure=adventure,
                                     to_adventure=dummy_terminal_adventure)
+        return [adventure[1] for adventure in internal_id_to_created_adventure.values()]
 
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
@@ -136,7 +137,6 @@ class Chapter(models.Model):
 class Adventure(models.Model):
     name = models.CharField(max_length=50)
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='adventures')
-    point_source = models.OneToOneField('PointSource', on_delete=models.PROTECT, null=True, default=None)
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
     is_terminal = models.BooleanField(default=False)
@@ -175,20 +175,12 @@ class PathCoverage(models.Model):
 
 
 class PointSource(models.Model):
-    pass
-
-
-class AutoCheckedPointSource(PointSource):
-    class Category(models.TextChoices):
+    class AutoCheckedCategory(models.TextChoices):
         QUIZ = 'QUIZ', 'Quiz'
         SURPRISE_EXERCISE = 'SURPRISE', 'Surprise exercise'
         GENERIC = 'GENERIC', 'Generic lab exercise'
 
-    point_source_category = models.CharField(max_length=8, choices=Category.choices)
-
-
-class TutorCheckedPointSource(PointSource):
-    class Category(models.TextChoices):
+    class TutorCheckedCategory(models.TextChoices):
         ACTIVENESS = 'ACTIVENESS', 'Activeness'
         TEST = 'TEST', 'Test'
         HOMEWORK = 'HOMEWORK', 'Homework or project'
@@ -198,23 +190,17 @@ class TutorCheckedPointSource(PointSource):
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
         TEXT_AREA = 'TEXTAREA', 'Large text area'
 
-    max_points = models.DecimalField(max_digits=6, decimal_places=3)
-    category = models.CharField(max_length=10, choices=Category.choices)
+    adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True)
+    category = models.CharField(max_length=10, choices=AutoCheckedCategory.choices + TutorCheckedCategory.choices)
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
-    tutor_checked_grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TutorCheckedGrade')
 
 
-class AutoCheckedGrade(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    question = models.ForeignKey('Question', on_delete=models.CASCADE)
-    points_scored = models.DecimalField(max_digits=6, decimal_places=3)
-
-
-class SurpriseExercise(AutoCheckedPointSource):
+class SurpriseExercise(models.Model):
     class SendMethod(models.TextChoices):
         EMAIL = 'EMAIL', 'Email'
         PHONE = 'PHONE', 'Phone'
 
+    point_source = models.OneToOneField(PointSource, on_delete=models.CASCADE, primary_key=True)
     earliest_possible_send_time = models.DateTimeField()
     latest_possible_send_time = models.DateTimeField()
     sending_method = models.CharField(max_length=5, choices=SendMethod.choices)
@@ -225,14 +211,14 @@ class Question(models.Model):
         OPEN = 'OPEN', 'Open question'
         CLOSED = 'CLOSED', 'Closed question'
 
+    point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
+    question_type = models.CharField(max_length=6, choices=Type.choices)
     points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3)
     points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3)
     message_after_correct_answer = models.TextField()
     message_after_incorrect_answer = models.TextField()
-    question_type = models.CharField(max_length=6, choices=Type.choices)
-    point_source = models.ForeignKey('AutoCheckedPointSource', on_delete=models.CASCADE)
-    auto_checked_grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='AutoCheckedGrade')
+    grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Grade')
 
 
 class Answer(models.Model):
@@ -240,3 +226,9 @@ class Answer(models.Model):
     text = models.CharField(max_length=250)
     is_correct = models.BooleanField()
     is_regex = models.BooleanField(default=False)
+
+
+class Grade(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    points_scored = models.DecimalField(max_digits=6, decimal_places=3)

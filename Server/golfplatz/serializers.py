@@ -2,8 +2,8 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
-from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, Question, Answer, \
-    PointSource, AutoCheckedPointSource, TutorCheckedPointSource
+from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, \
+    Question, Answer, PointSource
 
 
 class CreateCourseSerializer(serializers.ModelSerializer):
@@ -49,7 +49,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        exclude = ['point_source', 'auto_checked_grades']
+        exclude = ['point_source', 'grades']
 
 
 class TimerRuleSerializer(serializers.ModelSerializer):
@@ -69,7 +69,7 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, allow_null=True)
     timer_rules = TimerRuleSerializer(many=True, allow_null=True)
     category = serializers.ChoiceField(
-        choices=AutoCheckedPointSource.Category.choices + TutorCheckedPointSource.Category.choices,
+        choices=PointSource.AutoCheckedCategory.choices + PointSource.TutorCheckedCategory.choices,
         allow_null=True
     )
     next_adventures = serializers.ListField(

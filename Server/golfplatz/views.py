@@ -126,8 +126,8 @@ class AdventureView(APIView):
         serializer = CreateAdventuresSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         chapter = Chapter.objects.get(pk=chapter_id)
-        chapter.add_adventures(serializer.validated_data)
-        return Response()
+        new_adventures = chapter.add_adventures(serializer.validated_data)
+        return Response(AdventureSerializer(new_adventures, many=True).data)
 
 
 class WhoAmIView(generics.RetrieveAPIView):
