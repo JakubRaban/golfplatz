@@ -3,7 +3,9 @@
     "internalId": 1,
     "name": "Prosta pochodna",
     "taskDescription": "Pochodne są bardzo ważne. Twoim zadaniem jest policzenie pochodnej z tych dwóch prostych funkcji",
-    "category": "GENERIC",
+    "pointSource": {
+      "category": "GENERIC"
+    },
     "questions": [
       {
         "text": "Jaka jest pochodna z f(x) = x^2?",
@@ -66,17 +68,18 @@
     "isInitial": true,
     "hasTimeLimit": false,
     "nextAdventures": [2, 3]
-  },
-  {
-    "internalId": 2,
-    "name": "Bardziej skomplikowana pochodna",
-    "taskDescription": "Pochodne są bardzo ważne. Twoim zadaniem jest policzenie pochodnej z tych dwóch prostych funkcji",
-    "type": "GENERIC"
-  },
-  {
-    "internalId": 3
-  },
-  {
-
   }
 ]
+//  {
+//    "internalId": 2,
+//    "name": "Bardziej skomplikowana pochodna",
+//    "taskDescription": "Pochodne są bardzo ważne. Twoim zadaniem jest policzenie pochodnej z tych dwóch prostych funkcji",
+//    "type": "GENERIC"
+//  },
+//  {
+//    "internalId": 3
+//  },
+//  {
+//
+//  }
+//]

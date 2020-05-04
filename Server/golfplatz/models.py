@@ -119,16 +119,32 @@ class Chapter(models.Model):
         ]
 
     def add_adventures(self, adventure_list):
-        created_adventures = {}
-        for adventure in adventure_list:
-            questions = adventure.pop('questions', None)
-            timer_rules = adventure.pop('timer_rules', None)
-            adventure.pop('next_adventures')
-            new_adventure = Adventure.objects.create(**adventure, chapter=self)
-            if timer_rules:
-                for timer_rule in timer_rules:
-                    TimerRule.objects.create(**timer_rule, adventure=new_adventure)
+        print(adventure_list)
+        internal_id_to_created_adventure = {}
+        for adventure_dict in adventure_list:
+            internal_id = adventure_dict.pop('internal_id')
+            questions_data = adventure_dict.pop('questions')
+            point_source_data = adventure_dict.pop('point_source')
+            timer_rules_data = adventure_dict.pop('timer_rules')
+            next_adventures_data = adventure_dict.pop('next_adventures')
+            new_adventure = Adventure.objects.create(**adventure_dict)
+            TimerRule.objects.create(**timer_rules_data, adventure=new_adventure)
+            # if category in AutoCheckedPointSource.Category.values:
+            #     point_source = AutoCheckedPointSource.objects.create(point_source_category=category)
+            internal_id_to_created_adventure[internal_id] = next_adventures_data, new_adventure
 
+
+
+
+        # created_adventures = {}
+        # for adventure in adventure_list:
+        #     questions = adventure.pop('questions', None)
+        #     timer_rules = adventure.pop('timer_rules', None)
+        #     adventure.pop('next_adventures')
+        #     new_adventure = Adventure.objects.create(**adventure, chapter=self)
+        #     if timer_rules:
+        #         for timer_rule in timer_rules:
+        #             TimerRule.objects.create(**timer_rule, adventure=new_adventure)
 
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
@@ -181,20 +197,12 @@ class PathCoverage(models.Model):
 
 
 class PointSource(models.Model):
-    pass
-
-
-class AutoCheckedPointSource(PointSource):
-    class Category(models.TextChoices):
+    class AutoCheckedCategory(models.TextChoices):
         QUIZ = 'QUIZ', 'Quiz'
         SURPRISE_EXERCISE = 'SURPRISE', 'Surprise exercise'
         GENERIC = 'GENERIC', 'Generic lab exercise'
 
-    point_source_category = models.CharField(max_length=8, choices=Category.choices)
-
-
-class TutorCheckedPointSource(PointSource):
-    class Category(models.TextChoices):
+    class TutorCheckedCategory(models.TextChoices):
         ACTIVENESS = 'ACTIVENESS', 'Activeness'
         TEST = 'TEST', 'Test'
         HOMEWORK = 'HOMEWORK', 'Homework or project'
@@ -204,10 +212,8 @@ class TutorCheckedPointSource(PointSource):
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
         TEXT_AREA = 'TEXTAREA', 'Large text area'
 
-    max_points = models.DecimalField(max_digits=6, decimal_places=3)
-    category = models.CharField(max_length=10, choices=Category.choices)
+    category = models.CharField(max_length=8, choices=AutoCheckedCategory.choices + TutorCheckedCategory.choices)
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
-    tutor_checked_grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TutorCheckedGrade')
 
 
 class SurpriseExercise(AutoCheckedPointSource):
@@ -215,6 +221,7 @@ class SurpriseExercise(AutoCheckedPointSource):
         EMAIL = 'EMAIL', 'Email'
         PHONE = 'PHONE', 'Phone'
 
+    surprise_exercise_id = models.OneToOneField(PointSource, on_delete=models.CASCADE,)
     earliest_possible_send_time = models.DateTimeField()
     latest_possible_send_time = models.DateTimeField()
     sending_method = models.CharField(max_length=5, choices=SendMethod.choices)
