@@ -96,11 +96,11 @@ class ChapterView(APIView):
     permission_classes = [IsTutor]
 
     def post(self, request, plot_part_id):
-        serializer = CreateChapterSerializer(data=request.data)
+        serializer = CreateChapterSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         plot_part = PlotPart.objects.get(pk=plot_part_id)
-        chapter = plot_part.add_chapter(**serializer.validated_data)
-        return Response(ChapterSerializer(chapter).data)
+        created_chapters = [plot_part.add_chapter(**chapter_dict) for chapter_dict in serializer.validated_data]
+        return Response(ChapterSerializer(created_chapters, many=True).data)
 
     def get(self, request, plot_part_id):
         serializer = ChapterSerializer(Chapter.objects.get(plot_part_id=plot_part_id), many=True)
