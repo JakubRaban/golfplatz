@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
 from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, Question, Answer, \
-    AutoCheckedPointSource, TutorCheckedPointSource
+    PointSource, AutoCheckedPointSource, TutorCheckedPointSource
 
 
 class CreateCourseSerializer(serializers.ModelSerializer):

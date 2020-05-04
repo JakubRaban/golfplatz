@@ -71,12 +71,33 @@
     "internalId": 2,
     "name": "Bardziej skomplikowana pochodna",
     "taskDescription": "Pochodne są bardzo ważne. Twoim zadaniem jest policzenie pochodnej z tych dwóch prostych funkcji",
-    "type": "GENERIC"
+    "category": "GENERIC",
+    "questions": [],
+    "timerRules": [],
+    "isInitial": false,
+    "hasTimeLimit": false,
+    "nextAdventures": [4]
   },
   {
-    "internalId": 3
+    "internalId": 3,
+    "name": "Co to za qurewsko trudna pochodna",
+    "taskDescription": "Ale ci dowaliłem",
+    "category": "GENERIC",
+    "questions": [],
+    "timerRules": [],
+    "isInitial": false,
+    "hasTimeLimit": false,
+    "nextAdventures": [4]
   },
   {
-
+    "internalId": 4,
+    "name": "I myk całeczka na koniec",
+    "taskDescription": "No to masz problem",
+    "category": "GENERIC",
+    "questions": [],
+    "timerRules": [],
+    "isInitial": false,
+    "hasTimeLimit": false,
+    "nextAdventures": []
   }
 ]
