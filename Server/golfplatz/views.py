@@ -88,7 +88,7 @@ class SpecificPlotPartView(APIView):
     permission_classes = [IsTutor]
 
     def get(self, request, plot_part_id):
-        serializer = PlotPartSerializer(PlotPart.objects.get(pk=plot_part_id), many=True)
+        serializer = PlotPartSerializer(PlotPart.objects.get(pk=plot_part_id))
         return Response(serializer.data)
 
 
@@ -111,7 +111,7 @@ class SpecificChapterView(APIView):
     permission_classes = [IsTutor]
 
     def get(self, request, chapter_id):
-        serializer = ChapterSerializer(Chapter.objects.get(pk=chapter_id), many=True)
+        serializer = ChapterSerializer(Chapter.objects.get(pk=chapter_id))
         return Response(serializer.data)
 
 

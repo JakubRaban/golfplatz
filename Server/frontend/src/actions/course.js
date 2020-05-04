@@ -8,9 +8,21 @@ import { ADD_COURSE,
   ADD_COURSE_GROUPS,
   ADD_CHAPTER,
   GET_CHAPTER,
+  ADD_ADVENTURES,
  }
 from '../actions/types.js';
 
+
+export const addAdventures = (adventures, chapterId) => (dispatch, getState) => {
+  axios.post("/api/chapters/" + chapterId + "/adventures/", adventures, tokenConfig(getState)).then(res => {
+    dispatch({
+      type: ADD_ADVENTURES,
+      payload: res.data
+    });
+  }).catch(err => {
+    dispatch(returnErrors(err.response.data, err.response.status));
+  });
+}
 
 export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
   axios.post("/api/plot_parts/" + plotPartId + "/chapters/", chapters, tokenConfig(getState)).then(res => {
