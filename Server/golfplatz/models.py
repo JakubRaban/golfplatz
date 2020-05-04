@@ -55,18 +55,6 @@ class Course(models.Model):
         return f'Course {self.name}'
 
 
-class AutoCheckedGrade(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    question = models.ForeignKey('Question', on_delete=models.CASCADE)
-    points_scored = models.DecimalField(max_digits=6, decimal_places=3)
-
-
-class TutorCheckedGrade(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    tutor_checked_source = models.ForeignKey('TutorCheckedPointSource', on_delete=models.CASCADE)
-    points_scored = models.DecimalField(max_digits=6, decimal_places=3)
-
-
 class CourseGroup(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='course_groups')
     group_name = models.CharField(max_length=40)
@@ -120,6 +108,8 @@ class Chapter(models.Model):
 
     def add_adventures(self, adventure_list):
         internal_id_to_created_adventure = {}
+        dummy_terminal_adventure = Adventure.objects.create(is_terminal=True, name="The End",
+                                                            task_description="The End", chapter=self)
         for adventure_dict in adventure_list:
             internal_id = adventure_dict.pop('internal_id')
             questions_data = adventure_dict.pop('questions')
@@ -131,9 +121,13 @@ class Chapter(models.Model):
                 TimerRule.objects.create(**timer_rule, adventure=new_adventure)
             internal_id_to_created_adventure[internal_id] = next_adventures_data, new_adventure
         for (new_id, (next_ids, adventure)) in internal_id_to_created_adventure.items():
-            for next_id in next_ids:
+            if next_ids:
+                for next_id in next_ids:
+                    Path.objects.create(from_adventure=adventure,
+                                        to_adventure=internal_id_to_created_adventure[next_id][1])
+            else:
                 Path.objects.create(from_adventure=adventure,
-                                    to_adventure=internal_id_to_created_adventure[next_id][1])
+                                    to_adventure=dummy_terminal_adventure)
 
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
@@ -145,16 +139,11 @@ class Adventure(models.Model):
     point_source = models.OneToOneField('PointSource', on_delete=models.PROTECT, null=True, default=None)
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
+    is_terminal = models.BooleanField(default=False)
     has_time_limit = models.BooleanField(default=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['chapter', 'name'], name='adventure_name_constraint')]
-
-    def attach_point_source(self):
-        raise NotImplemented()
-
-    def add_timer_rule(self):
-        raise NotImplemented()
 
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.\
@@ -213,6 +202,12 @@ class TutorCheckedPointSource(PointSource):
     category = models.CharField(max_length=10, choices=Category.choices)
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
     tutor_checked_grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TutorCheckedGrade')
+
+
+class AutoCheckedGrade(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    points_scored = models.DecimalField(max_digits=6, decimal_places=3)
 
 
 class SurpriseExercise(AutoCheckedPointSource):
