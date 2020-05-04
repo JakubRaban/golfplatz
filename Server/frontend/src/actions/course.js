@@ -6,12 +6,14 @@ import { ADD_COURSE,
   GET_COURSE, 
   ADD_PLOT_PARTS, 
   ADD_COURSE_GROUPS,
-  ADD_CHAPTER }
+  ADD_CHAPTER,
+  GET_CHAPTER,
+ }
 from '../actions/types.js';
 
 
 export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
-  axios.post("/api/plot_parts/" + plotPartId + "/chapters/", chapters[0], tokenConfig(getState)).then(res => {
+  axios.post("/api/plot_parts/" + plotPartId + "/chapters/", chapters, tokenConfig(getState)).then(res => {
     dispatch({
       type: ADD_CHAPTER,
       payload: res.data
@@ -75,6 +77,15 @@ export const getCourse = (id) => (dispatch, getState) => {
   axios.get("/api/courses/" + id + "/", tokenConfig(getState)).then(res => {
     dispatch({
       type: GET_COURSE,
+      payload: res.data
+    })
+  })
+};
+
+export const getChapter = (id) => (dispatch, getState) => {
+  axios.get("/api/chapters/" + id + "/", tokenConfig(getState)).then(res => {
+    dispatch({
+      type: GET_CHAPTER,
       payload: res.data
     })
   })

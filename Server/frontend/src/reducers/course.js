@@ -3,7 +3,8 @@ import { ADD_COURSE,
         GET_COURSE, 
         ADD_PLOT_PARTS, 
         ADD_COURSE_GROUPS,
-        ADD_CHAPTER }
+        ADD_CHAPTER,
+        GET_CHAPTER }
 from '../actions/types.js';
 
 const initialState = {
@@ -12,6 +13,7 @@ const initialState = {
   courseGroups: [],
   courseDetailed: {},
   chapters: [],
+  chapterDetailed: {},
 };
 
 export default function(state = initialState, action) {
@@ -40,6 +42,11 @@ export default function(state = initialState, action) {
       return {
         ...state,
         courseDetailed: action.payload,
+      };
+    case GET_CHAPTER:
+      return {
+        ...state,
+        chapterDetailed: action.payload,
       };
     case ADD_CHAPTER:
       return {
