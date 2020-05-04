@@ -119,32 +119,21 @@ class Chapter(models.Model):
         ]
 
     def add_adventures(self, adventure_list):
-        print(adventure_list)
         internal_id_to_created_adventure = {}
         for adventure_dict in adventure_list:
             internal_id = adventure_dict.pop('internal_id')
             questions_data = adventure_dict.pop('questions')
-            point_source_data = adventure_dict.pop('point_source')
+            point_source_data = adventure_dict.pop('category')
             timer_rules_data = adventure_dict.pop('timer_rules')
             next_adventures_data = adventure_dict.pop('next_adventures')
-            new_adventure = Adventure.objects.create(**adventure_dict)
-            TimerRule.objects.create(**timer_rules_data, adventure=new_adventure)
-            # if category in AutoCheckedPointSource.Category.values:
-            #     point_source = AutoCheckedPointSource.objects.create(point_source_category=category)
+            new_adventure = Adventure.objects.create(**adventure_dict, chapter=self)
+            for timer_rule in timer_rules_data:
+                TimerRule.objects.create(**timer_rule, adventure=new_adventure)
             internal_id_to_created_adventure[internal_id] = next_adventures_data, new_adventure
-
-
-
-
-        # created_adventures = {}
-        # for adventure in adventure_list:
-        #     questions = adventure.pop('questions', None)
-        #     timer_rules = adventure.pop('timer_rules', None)
-        #     adventure.pop('next_adventures')
-        #     new_adventure = Adventure.objects.create(**adventure, chapter=self)
-        #     if timer_rules:
-        #         for timer_rule in timer_rules:
-        #             TimerRule.objects.create(**timer_rule, adventure=new_adventure)
+        for (new_id, (next_ids, adventure)) in internal_id_to_created_adventure.items():
+            for next_id in next_ids:
+                Path.objects.create(from_adventure=adventure,
+                                    to_adventure=internal_id_to_created_adventure[next_id][1])
 
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
