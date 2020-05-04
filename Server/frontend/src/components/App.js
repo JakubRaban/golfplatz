@@ -18,6 +18,7 @@ import GameCard from "./studentComponents/GameCard";
 import StudentMarks from "./studentComponents/StudentMarks";
 import PrivateRoute from './PrivateRoute';
 import { loadUser } from '../actions/auth';
+import CourseDetails from './tutorComponents/CourseDetails';
 
 
 const alertOptions = {
@@ -44,6 +45,7 @@ class App extends React.Component {
               <Route exact path="/login" component={Login}/>
               <Route exact path="/add-courses" component={AddCourse}/>
               <Route exact path="/courses" component={GetCourses}/>
+              <Route exact path="/courses/:id" component={CourseDetails}/>
               <Route exact path="/register-student" component={RegisterStudent}/>
               <Route exact path="/register-tutor" component={RegisterTutor}/>
               <Route exact path="/marks" component={Marks}/>

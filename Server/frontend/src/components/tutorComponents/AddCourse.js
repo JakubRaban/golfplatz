@@ -44,6 +44,8 @@ export class AddCourse extends Component {
     redirect: false,
   };
 
+  firstCourseGroup = {};
+
   static propTypes = {
     addCourse: PropTypes.func.isRequired,
     user: PropTypes.any,
@@ -54,6 +56,9 @@ export class AddCourse extends Component {
 
   onSubmit = (e) => {
     // e.preventDefault();
+    this.state.courseGroups.pop();
+    this.state.courseGroups.unshift(this.firstCourseGroup);
+
     const { name, description, courseGroups, plotParts } = this.state;
     const course = { name, description };
     this.props.addCourse(course, courseGroups, plotParts);
@@ -65,6 +70,14 @@ export class AddCourse extends Component {
       redirect: true,
     });
   };
+
+  mapAllGroups(groupsValues) {
+    if (groupsValues.length === 1) {
+      this.firstCourseGroup = groupsValues[0];
+    } else {
+      this.state.courseGroups = groupsValues;
+    }
+  }
 
   render() {
     const { name, description } = this.state;
@@ -108,12 +121,15 @@ export class AddCourse extends Component {
                 />
               </div>
               <form onSubmit={formApi.submitForm} id="course-group-form">
+                <div key={0}>
+                  <CourseGroup i={0} />
+                </div>
                 {formApi.values.courseGroups &&
-                  formApi.values.courseGroups.map((f, i) => (
+                  formApi.values.courseGroups.slice(1).map((f, i) => (
                     <div key={i}>
                       <CourseGroup i={i} />
                     </div>
-                  ), this.state.courseGroups = formApi.values.courseGroups)}
+                  ), this.mapAllGroups(formApi.values.courseGroups))}
                 <button
                   onClick={() =>
                     formApi.addValue("courseGroups", {
@@ -138,7 +154,7 @@ export class AddCourse extends Component {
                       name: "",
                       introduction: ""
                     })}
-                  type="button">Dodaj kolejną część fabuły</button>
+                  type="button">Dodaj część fabuły</button>
                 <button type="submit">
                   Dalej
                 </button>
