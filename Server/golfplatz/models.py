@@ -197,12 +197,20 @@ class PathCoverage(models.Model):
 
 
 class PointSource(models.Model):
-    class AutoCheckedCategory(models.TextChoices):
+    pass
+
+
+class AutoCheckedPointSource(PointSource):
+    class Category(models.TextChoices):
         QUIZ = 'QUIZ', 'Quiz'
         SURPRISE_EXERCISE = 'SURPRISE', 'Surprise exercise'
         GENERIC = 'GENERIC', 'Generic lab exercise'
 
-    class TutorCheckedCategory(models.TextChoices):
+    point_source_category = models.CharField(max_length=8, choices=Category.choices)
+
+
+class TutorCheckedPointSource(PointSource):
+    class Category(models.TextChoices):
         ACTIVENESS = 'ACTIVENESS', 'Activeness'
         TEST = 'TEST', 'Test'
         HOMEWORK = 'HOMEWORK', 'Homework or project'
@@ -212,8 +220,10 @@ class PointSource(models.Model):
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
         TEXT_AREA = 'TEXTAREA', 'Large text area'
 
-    category = models.CharField(max_length=8, choices=AutoCheckedCategory.choices + TutorCheckedCategory.choices)
+    max_points = models.DecimalField(max_digits=6, decimal_places=3)
+    category = models.CharField(max_length=10, choices=Category.choices)
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
+    tutor_checked_grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TutorCheckedGrade')
 
 
 class SurpriseExercise(AutoCheckedPointSource):
@@ -221,7 +231,6 @@ class SurpriseExercise(AutoCheckedPointSource):
         EMAIL = 'EMAIL', 'Email'
         PHONE = 'PHONE', 'Phone'
 
-    surprise_exercise_id = models.OneToOneField(PointSource, on_delete=models.CASCADE,)
     earliest_possible_send_time = models.DateTimeField()
     latest_possible_send_time = models.DateTimeField()
     sending_method = models.CharField(max_length=5, choices=SendMethod.choices)

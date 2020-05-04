@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
 from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, Question, Answer, \
-    PointSource
+    PointSource, AutoCheckedPointSource, TutorCheckedPointSource
 
 
 class CreateCourseSerializer(serializers.ModelSerializer):
@@ -69,7 +69,7 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True, allow_null=True)
     timer_rules = TimerRuleSerializer(many=True, allow_null=True)
     category = serializers.ChoiceField(
-        choices=PointSource.AutoCheckedCategory.choices + PointSource.TutorCheckedCategory.choices,
+        choices=AutoCheckedPointSource.Category.choices + TutorCheckedPointSource.Category.choices,
         allow_null=True
     )
     next_adventures = serializers.ListField(
