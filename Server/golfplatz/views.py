@@ -118,10 +118,6 @@ class SpecificChapterView(APIView):
 class AdventureView(APIView):
     permission_classes = [IsTutor]
 
-    # def get(self, request, adventure_id):
-    #     serializer = AdventureSerializer(Adventure.objects.get(pk=adventure_id), many=True)
-    #     return Response(serializer.data)
-
     def post(self, request, chapter_id):
         serializer = CreateAdventuresSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)

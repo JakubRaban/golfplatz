@@ -185,14 +185,8 @@ class PointSource(models.Model):
         TEST = 'TEST', 'Test'
         HOMEWORK = 'HOMEWORK', 'Homework or project'
 
-    class InputType(models.TextChoices):
-        NONE = 'NONE', 'None'
-        TEXT_FIELD = 'TEXTFIELD', 'Small text field'
-        TEXT_AREA = 'TEXTAREA', 'Large text area'
-
     adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True)
     category = models.CharField(max_length=10, choices=AutoCheckedCategory.choices + TutorCheckedCategory.choices)
-    input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
 
 
 class SurpriseExercise(models.Model):
@@ -211,9 +205,15 @@ class Question(models.Model):
         OPEN = 'OPEN', 'Open question'
         CLOSED = 'CLOSED', 'Closed question'
 
+    class InputType(models.TextChoices):
+        NONE = 'NONE', 'None'
+        TEXT_FIELD = 'TEXTFIELD', 'Small text field'
+        TEXT_AREA = 'TEXTAREA', 'Large text area'
+
     point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE)
     text = models.CharField(max_length=250)
     question_type = models.CharField(max_length=6, choices=Type.choices)
+    input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
     points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3)
     points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3)
     message_after_correct_answer = models.TextField()
