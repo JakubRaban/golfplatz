@@ -74,6 +74,8 @@ class TimerRuleSerializer(serializers.ModelSerializer):
 
 
 class AdventureSerializer(serializers.ModelSerializer):
+    point_source = PointSourceSerializer()
+
     class Meta:
         model = Adventure
         fields = '__all__'

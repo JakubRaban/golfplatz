@@ -112,13 +112,13 @@ class Chapter(models.Model):
                                                             task_description="The End", chapter=self)
         for adventure_dict in adventure_list:
             internal_id = adventure_dict.pop('internal_id')
-            questions_data = adventure_dict.pop('questions')
-            point_source_data = adventure_dict.pop('category')
+            point_source_data = adventure_dict.pop('point_source')
             timer_rules_data = adventure_dict.pop('timer_rules')
             next_adventures_data = adventure_dict.pop('next_adventures')
             new_adventure = Adventure.objects.create(**adventure_dict, chapter=self)
             for timer_rule in timer_rules_data:
                 TimerRule.objects.create(**timer_rule, adventure=new_adventure)
+            new_adventure.attach_point_source(point_source_data)
             internal_id_to_created_adventure[internal_id] = next_adventures_data, new_adventure
         for (new_id, (next_ids, adventure)) in internal_id_to_created_adventure.items():
             if next_ids:
@@ -144,6 +144,14 @@ class Adventure(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['chapter', 'name'], name='adventure_name_constraint')]
+
+    def attach_point_source(self, point_source_data):
+        surprise_exercise_data = point_source_data.pop('surprise_exercise', None)
+        questions_data = point_source_data.pop('questions')
+        self.point_source = PointSource.objects.create(**point_source_data, adventure=self)
+        if surprise_exercise_data:
+            SurpriseExercise.objects.create(**surprise_exercise_data, point_source=self.point_source)
+        self.point_source.add_questions(questions_data)
 
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.\
@@ -185,8 +193,14 @@ class PointSource(models.Model):
         TEST = 'TEST', 'Test'
         HOMEWORK = 'HOMEWORK', 'Homework or project'
 
-    adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True)
+    adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True, related_name='point_source')
     category = models.CharField(max_length=10, choices=AutoCheckedCategory.choices + TutorCheckedCategory.choices)
+
+    def add_questions(self, questions_data):
+        for question_data in questions_data:
+            answer_data = question_data.pop('answers')
+            new_question = Question.objects.create(**question_data, point_source=self)
+            new_question.add_answers(answer_data)
 
 
 class SurpriseExercise(models.Model):
@@ -194,7 +208,8 @@ class SurpriseExercise(models.Model):
         EMAIL = 'EMAIL', 'Email'
         PHONE = 'PHONE', 'Phone'
 
-    point_source = models.OneToOneField(PointSource, on_delete=models.CASCADE, primary_key=True)
+    point_source = models.OneToOneField(PointSource, on_delete=models.CASCADE, primary_key=True,
+                                        related_name='surprise_exercise')
     earliest_possible_send_time = models.DateTimeField()
     latest_possible_send_time = models.DateTimeField()
     sending_method = models.CharField(max_length=5, choices=SendMethod.choices)
@@ -210,19 +225,23 @@ class Question(models.Model):
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
         TEXT_AREA = 'TEXTAREA', 'Large text area'
 
-    point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE)
+    point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE, related_name='questions')
     text = models.CharField(max_length=250)
     question_type = models.CharField(max_length=6, choices=Type.choices)
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
-    points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3)
-    points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3)
-    message_after_correct_answer = models.TextField()
-    message_after_incorrect_answer = models.TextField()
+    points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3, default=1.0)
+    points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3, default=0.0)
+    message_after_correct_answer = models.TextField(blank=True)
+    message_after_incorrect_answer = models.TextField(blank=True)
     grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Grade')
+
+    def add_answers(self, answers_data):
+        for answer_data in answers_data:
+            Answer.objects.create(**answer_data, question=self)
 
 
 class Answer(models.Model):
-    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
     text = models.CharField(max_length=250)
     is_correct = models.BooleanField()
     is_regex = models.BooleanField(default=False)
