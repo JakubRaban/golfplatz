@@ -66,6 +66,19 @@ class PointSourceSerializer(serializers.ModelSerializer):
         model = PointSource
         exclude = ['adventure']
 
+    def points_validation(self, value):
+        try:
+            value = float(value)
+        except ValueError:
+            raise serializers.ValidationError("This field should be a number or a string representing a number")
+        return value
+
+    def validate_points_per_correct_answer(self, value):
+        return self.points_validation(value)
+
+    def validate_points_per_incorrect_answer(self, value):
+        return self.points_validation(value)
+
 
 class TimerRuleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,7 +99,7 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
     point_source = PointSourceSerializer()
     timer_rules = TimerRuleSerializer(many=True, allow_null=True)
     next_adventures = serializers.ListField(
-        child=serializers.IntegerField()
+        child=serializers.IntegerField(), allow_empty=True, allow_null=True
     )
 
     class Meta:
