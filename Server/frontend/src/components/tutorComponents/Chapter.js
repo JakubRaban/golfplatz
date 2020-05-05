@@ -159,30 +159,30 @@ export class Chapter extends Component {
                         <label htmlFor={`nested-questions-type-${i}`}>Typ pytania:</label>  
                         <select name="nested-questions-type" onChange={this.onQuestionChange(i)}>
                           <option value="OPEN">Otwarte</option>
-                          <option value="CLOSED">Sprawdzane przez system</option>
+                          <option value="CLOSED">Zamknięte</option>
                         </select>
                         <Form onSubmit={this.onSubmit}>
                           {formApi => (
-                              <form onSubmit={formApi.submitForm} id="answers">
-                                {formApi.values.answers &&
-                                  formApi.values.answers.map((f, j) => (
-                                    <div key={j}>
-                                      <Answers i={j} />
-                                      <label>Poprawna:</label>
-                                      <input type="checkbox" name="isCorrect" onChange={this.onCorrectChange(i,j)}></input>
-                                      <label>Sprawdzana wyrażeniem regularnym:</label>
-                                      <input type="checkbox" name="isRegex" onChange={this.onRegexChange(i,j)}></input>
-                                    </div>
-                                  ), this.state.questions[i].answers = formApi.values.answers)}
-                                <button
-                                  onClick={() =>
-                                    formApi.addValue("answers", {
-                                      text: "",
-                                      isCorrect: false,
-                                      isRegex: false,
-                                    })}
-                                  type="button">Dodaj możliwe odpowiedzi</button>
-                              </form>
+                            <form onSubmit={formApi.submitForm} id="answers">
+                              {formApi.values.answers &&
+                                formApi.values.answers.map((f, j) => (
+                                  <div key={j}>
+                                    <Answers i={j} />
+                                    <label>Poprawna:</label>
+                                    <input type="checkbox" name="isCorrect" onChange={this.onCorrectChange(i,j)}></input>
+                                    <label>Sprawdzana wyrażeniem regularnym:</label>
+                                    <input type="checkbox" name="isRegex" onChange={this.onRegexChange(i,j)}></input>
+                                  </div>
+                                ), this.state.questions[i].answers = formApi.values.answers)}
+                              <button
+                                onClick={() =>
+                                  formApi.addValue("answers", {
+                                    text: "",
+                                    isCorrect: false,
+                                    isRegex: false,
+                                  })}
+                                type="button">Dodaj możliwe odpowiedzi</button>
+                            </form>
                           )}
                       </Form>   
                       </div>
@@ -191,8 +191,8 @@ export class Chapter extends Component {
                     onClick={() =>
                       formApi.addValue("questions", {
                         text: "",
-                        pointsPerCorrectAnswer: "",
-                        pointsPerIncorrectAnswer: "",
+                        pointsPerCorrectAnswer: 1.0,
+                        pointsPerIncorrectAnswer: 0.0,
                         messageAfterCorrectAnswer: "",
                         messageAfterIncorrectAnswer: "",
                         questionType: "OPEN",
