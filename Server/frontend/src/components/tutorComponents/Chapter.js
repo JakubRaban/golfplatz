@@ -6,6 +6,20 @@ import { getChapter, addAdventures } from "../../actions/course";
 import { Form, Text, NestedForm } from "react-form";
 
 
+const Answers = ({ i }) => (
+  <NestedForm field={["answers", i]} key={`nested-answers-${i}`}>
+    <Form>
+      {formApi => (
+        <div>
+          <h5>Możliwe warianty odpowiedzi:</h5>
+          <label htmlFor={`nested-answers-${i}`}>Odp:</label>
+          <Text field="text" id={`nested-answers-${i}`} />
+        </div>
+      )}
+    </Form>
+  </NestedForm>
+);
+
 const Questions = ({ i }) => (
   <NestedForm field={["questions", i]} key={`nested-questions-${i}`}>
     <Form>
@@ -21,7 +35,7 @@ const Questions = ({ i }) => (
           <label htmlFor={`nested-questions-message-correct-${i}`}>Wiadomość po udzieleniu poprawnej odpowiedzi:</label>
           <Text field="messageAfterCorrectAnswer" id={`nested-questions-message-correct-${i}`} />
           <label htmlFor={`nested-questions-message-incorrect-${i}`}>Wiadomość po udzieleniu niepoprawnej odpowiedzi:</label>
-          <Text field="messageAfterInCorrectAnswer" id={`nested-questions-message-incorrect-${i}`} />     
+          <Text field="messageAfterInCorrectAnswer" id={`nested-questions-message-incorrect-${i}`} />  
         </div>
       )}
     </Form>
@@ -33,7 +47,7 @@ const TimerRule = ({ i }) => (
     <Form>
       {formApi => (
         <div>
-          <h5>Pytania</h5>
+          <h5>Reguły czasowe</h5>
           <label htmlFor={`nested-timer-rule-${i}`}>Czas obowiązywania reguły:</label>
           <Text field="ruleEndTime" id={`nested-timer-rule-${i}`} />
           <label htmlFor={`nested-timer-pts-awarded-${i}`}>??:</label>
@@ -69,6 +83,14 @@ export class Chapter extends Component {
   };
   onTimerChange = i => (e)  => {
     this.state.timerRules[i].decreasingMethod = e.target.value;
+  };
+
+  onCorrectChange = (i, j) => (e)  => {
+    this.state.questions[i].answers[j].isCorrect = e.target.value;
+  };
+
+  onRegexChange = (i, j) => (e)  => {
+    this.state.questions[i].answers[j].isRegex = e.target.value;
   };
 
   componentDidMount() {
@@ -139,6 +161,30 @@ export class Chapter extends Component {
                           <option value="OPEN">Otwarte</option>
                           <option value="CLOSED">Sprawdzane przez system</option>
                         </select>
+                        <Form onSubmit={this.onSubmit}>
+                          {formApi => (
+                              <form onSubmit={formApi.submitForm} id="answers">
+                                {formApi.values.answers &&
+                                  formApi.values.answers.map((f, j) => (
+                                    <div key={j}>
+                                      <Answers i={j} />
+                                      <label>Poprawna:</label>
+                                      <input type="checkbox" name="isCorrect" onChange={this.onCorrectChange(i,j)}></input>
+                                      <label>Sprawdzana wyrażeniem regularnym:</label>
+                                      <input type="checkbox" name="isRegex" onChange={this.onRegexChange(i,j)}></input>
+                                    </div>
+                                  ), this.state.questions[i].answers = formApi.values.answers)}
+                                <button
+                                  onClick={() =>
+                                    formApi.addValue("answers", {
+                                      text: "",
+                                      isCorrect: false,
+                                      isRegex: false,
+                                    })}
+                                  type="button">Dodaj możliwe odpowiedzi</button>
+                              </form>
+                          )}
+                      </Form>   
                       </div>
                     ), this.state.questions = formApi.values.questions)}
                   <button
@@ -150,6 +196,7 @@ export class Chapter extends Component {
                         messageAfterCorrectAnswer: "",
                         messageAfterIncorrectAnswer: "",
                         questionType: "OPEN",
+                        answers: [],
                       })}
                     type="button">Dodaj kolejne pytanie
                   </button>
