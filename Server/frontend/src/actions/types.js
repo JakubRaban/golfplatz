@@ -14,3 +14,5 @@ export const ADD_PLOT_PARTS = 'ADD_PLOT_PARTS';
 export const ADD_COURSE_GROUPS = 'ADD_COURSE_GROUPS';
 export const GET_COURSE = 'GET_COURSE';
 export const ADD_CHAPTER = 'ADD_CHAPTER';
+export const GET_CHAPTER = 'GET_CHAPTER';
+export const ADD_ADVENTURES = 'ADD_ADVENTURES';

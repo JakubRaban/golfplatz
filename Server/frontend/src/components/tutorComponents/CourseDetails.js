@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NavLink, Redirect } from 'react-router-dom';
+import { NavLink, Redirect, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getCourse, addChapters } from "../../actions/course";
 import TableRow from '@material-ui/core/TableRow';
@@ -132,6 +132,14 @@ export class CourseDetails extends Component {
                     )}
                   </Form>
                 </Popup>
+                <Table>
+                { this.props.course.plotParts[i].chapters.map((chapter, i) => 
+                  <TableRow component={Link} to={`/chapters/${chapter.id}/`} key={chapter.id}>
+                    <TableCell>{chapter.name}</TableCell>
+                    <TableCell>{chapter.description}</TableCell>
+                  </TableRow>
+                )}
+                </Table>
               </TableRow>
             </TableBody>
            )) } 
