@@ -38,10 +38,8 @@ class App extends React.Component {
       <Provider store={store}>
         <AlertProvider template={AlertTemplate} {...alertOptions}>
           <Alerts/>
-          <p>Long have I waited</p>
           <Router>
             <Switch>
-              {/* <Route exact path="/" component={}/> */}
               <PrivateRoute exact path="/" component={TutorDashboard}/>
               <Route exact path="/login" component={Login}/>
               <Route exact path="/add-courses" component={AddCourse}/>

@@ -62,14 +62,15 @@ const TimerRule = ({ i }) => (
 
 export class Chapter extends Component {  
   state = {
+    internalId: "",
     name: "",
     taskDescription: "",
-    category: "QUIZ",
+    pointSource: { category: "QUIZ", questions: [] },
     isInitial: false,
     hasTimeLimit: false,
-    questions: [],
     timerRules: [],
-  };
+    nextAdventures: [],
+  };  
 
   static propTypes = {
     isAuthenticated: PropTypes.bool,
@@ -78,19 +79,24 @@ export class Chapter extends Component {
   };
 
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
+
+  onCategoryChange = (e)  => {
+    this.state.pointSource.category = e.target.value;
+  };
+
   onQuestionChange = i => (e)  => {
-    this.state.questions[i].questionType = e.target.value;
+    this.state.pointSource.questions[i].questionType = e.target.value;
   };
   onTimerChange = i => (e)  => {
     this.state.timerRules[i].decreasingMethod = e.target.value;
   };
 
   onCorrectChange = (i, j) => (e)  => {
-    this.state.questions[i].answers[j].isCorrect = e.target.value;
+    this.state.pointSource.questions[i].answers[j].isCorrect = e.target.value === on ? true : false;
   };
 
   onRegexChange = (i, j) => (e)  => {
-    this.state.questions[i].answers[j].isRegex = e.target.value;
+    this.state.pointSource.questions[i].answers[j].isRegex = e.target.value === on ? true : false;
   };
 
   componentDidMount() {
@@ -103,18 +109,19 @@ export class Chapter extends Component {
     adventure.push(this.state);
     this.props.addAdventures(adventure, this.props.chapter.id);
     this.setState({
+      internalId: "",
       name: "",
       taskDescription: "",
-      category: "QUIZ",
+      pointSource: { category: "QUIZ", questions: [] },
       isInitial: false,
       hasTimeLimit: false,
-      questions: [],
       timerRules: [],
+      nextAdventures: [],
     });  
   };
 
   render() {
-    const { name, taskDescription } = this.state;
+    const { name, taskDescription, internalId } = this.state;
 
     // if (!this.props.isAuthenticated) {
     //   return <Redirect to="/login" />;
@@ -133,10 +140,12 @@ export class Chapter extends Component {
           <h3>Przygoda</h3>
           <label>Nazwa</label>
           <input type="text" name="name" onChange={this.onChange} value={name}/>
+          <label>Numer przygody w rozdziale</label>
+          <input type="number" name="internalId" onChange={this.onChange} value={internalId}/>
           <label>Opis:</label>
           <input type="text" name="taskDescription" onChange={this.onChange} value={taskDescription}/>
           <label>Kategoria:</label>
-          <select name="category" onChange={this.onChange}>
+          <select name="category" onChange={this.onCategoryChange}>
             <option value="QUIZ">Quiz</option>
             <option value="SURPRISE">Zadanie niespodzianka</option>
             <option value="GENERIC">Zadanie na zajęcia</option>
@@ -173,7 +182,7 @@ export class Chapter extends Component {
                                     <label>Sprawdzana wyrażeniem regularnym:</label>
                                     <input type="checkbox" name="isRegex" onChange={this.onRegexChange(i,j)}></input>
                                   </div>
-                                ), this.state.questions[i].answers = formApi.values.answers)}
+                                ), this.state.pointSource.questions[i].answers = formApi.values.answers)}
                               <button
                                 onClick={() =>
                                   formApi.addValue("answers", {
@@ -186,7 +195,7 @@ export class Chapter extends Component {
                           )}
                       </Form>   
                       </div>
-                    ), this.state.questions = formApi.values.questions)}
+                    ), this.state.pointSource.questions = formApi.values.questions)}
                   <button
                     onClick={() =>
                       formApi.addValue("questions", {

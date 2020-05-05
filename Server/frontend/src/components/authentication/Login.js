@@ -8,6 +8,10 @@ import '@material/react-text-field/dist/text-field.css';
 import '../../../style/login.css'
 import '@material/react-button/dist/button.css';
 import Button from '@material/react-button';
+import 'typeface-roboto';
+import Typography from "@material-ui/core/Typography";
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 
 
 export class Login extends Component {
@@ -35,8 +39,10 @@ export class Login extends Component {
     const { email, password } = this.state;
     return (
       <div className="login-container">
-        <div>
-          <h2>Login</h2>
+        <div className="box-container">
+          <Typography variant="h4" gutterBottom>
+            Logowanie
+          </Typography>
           <form onSubmit={this.onSubmit}>
             <TextField className="mail" label="Adres e-mail:">
               <Input
@@ -61,13 +67,18 @@ export class Login extends Component {
                 Zaloguj się
               </Button>
             </div>
-            <p> Nie masz konta? </p>
-            <p> Rejestracja prowadzącego:    
-                <Link to="/register-tutor">Register</Link>
-            </p>
-            <p> Rejestracja studenta:    
-                <Link to="/register-student">Register</Link>
-            </p>
+            <Typography> Nie masz konta? </Typography>
+
+            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+              <Typography color="textPrimary">Rejestracja studenta: </Typography>
+              <Link to="/register-student">Zarejestruj się!</Link>             
+            </Breadcrumbs>
+
+            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+              <Typography color="textPrimary">Rejestracja prowadzącego:</Typography>
+              <Link to="/register-tutor">Zarejestruj się!</Link>             
+            </Breadcrumbs>
+
           </form>
         </div>
       </div>
