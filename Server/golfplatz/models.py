@@ -55,18 +55,6 @@ class Course(models.Model):
         return f'Course {self.name}'
 
 
-class AutoCheckedGrade(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    question = models.ForeignKey('Question', on_delete=models.CASCADE)
-    points_scored = models.DecimalField(max_digits=6, decimal_places=3)
-
-
-class TutorCheckedGrade(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    tutor_checked_source = models.ForeignKey('TutorCheckedPointSource', on_delete=models.CASCADE)
-    points_scored = models.DecimalField(max_digits=6, decimal_places=3)
-
-
 class CourseGroup(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='course_groups')
     group_name = models.CharField(max_length=40)
@@ -120,20 +108,27 @@ class Chapter(models.Model):
 
     def add_adventures(self, adventure_list):
         internal_id_to_created_adventure = {}
+        dummy_terminal_adventure = Adventure.objects.create(is_terminal=True, name="The End",
+                                                            task_description="The End", chapter=self)
         for adventure_dict in adventure_list:
             internal_id = adventure_dict.pop('internal_id')
-            questions_data = adventure_dict.pop('questions')
-            point_source_data = adventure_dict.pop('category')
+            point_source_data = adventure_dict.pop('point_source')
             timer_rules_data = adventure_dict.pop('timer_rules')
             next_adventures_data = adventure_dict.pop('next_adventures')
             new_adventure = Adventure.objects.create(**adventure_dict, chapter=self)
             for timer_rule in timer_rules_data:
                 TimerRule.objects.create(**timer_rule, adventure=new_adventure)
+            new_adventure.attach_point_source(point_source_data)
             internal_id_to_created_adventure[internal_id] = next_adventures_data, new_adventure
         for (new_id, (next_ids, adventure)) in internal_id_to_created_adventure.items():
-            for next_id in next_ids:
+            if next_ids:
+                for next_id in next_ids:
+                    Path.objects.create(from_adventure=adventure,
+                                        to_adventure=internal_id_to_created_adventure[next_id][1])
+            else:
                 Path.objects.create(from_adventure=adventure,
-                                    to_adventure=internal_id_to_created_adventure[next_id][1])
+                                    to_adventure=dummy_terminal_adventure)
+        return [adventure[1] for adventure in internal_id_to_created_adventure.values()]
 
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
@@ -142,19 +137,21 @@ class Chapter(models.Model):
 class Adventure(models.Model):
     name = models.CharField(max_length=50)
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='adventures')
-    point_source = models.OneToOneField('PointSource', on_delete=models.PROTECT, null=True, default=None)
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
+    is_terminal = models.BooleanField(default=False)
     has_time_limit = models.BooleanField(default=False)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['chapter', 'name'], name='adventure_name_constraint')]
 
-    def attach_point_source(self):
-        raise NotImplemented()
-
-    def add_timer_rule(self):
-        raise NotImplemented()
+    def attach_point_source(self, point_source_data):
+        surprise_exercise_data = point_source_data.pop('surprise_exercise', None)
+        questions_data = point_source_data.pop('questions')
+        self.point_source = PointSource.objects.create(**point_source_data, adventure=self)
+        if surprise_exercise_data:
+            SurpriseExercise.objects.create(**surprise_exercise_data, point_source=self.point_source)
+        self.point_source.add_questions(questions_data)
 
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.\
@@ -186,40 +183,33 @@ class PathCoverage(models.Model):
 
 
 class PointSource(models.Model):
-    pass
-
-
-class AutoCheckedPointSource(PointSource):
-    class Category(models.TextChoices):
+    class AutoCheckedCategory(models.TextChoices):
         QUIZ = 'QUIZ', 'Quiz'
         SURPRISE_EXERCISE = 'SURPRISE', 'Surprise exercise'
         GENERIC = 'GENERIC', 'Generic lab exercise'
 
-    point_source_category = models.CharField(max_length=8, choices=Category.choices)
-
-
-class TutorCheckedPointSource(PointSource):
-    class Category(models.TextChoices):
+    class TutorCheckedCategory(models.TextChoices):
         ACTIVENESS = 'ACTIVENESS', 'Activeness'
         TEST = 'TEST', 'Test'
         HOMEWORK = 'HOMEWORK', 'Homework or project'
 
-    class InputType(models.TextChoices):
-        NONE = 'NONE', 'None'
-        TEXT_FIELD = 'TEXTFIELD', 'Small text field'
-        TEXT_AREA = 'TEXTAREA', 'Large text area'
+    adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True, related_name='point_source')
+    category = models.CharField(max_length=10, choices=AutoCheckedCategory.choices + TutorCheckedCategory.choices)
 
-    max_points = models.DecimalField(max_digits=6, decimal_places=3)
-    category = models.CharField(max_length=10, choices=Category.choices)
-    input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
-    tutor_checked_grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TutorCheckedGrade')
+    def add_questions(self, questions_data):
+        for question_data in questions_data:
+            answer_data = question_data.pop('answers')
+            new_question = Question.objects.create(**question_data, point_source=self)
+            new_question.add_answers(answer_data)
 
 
-class SurpriseExercise(AutoCheckedPointSource):
+class SurpriseExercise(models.Model):
     class SendMethod(models.TextChoices):
         EMAIL = 'EMAIL', 'Email'
         PHONE = 'PHONE', 'Phone'
 
+    point_source = models.OneToOneField(PointSource, on_delete=models.CASCADE, primary_key=True,
+                                        related_name='surprise_exercise')
     earliest_possible_send_time = models.DateTimeField()
     latest_possible_send_time = models.DateTimeField()
     sending_method = models.CharField(max_length=5, choices=SendMethod.choices)
@@ -230,18 +220,34 @@ class Question(models.Model):
         OPEN = 'OPEN', 'Open question'
         CLOSED = 'CLOSED', 'Closed question'
 
+    class InputType(models.TextChoices):
+        NONE = 'NONE', 'None'
+        TEXT_FIELD = 'TEXTFIELD', 'Small text field'
+        TEXT_AREA = 'TEXTAREA', 'Large text area'
+
+    point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE, related_name='questions')
     text = models.CharField(max_length=250)
-    points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3)
-    points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3)
-    message_after_correct_answer = models.TextField()
-    message_after_incorrect_answer = models.TextField()
     question_type = models.CharField(max_length=6, choices=Type.choices)
-    point_source = models.ForeignKey('AutoCheckedPointSource', on_delete=models.CASCADE)
-    auto_checked_grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='AutoCheckedGrade')
+    input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
+    points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3, default=1.0)
+    points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3, default=0.0)
+    message_after_correct_answer = models.TextField(blank=True)
+    message_after_incorrect_answer = models.TextField(blank=True)
+    grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Grade')
+
+    def add_answers(self, answers_data):
+        for answer_data in answers_data:
+            Answer.objects.create(**answer_data, question=self)
 
 
 class Answer(models.Model):
-    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
     text = models.CharField(max_length=250)
     is_correct = models.BooleanField()
     is_regex = models.BooleanField(default=False)
+
+
+class Grade(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    points_scored = models.DecimalField(max_digits=6, decimal_places=3)
