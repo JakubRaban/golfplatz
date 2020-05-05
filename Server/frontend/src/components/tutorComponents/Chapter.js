@@ -22,9 +22,6 @@ const Questions = ({ i }) => (
           <Text field="messageAfterCorrectAnswer" id={`nested-questions-message-correct-${i}`} />
           <label htmlFor={`nested-questions-message-incorrect-${i}`}>Wiadomość po udzieleniu niepoprawnej odpowiedzi:</label>
           <Text field="messageAfterInCorrectAnswer" id={`nested-questions-message-incorrect-${i}`} />     
-          <label htmlFor={`nested-questions-type-${i}`}>Typ pytania:</label>
-          <Text field="questionType" id={`nested-questions-message-type-${i}`} />
-          {/* jeszcze odp */}
         </div>
       )}
     </Form>
@@ -39,11 +36,9 @@ const TimerRule = ({ i }) => (
           <h5>Pytania</h5>
           <label htmlFor={`nested-timer-rule-${i}`}>Czas obowiązywania reguły:</label>
           <Text field="ruleEndTime" id={`nested-timer-rule-${i}`} />
-
           <label htmlFor={`nested-timer-pts-awarded-${i}`}>??:</label>
           <Text field="leastPointsAwardedPercent" id={`nested-timer-pts-awarded-${i}`} />
           
-          {/* jeszcze method */}
         </div>
       )}
     </Form>
@@ -69,6 +64,12 @@ export class Chapter extends Component {
   };
 
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
+  onQuestionChange = i => (e)  => {
+    this.state.questions[i].questionType = e.target.value;
+  };
+  onTimerChange = i => (e)  => {
+    this.state.timerRules[i].decreasingMethod = e.target.value;
+  };
 
   componentDidMount() {
     this.props.getChapter(this.props.match.params.id);
@@ -86,7 +87,7 @@ export class Chapter extends Component {
       isInitial: false,
       hasTimeLimit: false,
       questions: [],
-      timerRules,
+      timerRules: [],
     });  
   };
 
@@ -133,6 +134,11 @@ export class Chapter extends Component {
                     formApi.values.questions.map((f, i) => (
                       <div key={i}>
                         <Questions i={i} />
+                        <label htmlFor={`nested-questions-type-${i}`}>Typ pytania:</label>  
+                        <select name="nested-questions-type" onChange={this.onQuestionChange(i)}>
+                          <option value="OPEN">Otwarte</option>
+                          <option value="CLOSED">Sprawdzane przez system</option>
+                        </select>
                       </div>
                     ), this.state.questions = formApi.values.questions)}
                   <button
@@ -143,6 +149,7 @@ export class Chapter extends Component {
                         pointsPerIncorrectAnswer: "",
                         messageAfterCorrectAnswer: "",
                         messageAfterIncorrectAnswer: "",
+                        questionType: "OPEN",
                       })}
                     type="button">Dodaj kolejne pytanie
                   </button>
@@ -152,6 +159,11 @@ export class Chapter extends Component {
                   formApi.values.timerRules.map((f, i) => (
                     <div key={i}>
                       <TimerRule i={i} />
+                      <label htmlFor={`nested-timer-method-${i}`}>Zmiana punktacji wraz z czasem:</label>  
+                        <select name="nested-timer-method" onChange={this.onTimerChange(i)}>
+                          <option value="NONE">Brak</option>
+                          <option value="LIN">Liniowo</option>
+                        </select>
                     </div>
                     
                   ), this.state.timerRules = formApi.values.timerRules)}
@@ -160,6 +172,7 @@ export class Chapter extends Component {
                     formApi.addValue("timerRules", {
                       leastPointsAwardedPercent: "",
                       ruleEndTime: "",
+                      decreasingMethod: "NONE",
                     })}
                   type="button">Dodaj reguły czasowe</button>
 
