@@ -80,7 +80,7 @@ class PlotPartView(APIView):
     permission_classes = [IsTutor]
 
     def get(self, request, course_id):
-        serializer = PlotPartSerializer(PlotPart.objects.get(course_id=course_id))
+        serializer = PlotPartSerializer(PlotPart.objects.filter(course_id=course_id), many=True)
         return Response(serializer.data)
 
     def post(self, request, course_id):
@@ -111,7 +111,7 @@ class ChapterView(APIView):
         return Response(ChapterSerializer(created_chapters, many=True).data)
 
     def get(self, request, plot_part_id):
-        serializer = ChapterSerializer(Chapter.objects.get(plot_part_id=plot_part_id), many=True)
+        serializer = ChapterSerializer(Chapter.objects.filter(plot_part_id=plot_part_id), many=True)
         return Response(serializer.data)
 
 
@@ -128,7 +128,7 @@ class AdventureView(APIView):
 
     def get(self, request, chapter_id):
         chapter = Chapter.objects.get(pk=chapter_id)
-        adventures = Adventure.objects.get(chapter=chapter)
+        adventures = Adventure.objects.filter(chapter=chapter)
         adventure_serializer = AdventureSerializer(adventures, many=True)
         path_serializer = PathSerializer(chapter.get_paths(), many=True)
         return Response({
