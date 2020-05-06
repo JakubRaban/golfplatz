@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
 from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, \
-    Question, Answer, PointSource, SurpriseExercise
+    Question, Answer, PointSource, SurpriseExercise, Path
 
 
 class CreateCourseSerializer(serializers.ModelSerializer):
@@ -84,6 +84,12 @@ class TimerRuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimerRule
         exclude = ['adventure']
+
+
+class PathSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Path
+        exclude = ['students']
 
 
 class AdventureSerializer(serializers.ModelSerializer):
