@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import { addCourse } from '../../actions/course';
 import { Redirect } from 'react-router-dom';
 import AddCourseInitialInfo from "./AddCourseInitialInfo";
-import AddCourseGroups from "./AddCourseGroups";
-import AddPlotParts from "./AddPlotParts";
+import AddGroupsAndPlot from "./AddGroupsAndPlot";
 import AddCourseConfirm from "./AddCourseConfirm";
 
 
@@ -17,6 +16,7 @@ export class AddCourse extends Component {
     courseGroups: [],
     plotParts: [],
     redirect: false,
+    chapters: [],
   };
 
   static propTypes = {
@@ -42,32 +42,29 @@ export class AddCourse extends Component {
     this.setState({ [input]: e.target.value });
   };
 
-  handleGroupChange = value => {
-    this.setState({ courseGroups: value });
-  }
-
-  handlePlotPartsChange = value => {
-    this.setState({ plotParts: value });
+  handleObjectChange = (input, value) => {
+    this.setState({ [input]: value });
   }
 
   onSubmit = (e) => {
     // e.preventDefault();
-    const { name, description, courseGroups, plotParts } = this.state;
+    const { name, description, courseGroups, plotParts, chapters } = this.state;
     const course = { name, description };
-    this.props.addCourse(course, courseGroups, plotParts);
+    this.props.addCourse(course, courseGroups, plotParts, chapters);
     this.setState({
       name: '',
       description: '',
       courseGroups: [],
       plotParts: [],
       redirect: true,
+      chapters: [],
     });
   };
 
   render() {
     const { step } = this.state;
-    const { name, description, courseGroups, plotParts } = this.state;
-    const values = { name, description, courseGroups, plotParts };
+    const { name, description, courseGroups, plotParts, chapters } = this.state;
+    const values = { name, description, courseGroups, plotParts, chapters };
     if (this.state.redirect) {
       return (
         <Redirect to="/courses"/>
@@ -95,23 +92,14 @@ export class AddCourse extends Component {
         );
       case 2:
         return (
-          <AddCourseGroups
+          <AddGroupsAndPlot
             nextStep={this.nextStep}
             prevStep={this.prevStep}
-            handleChange={this.handleGroupChange}
+            handleChange={this.handleObjectChange}
             values={values}
           />
         );
       case 3:
-        return (
-          <AddPlotParts
-            nextStep={this.nextStep}
-            prevStep={this.prevStep}
-            handleChange={this.handlePlotPartsChange}
-            values={values}
-          />
-        );
-      case 4:
         return (
           <AddCourseConfirm
             nextStep={this.nextStep}

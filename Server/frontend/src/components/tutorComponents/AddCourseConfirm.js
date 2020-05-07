@@ -35,12 +35,13 @@ export class AddCourseConfirm extends Component {
       )
     }
     const {
-      values: { name, description, courseGroups, plotParts }
+      values: { name, description, courseGroups, plotParts, chapters }
     } = this.props;
     console.log(name);
     console.log(description);
     console.log(courseGroups);
     console.log(plotParts);
+    console.log(chapters);
     return(
       <div>
         <button onClick={this.continue}>
