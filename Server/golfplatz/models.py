@@ -130,6 +130,13 @@ class Chapter(models.Model):
                                     to_adventure=dummy_terminal_adventure)
         return [adventure[1] for adventure in internal_id_to_created_adventure.values()]
 
+    def get_paths(self):
+        adventures = Adventure.objects.filter(chapter=self)
+        paths = []
+        for adventure in adventures:
+            paths.extend(Path.objects.filter(from_adventure=adventure))
+        return paths
+
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
 
@@ -176,8 +183,8 @@ class Path(models.Model):
 
 
 class PathCoverage(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    path = models.ForeignKey('Path', on_delete=models.CASCADE)
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    path = models.ForeignKey('Path', on_delete=models.PROTECT)
     adventure_started_time = models.DateTimeField()
     time_elapsed_seconds = models.PositiveSmallIntegerField()
 
@@ -248,6 +255,6 @@ class Answer(models.Model):
 
 
 class Grade(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    question = models.ForeignKey('Question', on_delete=models.PROTECT)
     points_scored = models.DecimalField(max_digits=6, decimal_places=3)

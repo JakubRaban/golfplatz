@@ -4,6 +4,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
 from .permissions import IsTutor
 from .serializers import *
@@ -24,6 +25,13 @@ class CourseView(APIView):
         serializer.is_valid(raise_exception=True)
         course = Course.objects.create(**serializer.validated_data)
         return Response(CourseSerializer(course).data)
+
+    def delete(self, request, course_id=None):
+        if not course_id:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        else:
+            Course.objects.get(pk=course_id).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RegisterStudentView(APIView):
@@ -72,7 +80,7 @@ class PlotPartView(APIView):
     permission_classes = [IsTutor]
 
     def get(self, request, course_id):
-        serializer = PlotPartSerializer(PlotPart.objects.get(course_id=course_id))
+        serializer = PlotPartSerializer(PlotPart.objects.filter(course_id=course_id), many=True)
         return Response(serializer.data)
 
     def post(self, request, course_id):
@@ -103,7 +111,7 @@ class ChapterView(APIView):
         return Response(ChapterSerializer(created_chapters, many=True).data)
 
     def get(self, request, plot_part_id):
-        serializer = ChapterSerializer(Chapter.objects.get(plot_part_id=plot_part_id), many=True)
+        serializer = ChapterSerializer(Chapter.objects.filter(plot_part_id=plot_part_id), many=True)
         return Response(serializer.data)
 
 
@@ -119,15 +127,35 @@ class AdventureView(APIView):
     permission_classes = [IsTutor]
 
     def get(self, request, chapter_id):
-        serializer = AdventureSerializer(Adventure.objects.get(chapter_id=chapter_id), many=True)
-        return Response(serializer.data)
+        chapter = Chapter.objects.get(pk=chapter_id)
+        adventures = Adventure.objects.filter(chapter=chapter)
+        adventure_serializer = AdventureSerializer(adventures, many=True)
+        path_serializer = PathSerializer(chapter.get_paths(), many=True)
+        return Response({
+            'adventures': adventure_serializer.data,
+            'paths': path_serializer.data
+        })
 
     def post(self, request, chapter_id):
         serializer = CreateAdventuresSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         chapter = Chapter.objects.get(pk=chapter_id)
         new_adventures = chapter.add_adventures(serializer.validated_data)
-        return Response(AdventureSerializer(new_adventures, many=True).data)
+        return Response({
+            'adventures': AdventureSerializer(new_adventures, many=True).data,
+            'paths': PathSerializer(chapter.get_paths(), many=True).data
+        })
+
+
+class AdventurePathsView(APIView):
+    def post(self, request):
+        serializer = PathSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        new_paths = []
+        for path_data in serializer.validated_data:
+            new_paths.append(Path.objects.create(from_adventure=path_data['from_adventure'],
+                                                 to_adventure=path_data['to_adventure']))
+        return Response(PathSerializer(new_paths, many=True).data)
 
 
 class WhoAmIView(generics.RetrieveAPIView):
