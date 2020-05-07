@@ -26,6 +26,7 @@ export const addAdventures = (adventures, chapterId) => (dispatch, getState) => 
 }
 
 export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
+  console.log(chapters, plotPartId);
   axios.post("/api/plot_parts/" + plotPartId + "/chapters/", chapters, tokenConfig(getState)).then(res => {
     dispatch({
       type: ADD_CHAPTER,
@@ -36,11 +37,11 @@ export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
   });
 }
 
-export const addCourse = (course, courseGroups, plotParts) => (dispatch, getState) => {
-  makeAllCourseRequests(course, plotParts, courseGroups, dispatch, getState);
+export const addCourse = (course, courseGroups, plotParts, chapters) => (dispatch, getState) => {
+  makeAllCourseRequests(course, plotParts, courseGroups, chapters, dispatch, getState);
 };
 
-async function makeAllCourseRequests(course, plotParts, courseGroups, dispatch, getState) {
+async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, dispatch, getState) {
   let courseId = -1;
   await axios.post("/api/courses/", course, tokenConfig(getState)).then(res=>{
     dispatch({
@@ -64,16 +65,33 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, dispatch, 
     dispatch(returnErrors(err.response.data, err.response.status));
   });
 
+  let plotPartsData = [];
+
   await axios.post("/api/courses/" + courseId + "/plot_parts/", plotParts, tokenConfig(getState)).then(res=>{
     dispatch(createMessage({courseAdded: "Kurs dodany pomyślnie"}));
     dispatch({
       type: ADD_PLOT_PARTS,
       payload: res.data
     });
+    plotPartsData = res.data;
   }).catch(err => {
     dispatch(returnErrors(err.response.data, err.response.status));
   });
 
+
+  for (var i = 0; i < plotPartsData.length; i++) {
+    addChapters(chapters[i], plotPartsData[i].id);
+//DLACZEGO addChapters NIE DZIAŁA
+
+    await axios.post("/api/plot_parts/" + plotPartsData[i].id + "/chapters/", chapters[i], tokenConfig(getState)).then(res => {
+      dispatch({
+        type: ADD_CHAPTER,
+        payload: res.data
+      });
+    }).catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
+  }
 }
 
 export const getCourses = () => (dispatch, getState) => {
