@@ -20,6 +20,7 @@ export const addAdventures = (adventures, chapterId) => (dispatch, getState) => 
       payload: res.data
     });
   }).catch(err => {
+    console.log(err.response.data);
     dispatch(returnErrors(err.response.data, err.response.status));
   });
 }

@@ -1,5 +1,9 @@
 .mail,
-.password {
+.password,
+.firstName,
+.lastName,
+.studentNumber,
+.phoneNumber {
   display: block;
   width: 300px;
   margin: 20px auto;
@@ -23,3 +27,15 @@
   align-items: center;
   justify-content: center;
 }
+
+.box-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 30em;
+    min-width: 21em;
+    box-shadow: 0px 0px 20px 0px rgba(15, 15, 15, 0.2);
+    border-radius: 6px;
+    padding: 24px;
+    align-items: center;
+}
+
