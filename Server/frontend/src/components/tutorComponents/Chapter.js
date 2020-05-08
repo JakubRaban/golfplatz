@@ -4,6 +4,7 @@ import { NavLink, Redirect, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getChapter, addAdventures } from "../../actions/course";
 import { Form, Text, NestedForm } from "react-form";
+import Popup from "reactjs-popup";
 
 
 const Answers = ({ i }) => (
@@ -70,6 +71,7 @@ export class Chapter extends Component {
     hasTimeLimit: false,
     timerRules: [],
     nextAdventures: [],
+    popUpOpen: false,
   };  
 
   static propTypes = {
@@ -81,6 +83,9 @@ export class Chapter extends Component {
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
   onCategoryChange = (e)  => {
+    if (e.target.value === "SURPRISE") {
+      this.setState({popUpOpen: true});
+    }
     this.state.pointSource.category = e.target.value;
   };
 
@@ -101,6 +106,10 @@ export class Chapter extends Component {
 
   componentDidMount() {
     this.props.getChapter(this.props.match.params.id);
+  }
+
+  _popUpClosed(){
+    this.setState({popUpOpen: false});
   }
 
   onSubmit = (e) => {
@@ -152,7 +161,11 @@ export class Chapter extends Component {
             <option value="ACTIVENESS">Aktywność</option>
             <option value="TEST">Kolokwium</option>
             <option value="HOMEWORK">Zadanie domowe</option>
-          </select>    
+          </select>
+          <Popup
+                  open={this.state.popUpOpen} onClose={this._popUpClosed} position="right center">
+                      <button>XD</button>  HI THERE!
+            </Popup> 
           <label>Pierwsza przygoda w rozdziale:</label>
           <input type="checkbox" name="isInitial" onChange={this.onChange}></input>
           <label>Ma limit czasowy:</label>
