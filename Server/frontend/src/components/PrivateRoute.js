@@ -14,7 +14,7 @@ const PrivateRoute = ({ component: Component, auth, ...rest }) => (
       } else if (!auth.isAuthenticated) {
         return <Redirect to="/login" />;
       } else if (auth.user.groups[0] === 1){
-        return <StudentDashboard user={auth.user}/>;
+        return <Redirect to='/student'/>;
       }
       else {
         return <Component {...props} />;

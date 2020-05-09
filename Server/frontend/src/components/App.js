@@ -20,6 +20,7 @@ import PrivateRoute from './PrivateRoute';
 import { loadUser } from '../actions/auth';
 import CourseDetails from './tutorComponents/CourseDetails';
 import Chapter from './tutorComponents/Chapter';
+import StudentDashboard from './studentComponents/StudentDashboard';
 
 
 const alertOptions = {
@@ -41,6 +42,7 @@ class App extends React.Component {
           <Router>
             <Switch>
               <PrivateRoute exact path="/" component={TutorDashboard}/>
+              <Route exact path="/student" component = {StudentDashboard}/>
               <Route exact path="/login" component={Login}/>
               <Route exact path="/add-courses" component={AddCourse}/>
               <Route exact path="/courses" component={GetCourses}/>

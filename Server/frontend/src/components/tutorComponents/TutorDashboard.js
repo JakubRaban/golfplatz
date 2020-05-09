@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { logout } from '../../actions/auth';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
 import Box from '@material-ui/core/Box';
