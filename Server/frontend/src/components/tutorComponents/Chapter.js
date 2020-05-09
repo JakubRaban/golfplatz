@@ -66,7 +66,7 @@ export class Chapter extends Component {
     internalId: "",
     name: "",
     taskDescription: "",
-    pointSource: { category: "QUIZ", questions: [] },
+    pointSource: { category: "QUIZ", questions: [], surpriseExercise:[] },
     isInitial: false,
     hasTimeLimit: false,
     timerRules: [],
@@ -80,11 +80,15 @@ export class Chapter extends Component {
     chapter: PropTypes.any,
   };
 
+  surpriseExercise = {earliestPossibleSendTime: "", latestPossibleSendTime: "", sendingMethod: "PHONE"};
+
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
   onCategoryChange = (e)  => {
     if (e.target.value === "SURPRISE") {
       this.setState({popUpOpen: true});
+    } else {
+      this.state.pointSource.surpriseExercise = [];
     }
     this.state.pointSource.category = e.target.value;
   };
@@ -92,6 +96,7 @@ export class Chapter extends Component {
   onQuestionChange = i => (e)  => {
     this.state.pointSource.questions[i].questionType = e.target.value;
   };
+
   onTimerChange = i => (e)  => {
     this.state.timerRules[i].decreasingMethod = e.target.value;
   };
@@ -104,11 +109,24 @@ export class Chapter extends Component {
     this.state.pointSource.questions[i].answers[j].isRegex = e.target.value === on ? true : false;
   };
 
+  onEarliestChange = (e) => {
+    this.surpriseExercise.earliestPossibleSendTime = e.target.value;
+  }
+
+  onLatestChange = (e) => {
+    this.surpriseExercise.latestPossibleSendTime = e.target.value;
+  }
+
+  onSendingChange = (e) => {
+    this.surpriseExercise.sendingMethod = e.target.value;
+  }
+
   componentDidMount() {
     this.props.getChapter(this.props.match.params.id);
   }
 
-  _popUpClosed(){
+  updateSurpriseExercise(){
+    this.state.pointSource.surpriseExercise = this.surpriseExercise;
     this.setState({popUpOpen: false});
   }
 
@@ -121,7 +139,7 @@ export class Chapter extends Component {
       internalId: "",
       name: "",
       taskDescription: "",
-      pointSource: { category: "QUIZ", questions: [] },
+      pointSource: { category: "QUIZ", questions: [], surpriseExercise:[] },
       isInitial: false,
       hasTimeLimit: false,
       timerRules: [],
@@ -131,7 +149,6 @@ export class Chapter extends Component {
 
   render() {
     const { name, taskDescription, internalId } = this.state;
-
     // if (!this.props.isAuthenticated) {
     //   return <Redirect to="/login" />;
     // }
@@ -162,9 +179,27 @@ export class Chapter extends Component {
             <option value="TEST">Kolokwium</option>
             <option value="HOMEWORK">Zadanie domowe</option>
           </select>
-          <Popup
-                  open={this.state.popUpOpen} onClose={this._popUpClosed} position="right center">
-                      <button>XD</button>  HI THERE!
+            <Popup open={this.state.popUpOpen} position="right center">
+              {close => (  
+                  <div>
+                    <form>
+                      <h6>Określ zakres czasowy i sposób wysłania wiadomości</h6>
+                      <label>Najwcześniej:</label>
+                      <input type="text" name="earliestPossibleSendTime" onChange={this.onEarliestChange}/>
+                      <label>Najpóźniej:</label>
+                      <input type="text" name="latestPossibleSendTime" onChange={this.onLatestChange}/>
+                      <label>Metoda wysłania:</label>
+                      <select name="sendingMethod" onChange={this.onSendingChange}>
+                        <option value="PHONE">SMS</option>
+                        <option value="EMAIL">Mail</option>
+                      </select>
+                    </form>
+                    <button type="button" onClick={() => {
+                      this.updateSurpriseExercise();
+                      close();
+                    }}>Dalej</button>
+                  </div>
+              )}
             </Popup> 
           <label>Pierwsza przygoda w rozdziale:</label>
           <input type="checkbox" name="isInitial" onChange={this.onChange}></input>
