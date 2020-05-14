@@ -22,8 +22,8 @@ import { loadUser } from '../actions/auth';
 import CourseDetails from './tutorComponents/CourseDetails';
 import Chapter from './tutorComponents/Chapter';
 import StudentDashboard from './studentComponents/StudentDashboard';
-import { PersistGate } from 'redux-persist/integration/react'
-
+import { PersistGate } from 'redux-persist/integration/react';
+import Graph from './Graph';
 
 const alertOptions = {
   timeout: 3000,
@@ -58,6 +58,7 @@ class App extends React.Component {
                 <Route exact path="/ranking" component = {Ranking}/>
                 <Route exact path="/achievements" component = {Achievements}/>
                 <Route exact path="/student-marks" component = {StudentMarks}/>
+                <Route exact path="/graph" component = {Graph} />
               </Switch>
             </Router>
           </AlertProvider>
