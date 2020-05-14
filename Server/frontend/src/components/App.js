@@ -37,8 +37,6 @@ class App extends React.Component {
 
 
   render() {
-console.log(persistor);
-console.log(store);
     return (
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>

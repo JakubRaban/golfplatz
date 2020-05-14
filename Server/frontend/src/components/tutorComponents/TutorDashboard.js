@@ -143,7 +143,6 @@ export class TutorDashboard extends Component {
 
   render() {
     const { classes } = this.props;
-    console.log(classes);
     const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
     let open = this.state.open;
 

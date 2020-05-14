@@ -30,6 +30,11 @@ const Chapters = ({ i }) => (
 );
 
 export class CourseDetails extends Component {  
+  constructor(props) {
+    super(props);
+    this.props.getCourse(this.props.match.params.id);
+  }
+  
   state = {
     chapters: [],
   };
@@ -62,10 +67,6 @@ export class CourseDetails extends Component {
     } else {
       this.state.chapters = chapterValues;
     }
-  }
-
-  componentDidMount() {
-    this.props.getCourse(this.props.match.params.id);
   }
 
   render() {
