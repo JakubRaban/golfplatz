@@ -60,7 +60,7 @@ import {
         {
           id: 1,
           title: 'Node A',
-          type: 'custom',
+          type: 'empty',
           x: 0,
           y: 0,
         },
