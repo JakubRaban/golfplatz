@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { logout } from '../../actions/auth';
 import { Link, Redirect } from 'react-router-dom';
-import store from '../../store';
 import clsx from 'clsx';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
@@ -131,11 +130,6 @@ export class StudentDashboard extends Component {
   state = {
     open: false,
   };
-  
-  handleLogout(e) {
-    e.preventDefault();
-    store.dispatch(logout())
-  }
 
   handleDrawerOpen = () => {
     this.setState({
@@ -184,7 +178,7 @@ export class StudentDashboard extends Component {
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            <IconButton color="inherit" onClick={this.handleLogout}>
+            <IconButton color="inherit" onClick={this.props.logout.bind(this)}>
               <Badge color="secondary">
                 <PowerSettingsNewIcon />
               </Badge>

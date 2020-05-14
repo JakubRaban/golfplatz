@@ -80,7 +80,7 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, 
 
 
   for (var i = 0; i < plotPartsData.length; i++) {
-    addChapters(chapters[i], plotPartsData[i].id);
+   // addChapters(chapters[i], plotPartsData[i].id);
 //DLACZEGO addChapters NIE DZIAŁA
 
     await axios.post("/api/plot_parts/" + plotPartsData[i].id + "/chapters/", chapters[i], tokenConfig(getState)).then(res => {

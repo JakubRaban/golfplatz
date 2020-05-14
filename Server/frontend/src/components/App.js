@@ -2,6 +2,7 @@ import React from 'react';
 import {Provider} from 'react-redux';
 import {Switch, Route, HashRouter as Router} from 'react-router-dom';
 import store from '../store';
+import {persistor} from '../store';
 import AddCourse from './tutorComponents/AddCourse.js';
 import RegisterStudent from './authentication/RegisterStudent.js';
 import RegisterTutor from './authentication/RegisterTutor.js';
@@ -21,6 +22,7 @@ import { loadUser } from '../actions/auth';
 import CourseDetails from './tutorComponents/CourseDetails';
 import Chapter from './tutorComponents/Chapter';
 import StudentDashboard from './studentComponents/StudentDashboard';
+import { PersistGate } from 'redux-persist/integration/react'
 
 
 const alertOptions = {
@@ -35,29 +37,33 @@ class App extends React.Component {
 
 
   render() {
+console.log(persistor);
+console.log(store);
     return (
       <Provider store={store}>
-        <AlertProvider template={AlertTemplate} {...alertOptions}>
-          <Alerts/>
-          <Router>
-            <Switch>
-              <PrivateRoute exact path="/" component={TutorDashboard}/>
-              <Route exact path="/student" component = {StudentDashboard}/>
-              <Route exact path="/login" component={Login}/>
-              <Route exact path="/add-courses" component={AddCourse}/>
-              <Route exact path="/courses" component={GetCourses}/>
-              <Route exact path="/courses/:id" component={CourseDetails}/>
-              <Route exact path="/chapters/:id" component={Chapter}/>  
-              <Route exact path="/register-student" component={RegisterStudent}/>
-              <Route exact path="/register-tutor" component={RegisterTutor}/>
-              <Route exact path="/marks" component={Marks}/>
-              <Route exact path="/game-card" component = {GameCard}/>
-              <Route exact path="/ranking" component = {Ranking}/>
-              <Route exact path="/achievements" component = {Achievements}/>
-              <Route exact path="/student-marks" component = {StudentMarks}/>
-            </Switch>
-          </Router>
-        </AlertProvider>
+        <PersistGate loading={null} persistor={persistor}>
+          <AlertProvider template={AlertTemplate} {...alertOptions}>
+            <Alerts/>
+            <Router>
+              <Switch>
+                <PrivateRoute exact path="/" component={TutorDashboard}/>
+                <Route exact path="/student" component = {StudentDashboard}/>
+                <Route exact path="/login" component={Login}/>
+                <Route exact path="/add-courses" component={AddCourse}/>
+                <Route exact path="/courses" component={GetCourses}/>
+                <Route exact path="/courses/:id" component={CourseDetails}/>
+                <Route exact path="/chapters/:id" component={Chapter}/>  
+                <Route exact path="/register-student" component={RegisterStudent}/>
+                <Route exact path="/register-tutor" component={RegisterTutor}/>
+                <Route exact path="/marks" component={Marks}/>
+                <Route exact path="/game-card" component = {GameCard}/>
+                <Route exact path="/ranking" component = {Ranking}/>
+                <Route exact path="/achievements" component = {Achievements}/>
+                <Route exact path="/student-marks" component = {StudentMarks}/>
+              </Switch>
+            </Router>
+          </AlertProvider>
+        </PersistGate>
       </Provider>
     );
   }
