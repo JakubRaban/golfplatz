@@ -11,7 +11,7 @@ import Login from './authentication/Login.js';
 import {Provider as AlertProvider} from "react-alert"
 import AlertTemplate from "react-alert-template-basic";
 import Alerts from "./layout/Alerts";
-import GetCourses from "./GetCourses";
+import GetCourses from "./tutorComponents/GetCourses";
 import Marks from "./tutorComponents/Marks";
 import Ranking from "./studentComponents/Ranking";
 import Achievements from "./studentComponents/Achievements";
