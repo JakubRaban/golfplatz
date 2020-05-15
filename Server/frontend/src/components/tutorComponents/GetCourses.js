@@ -3,12 +3,7 @@ import { getCourses } from "../../actions/course";
 import {connect} from "react-redux";
 import PropTypes from "prop-types"
 import { Link, Redirect } from 'react-router-dom';
-import TableRow from '@material-ui/core/TableRow';
 import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
 import {styles} from "./styles/style.js";
 import compose from 'recompose/compose';
 import { logout } from '../../actions/auth';
@@ -120,7 +115,8 @@ export class GetCourses extends Component {
             }}
             localization={{
               pagination: {
-                  labelDisplayedRows: '{from}-{to} z {count}'
+                  labelDisplayedRows: '{from}-{to} z {count}',
+                  labelRowsSelect: "wyników",
               },
               toolbar: {
                   nRowsSelected: 'Wybrano {0} pozycji',
