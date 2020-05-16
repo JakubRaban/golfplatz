@@ -133,19 +133,6 @@ export class GetCourses extends Component {
               }
           }}
           />
-          {/* <Table>
-
-            <TableBody>
-            { this.props.courses.map(course => (
-              <TableRow component={Link} to={`/courses/${course.id}/`} key={course.id}>
-                <TableCell>{course.id}</TableCell>
-                <TableCell>{course.name}</TableCell>
-                <TableCell>{course.description}</TableCell>
-                <TableCell>{course.createdOn}</TableCell>
-              </TableRow>
-            ))}
-            </TableBody>
-          </Table> */}
         </main>
       </div>
     );

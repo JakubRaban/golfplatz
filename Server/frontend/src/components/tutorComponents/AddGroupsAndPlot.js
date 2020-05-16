@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Form, Text, NestedForm } from "react-form";
 import Popup from "reactjs-popup";
+import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 
 const Chapters = ({ i }) => (
@@ -108,82 +110,92 @@ export class AddGroupsAndPlot extends Component {
 
   render() {
     return(
-      <div>
-        <Form onSubmit={this.onSubmit}>
-        {formApi => (
-          <div>
-            <form onSubmit={formApi.submitForm} id="course-group-form">
-              <div key={0}>
-                <CourseGroup i={0} />
-              </div>
-              {formApi.values.courseGroups &&
-                formApi.values.courseGroups.slice(1).map((f, i) => (
-                  <div key={i}>
-                    <CourseGroup i={i} />
-                  </div>
-                ), this.mapAllGroups(formApi.values.courseGroups))}
-              <button
-                onClick={() =>
-                  formApi.addValue("courseGroups", {
-                    groupName: "",
-                  })}
-                type="button">Dodaj kolejny termin zajęć</button>
-            </form>
-            <form onSubmit={formApi.submitForm} id="plot-form">
-                {formApi.values.plotParts &&
-                  formApi.values.plotParts.map((f, i) => (
+      <React.Fragment>
+        <CssBaseline />
+        <Container maxWidth="sm">
+          <Form onSubmit={this.onSubmit}>
+          {formApi => (
+            <div>
+              <form onSubmit={formApi.submitForm} id="course-group-form">
+                <div key={0}>
+                  <CourseGroup i={0} />
+                </div>
+                {formApi.values.courseGroups &&
+                  formApi.values.courseGroups.slice(1).map((f, i) => (
                     <div key={i}>
-                      <PlotPart i={i} />
-                      <Popup trigger={<button> Dodaj rozdział </button>} position="right center">
-                        {close => (  
-                        <Form onSubmit={this.onSubmit}>
-                          {formApi => (
-                          <form onSubmit={formApi.submitForm} id="chapters">
-                            <div key={0}>
-                              <Chapters i={0} />
-                            </div>
-                            {formApi.values.chapters &&
-                              formApi.values.chapters.slice(1).map((f, j) => (
-                                <div key={j}>
-                                  <Chapters i={j} />
-                                </div>
-                              ), this.mapAllChapters(formApi.values.chapters))}
-                            <button
-                              onClick={() =>
-                                formApi.addValue("chapters", {
-                                  name: "",
-                                  description: "",
-                                })}
-                              type="button">Dodaj kolejny rozdział</button>
-                            <button type="button" onClick={() => {
-                              this.updateChapter(i);
-                              close();
-                            }}>Dalej
-                            </button>
-                          </form>
-                          )}
-                        </Form>
-                        )}
-                      </Popup>
+                      <CourseGroup i={i} />
                     </div>
-                    
-                  ), this.mapAllParts(formApi.values.plotParts))}
+                  ), this.mapAllGroups(formApi.values.courseGroups))}
                 <button
                   onClick={() =>
-                    formApi.addValue("plotParts", {
-                      name: "",
-                      introduction: ""
+                    formApi.addValue("courseGroups", {
+                      groupName: "",
                     })}
-                  type="button">Dodaj część fabuły</button>        
+                  type="button">Dodaj kolejny termin zajęć</button>
+              </form>
+              </div>
+              )} </Form>
+        </Container>
+        <Container>
+          <Form onSubmit={this.onSubmit}>
+          {formApi => (
+            <div>
+              <form onSubmit={formApi.submitForm} id="plot-form">
+                  {formApi.values.plotParts &&
+                    formApi.values.plotParts.map((f, i) => (
+                      <div key={i}>
+                        <PlotPart i={i} />
+                        <Popup trigger={<button> Dodaj rozdział </button>} position="right center">
+                          {close => (  
+                          <Form onSubmit={this.onSubmit}>
+                            {formApi => (
+                            <form onSubmit={formApi.submitForm} id="chapters">
+                              <div key={0}>
+                                <Chapters i={0} />
+                              </div>
+                              {formApi.values.chapters &&
+                                formApi.values.chapters.slice(1).map((f, j) => (
+                                  <div key={j}>
+                                    <Chapters i={j} />
+                                  </div>
+                                ), this.mapAllChapters(formApi.values.chapters))}
+                              <button
+                                onClick={() =>
+                                  formApi.addValue("chapters", {
+                                    name: "",
+                                    description: "",
+                                  })}
+                                type="button">Dodaj kolejny rozdział</button>
+                              <button type="button" onClick={() => {
+                                this.updateChapter(i);
+                                close();
+                              }}>Dalej
+                              </button>
+                            </form>
+                            )}
+                          </Form>
+                          )}
+                        </Popup>
+                      </div>
+                      
+                    ), this.mapAllParts(formApi.values.plotParts))}
+                  <button
+                    onClick={() =>
+                      formApi.addValue("plotParts", {
+                        name: "",
+                        introduction: ""
+                      })}
+                    type="button">Dodaj część fabuły</button>        
 
-              <button onClick={this.continue}>
-                Dalej
-              </button>
-            </form>        
-          </div>
-        )}
-        </Form>
-      </div>
+                <button onClick={this.continue}>
+                  Dalej
+                </button>
+              </form>        
+            </div>
+          )}
+          </Form>
+        </Container>
+      </React.Fragment> 
     )
   }
 }
