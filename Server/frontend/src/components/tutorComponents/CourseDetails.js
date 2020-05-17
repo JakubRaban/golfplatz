@@ -228,7 +228,7 @@ export class CourseDetails extends Component {
                               <TableCell>{chapter.name}</TableCell>
                               <TableCell>{chapter.description}</TableCell>
                               <TableCell>
-                                <IconButton component={Link} to="/chapters/${chapter.id}/"
+                                <IconButton component={Link} to={`/chapters/${chapter.id}/`}
                                  color="inherit"
                                  aria-label="Edytuj rozdział">
                                   <EditIcon/>
