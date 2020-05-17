@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NavLink, Redirect, Link } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getCourse, addChapters } from "../../actions/course";
 import TableRow from '@material-ui/core/TableRow';
@@ -8,9 +8,31 @@ import { withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
-import Popup from "reactjs-popup";
 import TableHead from '@material-ui/core/TableHead';
 import { Form, Text, NestedForm } from "react-form";
+import {styles} from "./styles/style.js";
+import compose from 'recompose/compose';
+import { logout } from '../../actions/auth';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import clsx from 'clsx';
+import IconButton from '@material-ui/core/IconButton';
+import Badge from '@material-ui/core/Badge';
+import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import Collapse from '@material-ui/core/Collapse';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import { List, ListItem, ListItemText } from '@material-ui/core/';
+import "./styles/course-and-plots.css";
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import EditIcon from '@material-ui/icons/Edit';
 
 
 const Chapters = ({ i }) => (
@@ -18,16 +40,42 @@ const Chapters = ({ i }) => (
     <Form>
       {formApi => (
         <div>
-          <h3>Rozdział</h3>
-          <label htmlFor={`nested-chapters-first-${i}`}>Nazwa</label>
-          <Text field="name" id={`nested-chapters-first-${i}`} />
-          <label htmlFor={`nested-chapters-last-${i}`}>Krótki opis</label>
-          <Text field="description" id={`nested-chapters-last-${i}`} />
+          <Typography variant="subtitle2" gutterBottom>
+            Rozdział
+          </Typography>
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-chapters-first-${i}`}>Nazwa:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="name" id={`nested-chapters-first-${i}`} />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-chapters-last-${i}`}>Krótki opis:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="description" id={`nested-chapters-last-${i}`} />
+            </div>
+          </div>
         </div>
       )}
     </Form>
   </NestedForm>
 );
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: '#42a5f5',
+      contrastText: '#fff',
+    },
+    secondary: {
+      main: '#f44336',
+    }
+  },
+});
 
 export class CourseDetails extends Component {  
   constructor(props) {
@@ -37,6 +85,8 @@ export class CourseDetails extends Component {
   
   state = {
     chapters: [],
+    open: false, //musi byc array z mapowaniem dla kazdego rozdzialu
+    openDialog: false,
   };
 
   firstChapter = {};
@@ -60,6 +110,20 @@ export class CourseDetails extends Component {
     });  
   };
 
+  handleClick = () => {
+    let assignHelper = this.state.open;
+    this.setState({
+      open: !assignHelper
+    });
+  };
+
+  handleClickOpen = () => {
+    let assignHelper = this.state.openDialog;
+    this.setState({
+      openDialog: !assignHelper
+    });
+  };
+
   mapAllChapters(chapterValues, id) {
     this.currentPlotPartId = id;
     if (chapterValues.length === 1) {
@@ -70,6 +134,8 @@ export class CourseDetails extends Component {
   }
 
   render() {
+    const { classes } = this.props;
+
     if (!this.props.isAuthenticated) {
       return <Redirect to="/login" />;
     }
@@ -79,9 +145,42 @@ export class CourseDetails extends Component {
       )
     }
     return (
-      <div>
-        <h3>Oglądasz szczegóły kursu "{this.props.course.name}"</h3>
-        <h5>Zajęcia odbywają się o następujących porach:
+      <div className={classes.root}>
+      <CssBaseline />
+      <AppBar position="absolute" className={clsx(classes.appBar, false && classes.appBarShift)}>
+        <Toolbar className={classes.toolbar}>
+          <IconButton component={Link} to="/"
+            edge="start"
+            color="inherit"
+            aria-label="Powrót"
+            className={clsx(classes.menuButton, false && classes.menuButtonHidden)}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+            Szczegóły kursu
+          </Typography>
+          <IconButton color="inherit">
+            <Badge badgeContent={4} color="secondary">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+          <IconButton color="inherit" onClick={this.props.logout.bind(this)}>
+            <Badge color="secondary">
+              <PowerSettingsNewIcon />
+            </Badge>
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <main className={classes.content}>
+        <div className={classes.appBarSpacer} />
+        <div style={{margin: '5px'}}>
+          <Typography variant="h6" gutterBottom>
+            Oglądasz szczegóły kursu "{this.props.course.name}"
+          </Typography>
+          <Typography variant="subtitle2" gutterBottom>
+            Zajęcia odbywają się o następujących porach:
+          </Typography>
           <Table>
             <TableBody>
               { this.props.course.courseGroups.map((group, i) => (
@@ -91,8 +190,9 @@ export class CourseDetails extends Component {
               ))}
             </TableBody>
           </Table>
-        </h5>
-        <h5>Części fabuły:
+          <Typography variant="subtitle2" gutterBottom>
+            Części fabuły:
+          </Typography>            
           <Table>
             <TableHead>
               <TableRow>
@@ -105,49 +205,95 @@ export class CourseDetails extends Component {
               <TableRow key={i}>
                 <TableCell>{plotPart.name}</TableCell>
                 <TableCell>{plotPart.introduction}</TableCell>
-                <Popup trigger={<button> Dodaj rozdział </button>} position="right center">
-                  <Form onSubmit={this.onSubmit}>
-                    {formApi => (
-                    <form onSubmit={formApi.submitForm} id="course-group-form">
-                      <div key={0}>
-                        <Chapters i={0} />
-                      </div>
-                      {formApi.values.chapters &&
-                        formApi.values.chapters.slice(1).map((f, i) => (
-                          <div key={i}>
-                            <Chapters i={i} />
-                          </div>
-                        ), this.mapAllChapters(formApi.values.chapters, plotPart.id))}
-                      <button
-                        onClick={() =>
-                          formApi.addValue("chapters", {
-                            name: "",
-                            description: "",
-                          })}
-                        type="button">Dodaj kolejny rozdział</button>
-                      <button type="submit">
-                        Dalej
-                      </button>
-                    </form>
-                    )}
-                  </Form>
-                </Popup>
-                <Table>
-                { this.props.course.plotParts[i].chapters.map((chapter, i) => 
-                  <TableRow component={Link} to={`/chapters/${chapter.id}/`} key={chapter.id}>
-                    <TableCell>{chapter.name}</TableCell>
-                    <TableCell>{chapter.description}</TableCell>
-                  </TableRow>
-                )}
-                </Table>
               </TableRow>
-            </TableBody>
-           )) } 
-           </Table>
-        </h5>
-        <NavLink to = "/">Powrót</NavLink>
-      </div>
+              <TableRow>
+                <List>
+                  <ListItem button onClick={this.handleClick}>
+                    <ListItemText primary="Rozdziały" />
+                    {this.state.open ? <ExpandLess /> : <ExpandMore />}
+                  </ListItem>
+                  <Collapse in={this.state.open} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>Nazwa rozdziału</TableCell>
+                              <TableCell>Opis</TableCell>
+                              <TableCell></TableCell>
+                            </TableRow>
+                          </TableHead>
+                        { this.props.course.plotParts[i].chapters.map((chapter, i) => 
+                          <TableBody>
+                            <TableRow>
+                              <TableCell>{chapter.name}</TableCell>
+                              <TableCell>{chapter.description}</TableCell>
+                              <TableCell>
+                                <IconButton component={Link} to="/chapters/${chapter.id}/"
+                                 color="inherit"
+                                 aria-label="Edytuj rozdział">
+                                  <EditIcon/>
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        )}
+                        </Table> 
+                      <ListItem>
+                      <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
+                        Dodaj rozdział
+                      </Button>
+                      <MuiThemeProvider theme={theme}>
+                      <React.Fragment>
+                        <CssBaseline />
+                        <Dialog open={this.state.openDialog} fullWidth="true" maxWidth='sm'>
+                          <div style={{margin: '10px'}}>
+                          <Form onSubmit={this.onSubmit}>
+                            {formApi => (
+                            <form onSubmit={formApi.submitForm} id="course-group-form">
+                              <div key={0}>
+                                <Chapters i={0} />
+                              </div>
+                              {formApi.values.chapters &&
+                                formApi.values.chapters.slice(1).map((f, i) => (
+                                  <div key={i}>
+                                    <Chapters i={i} />
+                                  </div>
+                                ), this.mapAllChapters(formApi.values.chapters, plotPart.id))}
+                              <Button
+                                  color="secondary"
+                                  variant='outlined'
+                                  onClick={() =>
+                                    formApi.addValue("chapters", {
+                                      name: "",
+                                      description: "",
+                                    })}
+                                >Dodaj kolejny rozdział</Button>        
+                              <div style={{float: 'right'}}>
+                                <Button
+                                  color="primary"
+                                  variant="contained"
+                                  onClick={this.onSubmit}
+                                >Dalej</Button>
+                              </div>
+                            </form>
+                            )}
+                          </Form>
+                          </div>
+                        </Dialog>
+                        </React.Fragment>
+                      </MuiThemeProvider>
+                      </ListItem>
+                    </List>
+                  </Collapse>
+                </List>
+              </TableRow>
 
+            </TableBody>
+          )) } 
+          </Table>
+        </div>
+      </main>
+    </div>
     );
   }
 }
@@ -158,4 +304,7 @@ const mapStateToProps = (state) => ({
   course: state.course.courseDetailed,
 });
 
-export default connect(mapStateToProps, {getCourse, addChapters})(CourseDetails);
+export default compose(
+  connect(mapStateToProps, {getCourse, addChapters, logout}),
+  withStyles(styles)
+)(CourseDetails);
