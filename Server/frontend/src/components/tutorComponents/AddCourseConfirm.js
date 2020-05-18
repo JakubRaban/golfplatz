@@ -1,16 +1,29 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import { addCourse } from '../../actions/course';
-import { NavLink, Redirect } from 'react-router-dom';
-import { Form, Text, NestedForm } from "react-form";
+import { List, ListItem, ListItemText } from '@material-ui/core/';
+import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
+import { createMuiTheme } from '@material-ui/core/styles';
+import Dialog from '@material-ui/core/Dialog';
+import blue from '@material-ui/core/colors/blue';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import Collapse from '@material-ui/core/Collapse';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 
+
+const theme = createMuiTheme({
+  palette: {
+    primary: blue,
+  },
+});
 
 export class AddCourseConfirm extends Component {
-  static propTypes = {
-    user: PropTypes.any,
-    isAuthenticated: PropTypes.bool,
-  };
+  state = {
+    open: false,
+    open2: false,
+  }
 
   continue = e => {
     e.preventDefault();
@@ -23,38 +36,95 @@ export class AddCourseConfirm extends Component {
     this.props.prevStep();
   };
 
+  handleClick = () => {
+    let assignHelper = this.state.open;
+    this.setState({
+      open: !assignHelper
+    });
+  };
+
+  handleClick2 = () => {
+    let assignHelper = this.state.open2;
+    this.setState({
+      open2: !assignHelper
+    });
+  };
+
   render() {
-    if (!this.props.isAuthenticated) {
-      return (
-        <Redirect to="/login"/>
-      )
-    }
-    if (this.props.user.groups[0] === 1) {
-      return (
-        <Redirect to="/"/>
-      )
-    }
     const {
       values: { name, description, courseGroups, plotParts, chapters }
     } = this.props;
-    console.log(name);
-    console.log(description);
-    console.log(courseGroups);
-    console.log(plotParts);
     console.log(chapters);
     return(
-      <div>
-        <button onClick={this.continue}>
-          Potwierdź i wyślij
-        </button>
-      </div>
+      <MuiThemeProvider theme={theme}>
+      <React.Fragment>
+        <CssBaseline />
+        <Dialog 
+            open="true"
+            fullWidth="true"
+            maxWidth='sm'
+          >
+          <div style={{margin: "10px"}}>
+            <Typography variant="h6" gutterBottom>
+              Potwierdź wprowadzone informacje
+            </Typography>
+            <List>
+              <ListItem>
+                <ListItemText primary="Nazwa kursu" secondary={name} />
+              </ListItem>
+              <ListItem>
+                <ListItemText primary="Opis" secondary={description} />
+              </ListItem>
+              <ListItem button onClick={this.handleClick}>
+                <ListItemText primary="Terminy zajęć" />
+                {this.state.open ? <ExpandLess /> : <ExpandMore />}
+              </ListItem>
+              <Collapse in={this.state.open} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {courseGroups.map(group=>{
+                    return (
+                      <ListItem style={{paddingLeft: theme.spacing(4)}}>
+                        <ListItemText primary="Termin" secondary={group.groupName} />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Collapse>
+              <ListItem button onClick={this.handleClick2}>
+                <ListItemText primary="Części fabuły" />
+                {this.state.open2 ? <ExpandLess /> : <ExpandMore />}
+              </ListItem>
+              <Collapse in={this.state.open2} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {plotParts.map(plotPart=>{
+                    return (
+                      <React.Fragment>
+                        <ListItem>
+                          <ListItemText primary="Nazwa" secondary={plotPart.name} />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText primary="Opis" secondary={plotPart.introduction} />
+                        </ListItem>
+                      </React.Fragment>
+                    )
+                  })}
+                </List>
+              </Collapse>
+            </List>
+
+            <div style={{float: 'right'}}>
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={this.continue}
+              >Potwierdź i wyślij</Button>
+            </div>
+          </div>
+        </Dialog>
+      </React.Fragment>  
+      </MuiThemeProvider>
     )
   }
 }
 
-const mapStateToProps = (state) => ({
-  isAuthenticated: state.auth.isAuthenticated,
-  user: state.auth.user,
-});
-
-export default connect(mapStateToProps)(AddCourseConfirm);
+export default connect(null)(AddCourseConfirm);

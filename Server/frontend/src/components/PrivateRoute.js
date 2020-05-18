@@ -1,7 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { StudentDashboard } from './studentComponents/StudentDashboard';
 
 
 const PrivateRoute = ({ component: Component, auth, ...rest }) => (  
@@ -14,7 +13,7 @@ const PrivateRoute = ({ component: Component, auth, ...rest }) => (
       } else if (!auth.isAuthenticated) {
         return <Redirect to="/login" />;
       } else if (auth.user.groups[0] === 1){
-        return <StudentDashboard user={auth.user}/>;
+        return <Redirect to='/student'/>;
       }
       else {
         return <Component {...props} />;

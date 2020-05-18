@@ -77,21 +77,6 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, 
   }).catch(err => {
     dispatch(returnErrors(err.response.data, err.response.status));
   });
-
-
-  for (var i = 0; i < plotPartsData.length; i++) {
-    addChapters(chapters[i], plotPartsData[i].id);
-//DLACZEGO addChapters NIE DZIAŁA
-
-    await axios.post("/api/plot_parts/" + plotPartsData[i].id + "/chapters/", chapters[i], tokenConfig(getState)).then(res => {
-      dispatch({
-        type: ADD_CHAPTER,
-        payload: res.data
-      });
-    }).catch(err => {
-      dispatch(returnErrors(err.response.data, err.response.status));
-    });
-  }
 }
 
 export const getCourses = () => (dispatch, getState) => {
