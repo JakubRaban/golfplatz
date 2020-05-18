@@ -11,21 +11,21 @@ import Typography from '@material-ui/core/Typography';
 import "./styles/course-and-plots.css";
 
 
-const Chapters = ({ i }) => (
-  <NestedForm field={["chapters", i]} key={`nested-chapters-${i}`}>
-    <Form>
-      {formApi => (
-        <div>
-          <h3>Rozdział</h3>
-          <label htmlFor={`nested-chapters-first-${i}`}>Nazwa:</label>
-          <Text field="name" id={`nested-chapters-first-${i}`} />
-          <label htmlFor={`nested-chapters-last-${i}`}>Krótki opis:</label>
-          <Text field="description" id={`nested-chapters-last-${i}`} />
-        </div>
-      )}
-    </Form>
-  </NestedForm>
-);
+// const Chapters = ({ i }) => (
+//   <NestedForm field={["chapters", i]} key={`nested-chapters-${i}`}>
+//     <Form>
+//       {formApi => (
+//         <div>
+//           <h3>Rozdział</h3>
+//           <label htmlFor={`nested-chapters-first-${i}`}>Nazwa:</label>
+//           <Text field="name" id={`nested-chapters-first-${i}`} />
+//           <label htmlFor={`nested-chapters-last-${i}`}>Krótki opis:</label>
+//           <Text field="description" id={`nested-chapters-last-${i}`} />
+//         </div>
+//       )}
+//     </Form>
+//   </NestedForm>
+// );
 
 const PlotPart = ({ i }) => (
   <NestedForm field={["plotParts", i]} key={`nested-plot-part-${i}`}>
@@ -95,7 +95,6 @@ export class AddGroupsAndPlot extends Component {
     this.props.values.courseGroups.unshift(this.firstCourseGroup);
     this.props.handleChange('courseGroups', this.props.values.courseGroups);
     this.props.handleChange('plotParts', this.props.values.plotParts);
-    this.props.handleChange('chapters', this.props.values.chapters);
     this.props.nextStep();
   };
 
@@ -105,8 +104,6 @@ export class AddGroupsAndPlot extends Component {
   };
 
   firstCourseGroup = {};
-  firstChapter = {};
-  otherChapters = [];
 
   mapAllGroups(groupsValues) {
     if (groupsValues.length === 1) {
@@ -118,24 +115,6 @@ export class AddGroupsAndPlot extends Component {
 
   mapAllParts(plotPartValues) {
     this.props.values.plotParts = plotPartValues;
-  }
-
-  mapAllChapters(chapterValues) {
-    if (chapterValues.length === 1) {
-      this.firstChapter = chapterValues[0];
-    } else {
-      this.otherChapters = chapterValues;
-    }
-  }
-
-  updateChapter(id) {
-    this.otherChapters.pop();
-    this.otherChapters.unshift(this.firstChapter);
-    
-    this.props.values.chapters[id] = this.otherChapters;
-
-    this.firstChapter = {};
-    this.otherChapters = [];
   }
 
   render() {
@@ -183,39 +162,7 @@ export class AddGroupsAndPlot extends Component {
                       formApi.values.plotParts.map((f, i) => (
                         <div key={i}>
                           <PlotPart i={i} />
-                          <Popup trigger={<button> Dodaj rozdział </button>} position="right center">
-                            {close => (  
-                            <Form onSubmit={this.onSubmit}>
-                              {formApi => (
-                              <form onSubmit={formApi.submitForm} id="chapters">
-                                <div key={0}>
-                                  <Chapters i={0} />
-                                </div>
-                                {formApi.values.chapters &&
-                                  formApi.values.chapters.slice(1).map((f, j) => (
-                                    <div key={j}>
-                                      <Chapters i={j} />
-                                    </div>
-                                  ), this.mapAllChapters(formApi.values.chapters))}
-                                <button
-                                  onClick={() =>
-                                    formApi.addValue("chapters", {
-                                      name: "",
-                                      description: "",
-                                    })}
-                                  type="button">Dodaj kolejny rozdział</button>
-                                <button type="button" onClick={() => {
-                                  this.updateChapter(i);
-                                  close();
-                                }}>Dalej
-                                </button>
-                              </form>
-                              )}
-                            </Form>
-                            )}
-                          </Popup>
                         </div>
-                        
                       ), this.mapAllParts(formApi.values.plotParts))}
                     <Button
                       color="secondary"

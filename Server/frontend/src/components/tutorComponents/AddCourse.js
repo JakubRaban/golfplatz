@@ -30,7 +30,6 @@ export class AddCourse extends Component {
     courseGroups: [],
     plotParts: [],
     redirect: false,
-    chapters: [],
   };
 
   static propTypes = {
@@ -62,16 +61,15 @@ export class AddCourse extends Component {
 
   onSubmit = (e) => {
     // e.preventDefault();
-    const { name, description, courseGroups, plotParts, chapters } = this.state;
+    const { name, description, courseGroups, plotParts } = this.state;
     const course = { name, description };
-    this.props.addCourse(course, courseGroups, plotParts, chapters);
+    this.props.addCourse(course, courseGroups, plotParts);
     this.setState({
       name: '',
       description: '',
       courseGroups: [],
       plotParts: [],
       redirect: true,
-      chapters: [],
     });
   };
 
