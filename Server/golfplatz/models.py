@@ -1,4 +1,5 @@
-from typing import List
+import re
+from typing import List, Union, Tuple
 
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
@@ -137,6 +138,9 @@ class Chapter(models.Model):
             paths.extend(Path.objects.filter(from_adventure=adventure))
         return paths
 
+    def get_initial_adventure(self):
+        return Adventure.objects.filter(chapter=self).get(is_initial=True)
+
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
 
@@ -161,8 +165,8 @@ class Adventure(models.Model):
         self.point_source.add_questions(questions_data)
 
     def __str__(self):
-        return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.\
-               {self.chapter.name}'
+        return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \
+               f'{self.chapter.name}'
 
 
 class TimerRule(models.Model):
@@ -251,6 +255,9 @@ class Question(models.Model):
     message_after_correct_answer = models.TextField(blank=True)
     message_after_incorrect_answer = models.TextField(blank=True)
     grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Grade')
+
+    class Meta:
+        order_with_respect_to = 'id'
 
     def add_answers(self, answers_data):
         for answer_data in answers_data:

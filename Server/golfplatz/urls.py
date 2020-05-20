@@ -25,4 +25,11 @@ urlpatterns = [
     path('adventures/paths/', AdventurePathsView.as_view()),
     path('adventures/choice_descriptions/', PathChoiceDescriptionView.as_view()),
 
+    path('play/start/<int:chapter_id>/', WhoAmIView.as_view()),
+    path('play/answer/', WhoAmIView.as_view()),
+    path('play/path_choice/', WhoAmIView.as_view()),
+    path('play/desist/', WhoAmIView.as_view()),
+    path('play/adventure_timeout/', WhoAmIView.as_view()),
+    path('play/chapter_timeout/', WhoAmIView.as_view()),
+
 ]
