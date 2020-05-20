@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
+from .models import PathChoiceDescription, NextAdventureChoiceDescription
 from .permissions import IsTutor
 from .serializers import *
 
@@ -148,6 +149,8 @@ class AdventureView(APIView):
 
 
 class AdventurePathsView(APIView):
+    permission_classes = [IsTutor]
+
     def post(self, request):
         serializer = PathSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
@@ -156,6 +159,23 @@ class AdventurePathsView(APIView):
             new_paths.append(Path.objects.create(from_adventure=path_data['from_adventure'],
                                                  to_adventure=path_data['to_adventure']))
         return Response(PathSerializer(new_paths, many=True).data)
+
+
+class PathChoiceDescriptionView(APIView):
+    permission_classes = [IsTutor]
+
+    def post(self, request):
+        serializer = NextAdventureChoiceSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        for adventure_choice in data:
+            from_adventure = Adventure.objects.get(pk=data['from_adventure'])
+            NextAdventureChoiceDescription.objects.create(from_adventure=from_adventure,
+                                                          description=data['choice_description'])
+            for path_choice in adventure_choice['path_choices']:
+                path = Path.objects.get(from_adventure=from_adventure, to_adventure_id=path_choice['to_adventure'])
+                PathChoiceDescription.objects.create(path=path, description=path_choice['path_description'])
+        return Response()
 
 
 class WhoAmIView(generics.RetrieveAPIView):
