@@ -182,6 +182,16 @@ class Path(models.Model):
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, through='PathCoverage')
 
 
+class NextAdventureChoiceDescription(models.Model):
+    from_adventure = models.OneToOneField('Adventure', primary_key=True, on_delete=models.CASCADE)
+    description = models.TextField()
+
+
+class PathChoiceDescription(models.Model):
+    path = models.OneToOneField('Path', primary_key=True, on_delete=models.CASCADE)
+    description = models.TextField()
+
+
 class PathCoverage(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     path = models.ForeignKey('Path', on_delete=models.PROTECT)
