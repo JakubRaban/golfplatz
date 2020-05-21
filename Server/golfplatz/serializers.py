@@ -38,6 +38,17 @@ class LoginSerializer(serializers.Serializer):
         raise PermissionDenied()
 
 
+class PathChoiceSerializer(serializers.Serializer):
+    to_adventure = serializers.IntegerField()
+    path_description = serializers.CharField()
+
+
+class NextAdventureChoiceSerializer(serializers.Serializer):
+    from_adventure = serializers.IntegerField()
+    choice_description = serializers.CharField()
+    path_choices = PathChoiceSerializer(many=True)
+
+
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer

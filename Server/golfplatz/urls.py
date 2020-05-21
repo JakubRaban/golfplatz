@@ -2,7 +2,8 @@ from django.urls import path
 from knox import views as knox_views
 
 from .views import CourseView, RegisterStudentView, RegisterTutorView, LoginView, WhoAmIView, CourseGroupView, \
-    PlotPartView, SpecificPlotPartView, ChapterView, SpecificChapterView, AdventureView, AdventurePathsView
+    PlotPartView, SpecificPlotPartView, ChapterView, SpecificChapterView, AdventureView, AdventurePathsView, \
+    PathChoiceDescriptionView
 
 urlpatterns = [
     path('register/tutor/', RegisterTutorView.as_view()),
@@ -22,4 +23,13 @@ urlpatterns = [
     path('chapters/<int:chapter_id>/', SpecificChapterView.as_view()),
     path('chapters/<int:chapter_id>/adventures/', AdventureView.as_view()),
     path('adventures/paths/', AdventurePathsView.as_view()),
+    path('adventures/choice_descriptions/', PathChoiceDescriptionView.as_view()),
+
+    path('play/start/<int:chapter_id>/', WhoAmIView.as_view()),
+    path('play/answer/', WhoAmIView.as_view()),
+    path('play/path_choice/', WhoAmIView.as_view()),
+    path('play/desist/', WhoAmIView.as_view()),
+    path('play/adventure_timeout/', WhoAmIView.as_view()),
+    path('play/chapter_timeout/', WhoAmIView.as_view()),
+
 ]
