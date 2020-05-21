@@ -3,7 +3,16 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { registerTutor } from '../../actions/auth';
 import { createMessage } from '../../actions/messages';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import TextField, { Input } from '@material/react-text-field';
+import '@material/react-text-field/dist/text-field.css';
+import '../../../style/login.css'
+import '@material/react-button/dist/button.css';
+import Button from '@material/react-button';
+import 'typeface-roboto';
+import Typography from "@material-ui/core/Typography";
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 
 export class RegisterTutor extends Component {
@@ -44,63 +53,63 @@ export class RegisterTutor extends Component {
       return <Redirect to="/" />;
     }
     return (
-      <div>
-        <h2>Rejestracja prowadzącego</h2>
-        <form onSubmit={this.onSubmit}>
-          <div>
-            <label>Imię</label>
-            <input
-              type="text"
-              name="firstName"
-              onChange={this.onChange}
-              value={firstName}
-            />
-          </div>
-          <div>
-            <label>Nazwisko</label>
-            <input
-              type="text"
-              name="lastName"
-              onChange={this.onChange}
-              value={lastName}
-            />
-          </div>
-          <div>
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              onChange={this.onChange}
-              value={email}
-            />
-          </div>
-          <div className="form-group">
-            <label>Hasło</label>
-            <input
-              type="password"
-              name="password"
-              onChange={this.onChange}
-              value={password}
-            />
-          </div>
-          <div>
-            <label>Powtórz hasło</label>
-            <input
-              type="password"
-              name="password2"
-              onChange={this.onChange}
-              value={password2}
-            />
-          </div>
-          <div>
-            <button type="submit">
-              Zarejestruj się
-            </button>
-          </div>
-          {/* <p>
-            Masz już konto? <Link to="/login">Login</Link>
-          </p> */}
-        </form>
+      <div className="login-container">
+        <div className="box-container">
+          <Typography variant="h4" gutterBottom>
+            Rejestracja prowadzącego
+          </Typography>
+          <form onSubmit={this.onSubmit}>
+            <TextField className="firstName" label="Imię:">
+              <Input
+                type="text"
+                name="firstName"
+                onChange={this.onChange}
+                value={firstName}
+              />
+            </TextField>
+            <TextField className="lastName" label="Nazwisko:">
+              <Input
+                type="text"
+                name="lastName"
+                onChange={this.onChange}
+                value={lastName}
+              />
+            </TextField>
+            <TextField className="mail" label="Adres e-mail:">
+              <Input
+                type="text"
+                name="email"
+                onChange={this.onChange}
+                value={email}
+              />
+            </TextField>
+            <TextField className="password" label="Hasło:">
+              <Input
+                type="password"
+                name="password"
+                onChange={this.onChange}
+                value={password}
+              />
+            </TextField>
+            <TextField className="password" label="Powtórz hasło:">
+              <Input
+                type="password"
+                name="password2"
+                onChange={this.onChange}
+                value={password2}
+              />
+            </TextField>
+            <div className="button-container">
+              <Button className="login-button" type="submit">
+                Zarejestruj się
+              </Button>
+            </div>
+            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+              <Typography color="textPrimary">Masz już konto? </Typography>
+              <Link to="/login">Zaloguj się!</Link>           
+            </Breadcrumbs>
+          </form>
+        </div>
       </div>
     );
   }

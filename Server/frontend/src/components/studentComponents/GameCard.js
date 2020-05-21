@@ -11,10 +11,11 @@ export class GameCard extends Component {
   };
 
   render() {
+    console.log(this.props);
     if (!this.props.isAuthenticated) {
       return <Redirect to="/login" />;
     }
-    if (this.props.user.groups[0] === 0) {
+    if (this.props.user.groups[0] === 2) {
       return (
         <Redirect to="/"/>
       )
