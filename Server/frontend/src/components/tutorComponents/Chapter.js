@@ -19,6 +19,7 @@ import Badge from '@material-ui/core/Badge';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import "./styles/course-forms.css";
 
 
 const Answers = ({ i }) => (
@@ -27,8 +28,14 @@ const Answers = ({ i }) => (
       {formApi => (
         <div>
           <h5>Możliwe warianty odpowiedzi:</h5>
-          <label htmlFor={`nested-answers-${i}`}>Odp:</label>
-          <Text field="text" id={`nested-answers-${i}`} />
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-answers-${i}`}>Odp:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="text" id={`nested-answers-${i}`} />
+            </div>
+          </div>
         </div>
       )}
     </Form>
@@ -41,16 +48,46 @@ const Questions = ({ i }) => (
       {formApi => (
         <div>
           <h5>Pytania</h5>
-          <label htmlFor={`nested-questions-name-${i}`}>Treść pytania:</label>
-          <Text field="text" id={`nested-questions-name-${i}`} />
-          <label htmlFor={`nested-questions-correct-${i}`}>Ilość punktów za poprawną odpowiedź:</label>
-          <Text field="pointsPerCorrectAnswer" id={`nested-questions-correct-${i}`} />
-          <label htmlFor={`nested-questions-incorrect-${i}`}>Ilość punktów za niepoprawną odpowiedź:</label>
-          <Text field="pointsPerIncorrectAnswer" id={`nested-questions-cat-${i}`} />   
-          <label htmlFor={`nested-questions-message-correct-${i}`}>Wiadomość po udzieleniu poprawnej odpowiedzi:</label>
-          <Text field="messageAfterCorrectAnswer" id={`nested-questions-message-correct-${i}`} />
-          <label htmlFor={`nested-questions-message-incorrect-${i}`}>Wiadomość po udzieleniu niepoprawnej odpowiedzi:</label>
-          <Text field="messageAfterInCorrectAnswer" id={`nested-questions-message-incorrect-${i}`} />  
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-questions-name-${i}`}>Treść pytania:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="text" id={`nested-questions-name-${i}`} />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-questions-correct-${i}`}>Ilość punktów za poprawną odpowiedź:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="pointsPerCorrectAnswer" id={`nested-questions-correct-${i}`} />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-questions-incorrect-${i}`}>Ilość punktów za niepoprawną odpowiedź:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="pointsPerIncorrectAnswer" id={`nested-questions-cat-${i}`} />   
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-questions-message-correct-${i}`}>Wiadomość po udzieleniu poprawnej odpowiedzi:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="messageAfterCorrectAnswer" id={`nested-questions-message-correct-${i}`} />  
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-questions-message-incorrect-${i}`}>Wiadomość po udzieleniu niepoprawnej odpowiedzi:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="messageAfterInCorrectAnswer" id={`nested-questions-message-incorrect-${i}`} />  
+            </div>
+          </div>
         </div>
       )}
     </Form>
@@ -63,11 +100,30 @@ const TimerRule = ({ i }) => (
       {formApi => (
         <div>
           <h5>Reguły czasowe</h5>
-          <label htmlFor={`nested-timer-rule-${i}`}>Czas obowiązywania reguły:</label>
-          <Text field="ruleEndTime" id={`nested-timer-rule-${i}`} />
-          <label htmlFor={`nested-timer-pts-awarded-${i}`}>??:</label>
-          <Text field="leastPointsAwardedPercent" id={`nested-timer-pts-awarded-${i}`} />
-          
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-timer-rule-${i}`}>Czas obowiązywania reguły:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="ruleEndTime" id={`nested-timer-rule-${i}`} />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-timer-rule-${i}`}>Czas obowiązywania reguły:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="ruleEndTime" id={`nested-timer-rule-${i}`} />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-25">
+              <label className="label-class" htmlFor={`nested-timer-pts-awarded-${i}`}>??:</label>
+            </div>
+            <div className="col-75">
+              <Text className="input-class" field="leastPointsAwardedPercent" id={`nested-timer-pts-awarded-${i}`} />
+            </div>
+          </div>          
         </div>
       )}
     </Form>
@@ -203,78 +259,134 @@ export class Chapter extends Component {
       </AppBar>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
-        <div>
+        <div style={{margin: "10px", display: 'block'}}>
           <h3>Oglądasz szczegóły rozdziału "{this.props.chapter.name}"</h3>
-          <h4>Dodaj przygody!</h4>
+          <h4>Tu będą przygody</h4>
+          <h4>Dodaj przygody! - tu będzie button</h4>
 
 
           <form onSubmit={this.onSubmit}>
             <h3>Przygoda</h3>
-            <label>Nazwa</label>
-            <input type="text" name="name" onChange={this.onChange} value={name}/>
-            <label>Numer przygody w rozdziale</label>
-            <input type="number" name="internalId" onChange={this.onChange} value={internalId}/>
-            <label>Opis:</label>
-            <input type="text" name="taskDescription" onChange={this.onChange} value={taskDescription}/>
-            <label>Kategoria:</label>
-            <select name="category" onChange={this.onCategoryChange}>
-              <option value="QUIZ">Quiz</option>
-              <option value="SURPRISE">Zadanie niespodzianka</option>
-              <option value="GENERIC">Zadanie na zajęcia</option>
-              <option value="ACTIVENESS">Aktywność</option>
-              <option value="TEST">Kolokwium</option>
-              <option value="HOMEWORK">Zadanie domowe</option>
-            </select>
-              <Popup open={this.state.popUpOpen} position="right center">
-                {close => (  
-                    <div>
-                      <form>
-                        <h6>Określ zakres czasowy i sposób wysłania wiadomości</h6>
-                        <label>Najwcześniej:</label>
-                        <input type="text" name="earliestPossibleSendTime" onChange={this.onEarliestChange}/>
-                        <label>Najpóźniej:</label>
-                        <input type="text" name="latestPossibleSendTime" onChange={this.onLatestChange}/>
-                        <label>Metoda wysłania:</label>
-                        <select name="sendingMethod" onChange={this.onSendingChange}>
-                          <option value="PHONE">SMS</option>
-                          <option value="EMAIL">Mail</option>
-                        </select>
-                      </form>
-                      <button type="button" onClick={() => {
-                        this.updateSurpriseExercise();
-                        close();
-                      }}>Dalej</button>
-                    </div>
-                )}
-              </Popup> 
-            <label>Pierwsza przygoda w rozdziale:</label>
-            <input type="checkbox" name="isInitial" onChange={this.onChange}></input>
-            <label>Ma limit czasowy:</label>
-            <input type="checkbox" name="hasTimeLimit" onChange={this.onChange}></input>
-            <Form onSubmit={this.onSubmit}>
-              {formApi => (
-                <div>
-                  <form onSubmit={formApi.submitForm} id="question-form">
-                    {formApi.values.questions &&
-                      formApi.values.questions.map((f, i) => (
-                        <div key={i}>
-                          <Questions i={i} />
-                          <label htmlFor={`nested-questions-type-${i}`}>Typ pytania:</label>  
-                          <select name="nested-questions-type" onChange={this.onQuestionChange(i)}>
-                            <option value="OPEN">Otwarte</option>
-                            <option value="CLOSED">Zamknięte</option>
+            <div className="row">
+              <div className="col-25">
+                <label className="label-class">Nazwa:</label>
+              </div>
+              <div className="col-75">
+                <input type="text" name="name" onChange={this.onChange} value={name}/>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-25">
+                <label className="label-class">Numer przygody w rozdziale:</label>
+              </div>
+              <div className="col-75">
+                <input type="number" name="internalId" onChange={this.onChange} value={internalId}/>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-25">
+                <label className="label-class">Opis:</label>
+              </div>
+              <div className="col-75">
+                <input type="text" name="taskDescription" onChange={this.onChange} value={taskDescription}/>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-25">
+                <label className="label-class">Kategoria:</label>
+              </div>
+              <div className="col-75">
+                <select name="category" onChange={this.onCategoryChange}>
+                  <option value="QUIZ">Quiz</option>
+                  <option value="SURPRISE">Zadanie niespodzianka</option>
+                  <option value="GENERIC">Zadanie na zajęcia</option>
+                  <option value="ACTIVENESS">Aktywność</option>
+                  <option value="TEST">Kolokwium</option>
+                  <option value="HOMEWORK">Zadanie domowe</option>
+                </select>
+                <Popup open={this.state.popUpOpen} position="right center">
+                  {close => (  
+                      <div>
+                        <form>
+                          <h6>Określ zakres czasowy i sposób wysłania wiadomości</h6>
+                          <label>Najwcześniej:</label>
+                          <input type="text" name="earliestPossibleSendTime" onChange={this.onEarliestChange}/>
+                          <label>Najpóźniej:</label>
+                          <input type="text" name="latestPossibleSendTime" onChange={this.onLatestChange}/>
+                          <label>Metoda wysłania:</label>
+                          <select name="sendingMethod" onChange={this.onSendingChange}>
+                            <option value="PHONE">SMS</option>
+                            <option value="EMAIL">Mail</option>
                           </select>
+                        </form>
+                        <button type="button" onClick={() => {
+                          this.updateSurpriseExercise();
+                          close();
+                        }}>Dalej</button>
+                      </div>
+                  )}
+                </Popup> 
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-25">
+                <label className="label-class">Pierwsza przygoda w rozdziale:</label>
+              </div>
+              <div className="col-75">
+                <input type="checkbox" name="isInitial" onChange={this.onChange}></input>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-25">
+                <label className="label-class">Ma limit czasowy:</label>
+              </div>
+              <div className="col-75">
+                <input type="checkbox" name="hasTimeLimit" onChange={this.onChange}></input>
+              </div>
+            </div>
+            <div>               
+              <Form onSubmit={this.onSubmit}>
+                {formApi => (
+                  <div>
+                    <form onSubmit={formApi.submitForm} id="question-form">
+                      {formApi.values.questions &&
+                        formApi.values.questions.map((f, i) => (
+                          <div key={i}>
+                            <Questions i={i} />
+                            <div className="row">
+                              <div className="col-25">
+                                <label className="label-class">Typ pytania:</label>
+                              </div>
+                              <div className="col-75">
+                                <select name="nested-questions-type" onChange={this.onQuestionChange(i)}>
+                                  <option value="OPEN">Otwarte</option>
+                                  <option value="CLOSED">Zamknięte</option>
+                                </select>
+                              </div>
+                            </div>
                           <Form onSubmit={this.onSubmit}>
                             {formApi => (
                               <form onSubmit={formApi.submitForm} id="answers">
                                 {formApi.values.answers &&
                                   formApi.values.answers.map((f, j) => (
-                                    <div key={j}>
+                                    <div key={j} style={{display: 'inline-block', verticalAlign: 'top'}}>
                                       <Answers i={j} />
-                                      <label>Poprawna:</label>
-                                      <input type="checkbox" name="isCorrect" onChange={this.onCorrectChange(i,j)}></input>
-                                      <label>Sprawdzana wyrażeniem regularnym:</label>
-                                      <input type="checkbox" name="isRegex" onChange={this.onRegexChange(i,j)}></input>
+                                      <div className="row">
+                                        <div className="col-25">
+                                          <label className="label-class">Poprawna:</label>
+                                        </div>
+                                        <div className="col-75">
+                                          <input type="checkbox" name="isCorrect" onChange={this.onCorrectChange(i,j)}></input>
+                                        </div>
+                                      </div>
+                                      <div className="row">
+                                        <div className="col-25">
+                                          <label className="label-class">Sprawdzana wyrażeniem regularnym:</label>
+                                        </div>
+                                        <div className="col-75">
+                                          <input type="checkbox" name="isRegex" onChange={this.onRegexChange(i,j)}></input>
+                                        </div>
+                                      </div>
                                     </div>
                                   ), this.state.pointSource.questions[i].answers = formApi.values.answers)}
                                 <button
@@ -287,7 +399,7 @@ export class Chapter extends Component {
                                   type="button">Dodaj możliwe odpowiedzi</button>
                               </form>
                             )}
-                        </Form>   
+                          </Form>   
                         </div>
                       ), this.state.pointSource.questions = formApi.values.questions)}
                     <button
@@ -309,11 +421,17 @@ export class Chapter extends Component {
                     formApi.values.timerRules.map((f, i) => (
                       <div key={i}>
                         <TimerRule i={i} />
-                        <label htmlFor={`nested-timer-method-${i}`}>Zmiana punktacji wraz z czasem:</label>  
-                          <select name="nested-timer-method" onChange={this.onTimerChange(i)}>
-                            <option value="NONE">Brak</option>
-                            <option value="LIN">Liniowo</option>
-                          </select>
+                        <div className="row">
+                          <div className="col-25">
+                            <label className="label-class">Zmiana punktacji wraz z czasem:</label>
+                          </div>
+                          <div className="col-75">
+                            <select name="nested-timer-method" onChange={this.onTimerChange(i)}>
+                              <option value="NONE">Brak</option>
+                              <option value="LIN">Liniowo</option>
+                            </select>    
+                          </div>
+                        </div>
                       </div>
                       
                     ), this.state.timerRules = formApi.values.timerRules)}
@@ -330,7 +448,7 @@ export class Chapter extends Component {
                 </div>
               )}
             </Form>
-
+            </div>
             <button type="submit">
               Dodaj
             </button> 

@@ -90,13 +90,17 @@ export const getCourses = () => (dispatch, getState) => {
 
 
 export const getCourse = (id) => (dispatch, getState) => {
-  axios.get("/api/courses/" + id + "/", tokenConfig(getState)).then(res => {
+  getCourseAsync(id, dispatch, getState);
+};
+
+async function getCourseAsync(id, dispatch, getState) {
+  await axios.get("/api/courses/" + id + "/", tokenConfig(getState)).then(res => {
     dispatch({
       type: GET_COURSE,
       payload: res.data
     })
   })
-};
+}
 
 export const getChapter = (id) => (dispatch, getState) => {
   axios.get("/api/chapters/" + id + "/", tokenConfig(getState)).then(res => {

@@ -8,7 +8,7 @@ import Dialog from '@material-ui/core/Dialog';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import "./styles/course-and-plots.css";
+import "./styles/course-forms.css";
 
 
 const theme = createMuiTheme({

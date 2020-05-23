@@ -27,7 +27,7 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import { List, ListItem, ListItemText } from '@material-ui/core/';
-import "./styles/course-and-plots.css";
+import "./styles/course-forms.css";
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button';
@@ -79,10 +79,16 @@ const theme = createMuiTheme({
 
 export class CourseDetails extends Component {  
   constructor(props) {
+    props.getCourse(props.match.params.id);
     super(props);
-    this.props.getCourse(this.props.match.params.id);
   }
   
+  static propTypes = {
+    isAuthenticated: PropTypes.bool,
+    user: PropTypes.any,
+    course: PropTypes.any.isRequired,
+  };
+
   state = {
     chapters: [],
     open: new Array(this.props.course.plotParts.length).fill(false),
@@ -91,12 +97,6 @@ export class CourseDetails extends Component {
 
   firstChapter = {};
   currentPlotPartId = -1;
-
-  static propTypes = {
-    isAuthenticated: PropTypes.bool,
-    user: PropTypes.any,
-    course: PropTypes.any,
-  };
 
   onSubmit = (e) => {
     // e.preventDefault();
@@ -107,6 +107,7 @@ export class CourseDetails extends Component {
     this.props.addChapters(chapters, this.currentPlotPartId);
     this.setState({
       chapters: [],
+      openDialog: false,
     });  
   };
 
@@ -131,6 +132,14 @@ export class CourseDetails extends Component {
     } else {
       this.state.chapters = chapterValues;
     }
+  }
+
+  componentDidUpdate(prevProps) {
+    //wywolac po dodaniu rozdzialu, aby pojawil sie w liscie rozdzialow
+  }
+
+  componentDidMount() {
+    console.log(this.props);
   }
 
   render() {
@@ -263,7 +272,8 @@ export class CourseDetails extends Component {
                                   formApi.addValue("chapters", {
                                     name: "",
                                     description: "",
-                                  })}
+                                  })
+                                }
                               >Dodaj kolejny rozdział</Button>        
                             <div style={{float: 'right'}}>
                               <Button
