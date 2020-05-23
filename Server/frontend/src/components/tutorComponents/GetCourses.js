@@ -22,10 +22,10 @@ import MaterialTable from 'material-table';
 
 export class GetCourses extends Component {
   constructor(props) {
+    props.getCourses();
     super(props);
-    this.props.getCourses();
-    this.props.courses.map(course =>
-       (this.data.push({id: course.id, name: course.name, description: course.description, createdOn: course.createdOn})));
+    props.courses.map(course =>
+      (this.data.push({id: course.id, name: course.name, description: course.description, createdOn: course.createdOn})));
   }
 
   state = {
@@ -51,6 +51,10 @@ export class GetCourses extends Component {
     this.setState({
       chosenCourseId: d.id,
     })
+  }
+
+  componentDidMount() {
+    console.log(this.props);
   }
 
   render() {
