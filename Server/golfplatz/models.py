@@ -1,5 +1,7 @@
+import functools
 import re
-from typing import List, Union, Tuple
+from decimal import Decimal
+from typing import List, Union, Tuple, Set
 
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
@@ -97,6 +99,7 @@ class Chapter(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
     plot_part = models.ForeignKey('PlotPart', on_delete=models.CASCADE, related_name='chapters')
+    points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3)
     position_in_plot_part = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -164,6 +167,10 @@ class Adventure(models.Model):
             SurpriseExercise.objects.create(**surprise_exercise_data, point_source=self.point_source)
         self.point_source.add_questions(questions_data)
 
+    def next_adventures(self):
+        paths_from_here = Path.objects.filter(from_adventure=self)
+        return [path.to_adventure for path in paths_from_here]
+
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \
                f'{self.chapter.name}'
@@ -174,7 +181,7 @@ class TimerRule(models.Model):
         LINEAR = 'LIN', 'Linear'
         NONE = 'NONE', 'None'
 
-    adventure = models.ForeignKey('Adventure', on_delete=models.CASCADE)
+    adventure = models.ForeignKey('Adventure', on_delete=models.CASCADE, related_name='timer_rules')
     least_points_awarded_percent = models.PositiveSmallIntegerField()
     rule_end_time = models.PositiveSmallIntegerField()
     decreasing_method = models.CharField(max_length=4, choices=DecreasingMethod.choices, default=DecreasingMethod.NONE)
@@ -236,11 +243,14 @@ class SurpriseExercise(models.Model):
     sending_method = models.CharField(max_length=5, choices=SendMethod.choices)
 
 
-class Question(models.Model):
-    class Type(models.TextChoices):
-        OPEN = 'OPEN', 'Open question'
-        CLOSED = 'CLOSED', 'Closed question'
+class Answer(models.Model):
+    question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
+    text = models.CharField(max_length=250)
+    is_correct = models.BooleanField()
+    is_regex = models.BooleanField(default=False)
 
+
+class Question(models.Model):
     class InputType(models.TextChoices):
         NONE = 'NONE', 'None'
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
@@ -248,7 +258,6 @@ class Question(models.Model):
 
     point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE, related_name='questions')
     text = models.CharField(max_length=250)
-    question_type = models.CharField(max_length=6, choices=Type.choices)
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
     points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3, default=1.0)
     points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3, default=0.0)
@@ -257,18 +266,41 @@ class Question(models.Model):
     grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Grade')
 
     class Meta:
-        order_with_respect_to = 'id'
+        ordering = ['id']
 
     def add_answers(self, answers_data):
         for answer_data in answers_data:
             Answer.objects.create(**answer_data, question=self)
 
+    def _points_for_answer(self, answer: Answer, invert: bool = False) -> Decimal:
+        return self.points_per_correct_answer if answer.is_correct ^ invert else self.points_per_incorrect_answer
 
-class Answer(models.Model):
-    question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
-    text = models.CharField(max_length=250)
-    is_correct = models.BooleanField()
-    is_regex = models.BooleanField(default=False)
+    def score_for_closed_question(self, given_answers: Set[Answer]) -> Decimal:
+        if not self.is_multiple_choice:
+            return self._points_for_answer(given_answers.pop())
+        else:
+            all_answers = self.answers.all()
+            unchecked_answers = set(all_answers) - set(given_answers)
+            points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer), given_answers, 0)
+            points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer, invert=True),
+                                             unchecked_answers, points_scored)
+            return points_scored
+
+    def score_for_open_question(self, given_answer: str) -> Decimal:
+        correct_answer = self.answers.all()[0]
+        if not correct_answer.is_regex:
+            is_correct = given_answer.lower() == correct_answer.text.lower()
+        else:
+            is_correct = re.compile(fr"^{correct_answer.text}$", re.IGNORECASE).match(given_answer)
+        return self.points_per_correct_answer if is_correct else self.points_per_incorrect_answer
+
+    @property
+    def is_multiple_choice(self):
+        return len(self.answers.filter(is_correct=True)) > 1
+
+    @property
+    def is_open(self):
+        return len(self.answers.all()) == 1
 
 
 class Grade(models.Model):

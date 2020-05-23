@@ -6,16 +6,15 @@ from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventu
     Question, Answer, PointSource, SurpriseExercise, Path
 
 
-class CreateCourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = ['name', 'description']
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
 
-
-class CourseGroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CourseGroup
-        fields = '__all__'
+    def validate(self, attrs):
+        user = authenticate(**attrs)
+        if user and user.is_active:
+            return user
+        raise PermissionDenied()
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
@@ -27,15 +26,16 @@ class ParticipantSerializer(serializers.ModelSerializer):
         return Participant.objects.create_user(**validated_data)
 
 
-class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
+class CreateCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['name', 'description']
 
-    def validate(self, attrs):
-        user = authenticate(**attrs)
-        if user and user.is_active:
-            return user
-        raise PermissionDenied()
+
+class CourseGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseGroup
+        fields = '__all__'
 
 
 class PathChoiceSerializer(serializers.Serializer):
@@ -105,6 +105,7 @@ class PathSerializer(serializers.ModelSerializer):
 
 class AdventureSerializer(serializers.ModelSerializer):
     point_source = PointSourceSerializer()
+    timer_rules = TimerRuleSerializer(many=True)
 
     class Meta:
         model = Adventure
@@ -159,3 +160,20 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'
+
+
+class ClosedQuestionAnswerSerializer(serializers.Serializer):
+    question_id = serializers.IntegerField()
+    marked_answers = serializers.ListField(child=serializers.IntegerField(), allow_empty=True)
+
+
+class OpenQuestionAnswerSerializer(serializers.Serializer):
+    question_id = serializers.IntegerField()
+    given_answer = serializers.CharField()
+
+
+class AdventureAnswerSerializer(serializers.Serializer):
+    start_time = serializers.DateTimeField()
+    answer_time = serializers.IntegerField()
+    closed_questions = ClosedQuestionAnswerSerializer(many=True, allow_empty=True)
+    open_questions = OpenQuestionAnswerSerializer(many=True, allow_empty=True)
