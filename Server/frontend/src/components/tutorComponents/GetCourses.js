@@ -22,24 +22,22 @@ import MaterialTable from 'material-table';
 
 export class GetCourses extends Component {
   constructor(props) {
-    props.getCourses();
     super(props);
-    props.courses.map(course =>
-      (this.data.push({id: course.id, name: course.name, description: course.description, createdOn: course.createdOn})));
+    props.getCourses();
   }
 
   state = {
     chosenCourseId: -1,
+    data: [],
   }
   
   static propTypes = {
-    courses: PropTypes.array.isRequired,
+    courses: PropTypes.array,
     logout: PropTypes.func.isRequired,
     isAuthenticated: PropTypes.bool,
     user: PropTypes.any,
   };
 
-  data = [];
   columns = [
     { title: 'ID kursu', field: 'id', type: 'numeric' },
     { title: 'Nazwa', field: 'name' },
@@ -54,7 +52,19 @@ export class GetCourses extends Component {
   }
 
   componentDidMount() {
-    console.log(this.props);
+
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.courses !== this.props.courses) {
+      let dataTmp = [];
+      this.props.courses.map(course =>
+        (dataTmp.push({id: course.id, name: course.name, description: course.description, createdOn: course.createdOn}))
+      );
+      this.setState({
+        data: dataTmp,
+      })   
+    }
   }
 
   render() {
@@ -106,7 +116,7 @@ export class GetCourses extends Component {
           <MaterialTable
             title="Obejrzyj lub edytuj swoje kursy"
             columns={this.columns}
-            data={this.data}
+            data={this.state.data}
             actions={[
               {
                 icon: 'edit',
