@@ -135,14 +135,14 @@ class Chapter(models.Model):
         return [adventure[1] for adventure in internal_id_to_created_adventure.values()]
 
     def get_paths(self):
-        adventures = Adventure.objects.filter(chapter=self)
+        adventures = self.adventures
         paths = []
         for adventure in adventures:
             paths.extend(Path.objects.filter(from_adventure=adventure))
         return paths
 
     def get_initial_adventure(self):
-        return Adventure.objects.filter(chapter=self).get(is_initial=True)
+        return self.adventures.get(is_initial=True)
 
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
@@ -155,6 +155,7 @@ class Adventure(models.Model):
     is_initial = models.BooleanField(default=False)
     is_terminal = models.BooleanField(default=False)
     has_time_limit = models.BooleanField(default=False)
+    done_by_students = models.ManyToManyField('Participant', through='AccomplishedAdventure')
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['chapter', 'name'], name='adventure_name_constraint')]
@@ -190,7 +191,6 @@ class TimerRule(models.Model):
 class Path(models.Model):
     from_adventure = models.ForeignKey('Adventure', related_name='from_adventure', on_delete=models.CASCADE)
     to_adventure = models.ForeignKey('Adventure', related_name='to_adventure', on_delete=models.CASCADE)
-    students = models.ManyToManyField(settings.AUTH_USER_MODEL, through='PathCoverage')
 
 
 class NextAdventureChoiceDescription(models.Model):
@@ -203,9 +203,9 @@ class PathChoiceDescription(models.Model):
     description = models.TextField()
 
 
-class PathCoverage(models.Model):
+class AccomplishedAdventure(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
-    path = models.ForeignKey('Path', on_delete=models.PROTECT)
+    adventure = models.ForeignKey('Adventure', on_delete=models.PROTECT)
     adventure_started_time = models.DateTimeField()
     time_elapsed_seconds = models.PositiveSmallIntegerField()
 
