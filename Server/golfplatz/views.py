@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from .models import PathChoiceDescription, NextAdventureChoiceDescription
+from .models import PathChoiceDescription, NextAdventureChoiceDescription, NextAdventureChoice
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 from .gameplay import grade_answers_and_get_next_adventure
@@ -197,29 +197,37 @@ class AdventureAnswerView(APIView):
         serializer = AdventureAnswerSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
+        current_adventure = Adventure.objects.get(pk=adventure_id)
         closed_questions_data = data['closed_questions']
         open_questions_data = data['open_questions']
         closed_questions = []
         for question_data in closed_questions_data:
             closed_questions.append((Question.objects.get(pk=question_data['question_id']),
-                                    set([Answer.objects.get(pk=answer_id) for answer_id in question_data['marked_answers']])))
+                                    set([Answer.objects.get(pk=answer_id)
+                                         for answer_id in question_data['marked_answers']])))
         open_questions = []
         for question_data in open_questions_data:
             open_questions.append((Question.objects.get(pk=question_data['question_id']),
                                    question_data['given_answer']))
         next_adventures = grade_answers_and_get_next_adventure(self.request.user,
-                                                               Adventure.objects.get(pk=adventure_id),
+                                                               current_adventure,
                                                                data['start_time'], data['answer_time'], closed_questions,
                                                                open_questions)
-        if len(next_adventures) == 0:
-            # TODO zwróć koniec
-            pass
+        if len(next_adventures) == 1 and next_adventures[0].is_terminal:
+            return Response({
+                'response_type': 'summary',
+                'summary': {}  # TODO summary
+            })
         elif len(next_adventures) == 1:
-            return Response(AdventureSerializer(next_adventures[0]).data)
+            return Response({
+                'response_type': 'adventure',
+                'adventure': AdventureSerializer(next_adventures[0]).data
+            })
         else:
-            # TODO zwróć wybór
-            pass
-
+            return Response({
+                'response_type': 'choice',
+                'choice': NextAdventureChoiceSerializer(NextAdventureChoice.for_adventure(current_adventure)).data
+            })
 
 
 class WhoAmIView(generics.RetrieveAPIView):

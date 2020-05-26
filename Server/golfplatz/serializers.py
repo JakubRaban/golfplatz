@@ -39,12 +39,12 @@ class CourseGroupSerializer(serializers.ModelSerializer):
 
 
 class PathChoiceSerializer(serializers.Serializer):
-    to_adventure = serializers.IntegerField()
+    to_adventure = serializers.PrimaryKeyRelatedField(queryset=Adventure.objects.all())
     path_description = serializers.CharField()
 
 
 class NextAdventureChoiceSerializer(serializers.Serializer):
-    from_adventure = serializers.IntegerField()
+    from_adventure = serializers.PrimaryKeyRelatedField(queryset=Adventure.objects.all())
     choice_description = serializers.CharField()
     path_choices = PathChoiceSerializer(many=True)
 

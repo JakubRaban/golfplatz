@@ -168,9 +168,11 @@ class Adventure(models.Model):
             SurpriseExercise.objects.create(**surprise_exercise_data, point_source=self.point_source)
         self.point_source.add_questions(questions_data)
 
+    def paths_from_here(self):
+        return Path.objects.filter(from_adventure=self)
+
     def next_adventures(self):
-        paths_from_here = Path.objects.filter(from_adventure=self)
-        return [path.to_adventure for path in paths_from_here]
+        return [path.to_adventure for path in self.paths_from_here()]
 
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \
@@ -307,3 +309,26 @@ class Grade(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     question = models.ForeignKey('Question', on_delete=models.PROTECT)
     points_scored = models.DecimalField(max_digits=6, decimal_places=3)
+
+
+class PathChoice:
+    def __init__(self, **kwargs):
+        self.to_adventure: Adventure = kwargs['to_adventure']
+        self.path_description: str = kwargs['path_description']
+
+
+class NextAdventureChoice:
+    def __init__(self, **kwargs):
+        self.from_adventure: Adventure = kwargs['from_adventure']
+        self.choice_description: str = kwargs['choice_description']
+        self.path_choices: List[PathChoice] = kwargs['path_choices']
+
+    @staticmethod
+    def for_adventure(adventure: Adventure):
+        paths = adventure.paths_from_here()
+        path_choices = [PathChoice(to_adventure=path.to_adventure,
+                                   path_description=path.pathchoicedescription.description) for path in paths]
+        self = NextAdventureChoice(from_adventure=adventure,
+                                   choice_description=adventure.nextadventurechoicedescription.description,
+                                   path_choices=path_choices)
+        return self

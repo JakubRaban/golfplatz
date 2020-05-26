@@ -1,16 +1,17 @@
 from datetime import datetime
 from typing import List, Tuple, Set
 
-from .models import Participant, Adventure, Question, Answer, Grade
+from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade
 
 
 def grade_answers_and_get_next_adventure(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]) -> List[Adventure]:
-    # TODO wpis do PathCoverage
-    _answer_questions(participant, closed_question_answers, open_question_answers)
+    AccomplishedAdventure.objects.create(student=participant, adventure=adventure,
+                                         adventure_started_time=start_time, time_elapsed_seconds=answer_time)
+    _grade_answers(participant, closed_question_answers, open_question_answers)
     return adventure.next_adventures()
 
 
-def _answer_questions(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]):
+def _grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]):
     for closed_answer in closed_question_answers:
         question = closed_answer[0]
         given_answers = closed_answer[1]
