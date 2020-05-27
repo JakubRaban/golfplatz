@@ -8,24 +8,8 @@ import Button from '@material-ui/core/Button';
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
 import { createMuiTheme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import "./styles/course-and-plots.css";
+import "./styles/course-forms.css";
 
-
-// const Chapters = ({ i }) => (
-//   <NestedForm field={["chapters", i]} key={`nested-chapters-${i}`}>
-//     <Form>
-//       {formApi => (
-//         <div>
-//           <h3>Rozdział</h3>
-//           <label htmlFor={`nested-chapters-first-${i}`}>Nazwa:</label>
-//           <Text field="name" id={`nested-chapters-first-${i}`} />
-//           <label htmlFor={`nested-chapters-last-${i}`}>Krótki opis:</label>
-//           <Text field="description" id={`nested-chapters-last-${i}`} />
-//         </div>
-//       )}
-//     </Form>
-//   </NestedForm>
-// );
 
 const PlotPart = ({ i }) => (
   <NestedForm field={["plotParts", i]} key={`nested-plot-part-${i}`}>

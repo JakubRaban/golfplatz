@@ -6,6 +6,26 @@ from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventu
     Question, Answer, PointSource, SurpriseExercise, Path
 
 
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
+    def validate(self, attrs):
+        user = authenticate(**attrs)
+        if user and user.is_active:
+            return user
+        raise PermissionDenied()
+
+
+class ParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participant
+        fields = '__all__'
+
+    def create(self, validated_data):
+        return Participant.objects.create_user(**validated_data)
+
+
 class CreateCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
@@ -18,33 +38,13 @@ class CourseGroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ParticipantSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Participant
-        fields = '__all__'
-
-    def create(self, validated_data):
-        return Participant.objects.create_user(**validated_data)
-
-
-class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-
-    def validate(self, attrs):
-        user = authenticate(**attrs)
-        if user and user.is_active:
-            return user
-        raise PermissionDenied()
-
-
 class PathChoiceSerializer(serializers.Serializer):
-    to_adventure = serializers.IntegerField()
+    to_adventure = serializers.PrimaryKeyRelatedField(queryset=Adventure.objects.all())
     path_description = serializers.CharField()
 
 
 class NextAdventureChoiceSerializer(serializers.Serializer):
-    from_adventure = serializers.IntegerField()
+    from_adventure = serializers.PrimaryKeyRelatedField(queryset=Adventure.objects.all())
     choice_description = serializers.CharField()
     path_choices = PathChoiceSerializer(many=True)
 
@@ -105,10 +105,11 @@ class PathSerializer(serializers.ModelSerializer):
 
 class AdventureSerializer(serializers.ModelSerializer):
     point_source = PointSourceSerializer()
+    timer_rules = TimerRuleSerializer(many=True)
 
     class Meta:
         model = Adventure
-        fields = '__all__'
+        exclude = ['done_by_students']
 
 
 class CreateAdventuresSerializer(serializers.ModelSerializer):
@@ -159,3 +160,33 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'
+
+
+class ClosedQuestionAnswerSerializer(serializers.Serializer):
+    question_id = serializers.IntegerField()
+    marked_answers = serializers.ListField(child=serializers.IntegerField(), allow_empty=True)
+
+
+class OpenQuestionAnswerSerializer(serializers.Serializer):
+    question_id = serializers.IntegerField()
+    given_answer = serializers.CharField()
+
+
+class AdventureAnswerSerializer(serializers.Serializer):
+    start_time = serializers.DateTimeField()
+    answer_time = serializers.IntegerField()
+    closed_questions = ClosedQuestionAnswerSerializer(many=True, allow_empty=True)
+    open_questions = OpenQuestionAnswerSerializer(many=True, allow_empty=True)
+
+
+class QuestionSummarySerializer(serializers.Serializer):
+    text = serializers.CharField()
+    points_scored = serializers.DecimalField(max_digits=6, decimal_places=3)
+    max_points = serializers.DecimalField(max_digits=6, decimal_places=3)
+
+
+class AdventureSummarySerializer(serializers.Serializer):
+    adventure_name = serializers.CharField()
+    answer_time = serializers.IntegerField()
+    time_modifier = serializers.IntegerField()
+    question_summaries = QuestionSummarySerializer(many=True)

@@ -1,10 +1,12 @@
+import functools
 import re
-from typing import List, Union, Tuple
+from decimal import Decimal
+from typing import List, Tuple, Set
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
-from django.conf import settings
 from django.db.models import Max
 from knox.models import AuthToken
 
@@ -97,6 +99,7 @@ class Chapter(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
     plot_part = models.ForeignKey('PlotPart', on_delete=models.CASCADE, related_name='chapters')
+    points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3)
     position_in_plot_part = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -132,14 +135,14 @@ class Chapter(models.Model):
         return [adventure[1] for adventure in internal_id_to_created_adventure.values()]
 
     def get_paths(self):
-        adventures = Adventure.objects.filter(chapter=self)
+        adventures = self.adventures.all()
         paths = []
         for adventure in adventures:
             paths.extend(Path.objects.filter(from_adventure=adventure))
         return paths
 
     def get_initial_adventure(self):
-        return Adventure.objects.filter(chapter=self).get(is_initial=True)
+        return self.adventures.get(is_initial=True)
 
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
@@ -152,6 +155,7 @@ class Adventure(models.Model):
     is_initial = models.BooleanField(default=False)
     is_terminal = models.BooleanField(default=False)
     has_time_limit = models.BooleanField(default=False)
+    done_by_students = models.ManyToManyField('Participant', through='AccomplishedAdventure')
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['chapter', 'name'], name='adventure_name_constraint')]
@@ -164,6 +168,40 @@ class Adventure(models.Model):
             SurpriseExercise.objects.create(**surprise_exercise_data, point_source=self.point_source)
         self.point_source.add_questions(questions_data)
 
+    def get_time_modifier(self, time_in_seconds: int):
+        hundred_percent = 100
+        timer_rules = list(self.timer_rules.order_by('rule_end_time'))
+        if not timer_rules:
+            return hundred_percent
+        for index, timer_rule in enumerate(timer_rules):
+            if time_in_seconds > timer_rule.rule_end_time:
+                continue
+            if timer_rule.decreasing_method == TimerRule.DecreasingMethod.NONE:
+                return timer_rule.least_points_awarded_percent
+            elif timer_rule.decreasing_method == TimerRule.DecreasingMethod.LINEAR:
+                previous_rule = timer_rules[index - 1] if index > 0 else None
+                modifier_at_rule_start = previous_rule.least_points_awarded_percent if previous_rule else hundred_percent
+                time_at_rule_start = previous_rule.rule_end_time if previous_rule else 0
+                a, b = Adventure.line_through_points((time_at_rule_start, modifier_at_rule_start),
+                                                     (timer_rule.rule_end_time, timer_rule.least_points_awarded_percent))
+                return int(a * time_in_seconds + b)
+        else:
+            return timer_rules[-1].least_points_awarded_percent if not self.has_time_limit else 0
+
+    @staticmethod
+    def line_through_points(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple:
+        a = (p1[1] - p2[1]) / (p1[0] - p2[0])
+        b = p1[1] - a * p1[0]
+        return a, b
+
+    @property
+    def paths_from_here(self):
+        return Path.objects.filter(from_adventure=self)
+
+    @property
+    def next_adventures(self):
+        return [path.to_adventure for path in self.paths_from_here]
+
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \
                f'{self.chapter.name}'
@@ -174,7 +212,7 @@ class TimerRule(models.Model):
         LINEAR = 'LIN', 'Linear'
         NONE = 'NONE', 'None'
 
-    adventure = models.ForeignKey('Adventure', on_delete=models.CASCADE)
+    adventure = models.ForeignKey('Adventure', on_delete=models.CASCADE, related_name='timer_rules')
     least_points_awarded_percent = models.PositiveSmallIntegerField()
     rule_end_time = models.PositiveSmallIntegerField()
     decreasing_method = models.CharField(max_length=4, choices=DecreasingMethod.choices, default=DecreasingMethod.NONE)
@@ -183,7 +221,6 @@ class TimerRule(models.Model):
 class Path(models.Model):
     from_adventure = models.ForeignKey('Adventure', related_name='from_adventure', on_delete=models.CASCADE)
     to_adventure = models.ForeignKey('Adventure', related_name='to_adventure', on_delete=models.CASCADE)
-    students = models.ManyToManyField(settings.AUTH_USER_MODEL, through='PathCoverage')
 
 
 class NextAdventureChoiceDescription(models.Model):
@@ -196,9 +233,9 @@ class PathChoiceDescription(models.Model):
     description = models.TextField()
 
 
-class PathCoverage(models.Model):
+class AccomplishedAdventure(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
-    path = models.ForeignKey('Path', on_delete=models.PROTECT)
+    adventure = models.ForeignKey('Adventure', on_delete=models.PROTECT)
     adventure_started_time = models.DateTimeField()
     time_elapsed_seconds = models.PositiveSmallIntegerField()
 
@@ -236,11 +273,14 @@ class SurpriseExercise(models.Model):
     sending_method = models.CharField(max_length=5, choices=SendMethod.choices)
 
 
-class Question(models.Model):
-    class Type(models.TextChoices):
-        OPEN = 'OPEN', 'Open question'
-        CLOSED = 'CLOSED', 'Closed question'
+class Answer(models.Model):
+    question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
+    text = models.CharField(max_length=250)
+    is_correct = models.BooleanField()
+    is_regex = models.BooleanField(default=False)
 
+
+class Question(models.Model):
     class InputType(models.TextChoices):
         NONE = 'NONE', 'None'
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
@@ -248,7 +288,6 @@ class Question(models.Model):
 
     point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE, related_name='questions')
     text = models.CharField(max_length=250)
-    question_type = models.CharField(max_length=6, choices=Type.choices)
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
     points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3, default=1.0)
     points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3, default=0.0)
@@ -257,21 +296,89 @@ class Question(models.Model):
     grades = models.ManyToManyField(settings.AUTH_USER_MODEL, through='Grade')
 
     class Meta:
-        order_with_respect_to = 'id'
+        ordering = ['id']
 
     def add_answers(self, answers_data):
         for answer_data in answers_data:
             Answer.objects.create(**answer_data, question=self)
 
+    def _points_for_answer(self, answer: Answer, invert: bool = False) -> Decimal:
+        return self.points_per_correct_answer if answer.is_correct ^ invert else self.points_per_incorrect_answer
 
-class Answer(models.Model):
-    question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
-    text = models.CharField(max_length=250)
-    is_correct = models.BooleanField()
-    is_regex = models.BooleanField(default=False)
+    def score_for_closed_question(self, given_answers: Set[Answer]) -> Decimal:
+        if not self.is_multiple_choice:
+            return self._points_for_answer(given_answers.pop())
+        else:
+            all_answers = self.answers.all()
+            unchecked_answers = set(all_answers) - set(given_answers)
+            points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer), given_answers, 0)
+            points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer, invert=True),
+                                             unchecked_answers, points_scored)
+            return points_scored
+
+    def score_for_open_question(self, given_answer: str) -> Decimal:
+        correct_answer = self.answers.all()[0]
+        if not correct_answer.is_regex:
+            is_correct = given_answer.lower() == correct_answer.text.lower()
+        else:
+            is_correct = re.compile(fr"^{correct_answer.text}$", re.IGNORECASE).match(given_answer)
+        return self.points_per_correct_answer if is_correct else self.points_per_incorrect_answer
+
+    @property
+    def max_points_possible(self) -> Decimal:
+        if not self.is_multiple_choice:
+            return self.points_per_correct_answer
+        else:
+            return self.points_per_correct_answer * len(self.answers.all())
+
+    @property
+    def is_multiple_choice(self) -> bool:
+        return len(self.answers.filter(is_correct=True)) > 1
+
+    @property
+    def is_open(self) -> bool:
+        return len(self.answers.all()) == 1
 
 
 class Grade(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     question = models.ForeignKey('Question', on_delete=models.PROTECT)
     points_scored = models.DecimalField(max_digits=6, decimal_places=3)
+
+
+class PathChoice:
+    def __init__(self, **kwargs):
+        self.to_adventure: Adventure = kwargs['to_adventure']
+        self.path_description: str = kwargs['path_description']
+
+
+class NextAdventureChoice:
+    def __init__(self, **kwargs):
+        self.from_adventure: Adventure = kwargs['from_adventure']
+        self.choice_description: str = kwargs['choice_description']
+        self.path_choices: List[PathChoice] = kwargs['path_choices']
+
+    @staticmethod
+    def for_adventure(adventure: Adventure):
+        paths = adventure.paths_from_here
+        path_choices = [PathChoice(to_adventure=path.to_adventure,
+                                   path_description=path.pathchoicedescription.description) for path in paths]
+        self = NextAdventureChoice(from_adventure=adventure,
+                                   choice_description=adventure.nextadventurechoicedescription.description,
+                                   path_choices=path_choices)
+        return self
+
+
+class QuestionSummary:
+    def __init__(self, **kwargs):
+        self.text = kwargs['text']
+        self.points_scored = kwargs['points_scored']
+        self.max_points = kwargs['max_points']
+
+
+class AdventureSummary:
+    def __init__(self, **kwargs):
+        self.adventure_name = kwargs['adventure_name']
+        self.answer_time = kwargs['answer_time']
+        self.time_modifier = kwargs['time_modifier']
+        self.question_summaries = kwargs['question_summaries']
