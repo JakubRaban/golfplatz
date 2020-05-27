@@ -109,7 +109,7 @@ class AdventureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Adventure
-        fields = '__all__'
+        exclude = ['done_by_students']
 
 
 class CreateAdventuresSerializer(serializers.ModelSerializer):
@@ -177,3 +177,16 @@ class AdventureAnswerSerializer(serializers.Serializer):
     answer_time = serializers.IntegerField()
     closed_questions = ClosedQuestionAnswerSerializer(many=True, allow_empty=True)
     open_questions = OpenQuestionAnswerSerializer(many=True, allow_empty=True)
+
+
+class QuestionSummarySerializer(serializers.Serializer):
+    text = serializers.CharField()
+    points_scored = serializers.DecimalField(max_digits=6, decimal_places=3)
+    max_points = serializers.DecimalField(max_digits=6, decimal_places=3)
+
+
+class AdventureSummarySerializer(serializers.Serializer):
+    adventure_name = serializers.CharField()
+    answer_time = serializers.IntegerField()
+    time_modifier = serializers.IntegerField()
+    question_summaries = QuestionSummarySerializer(many=True)

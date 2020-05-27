@@ -3,7 +3,7 @@ from knox import views as knox_views
 
 from .views import CourseView, RegisterStudentView, RegisterTutorView, LoginView, WhoAmIView, CourseGroupView, \
     PlotPartView, SpecificPlotPartView, ChapterView, SpecificChapterView, AdventureView, AdventurePathsView, \
-    PathChoiceDescriptionView, ChapterStartView, AdventureAnswerView
+    PathChoiceDescriptionView, ChapterStartView, AdventureAnswerView, NextAdventureChoiceView
 
 urlpatterns = [
     path('register/tutor/', RegisterTutorView.as_view()),
@@ -27,7 +27,7 @@ urlpatterns = [
 
     path('play/start/<int:chapter_id>/', ChapterStartView.as_view()),
     path('play/answer/<int:adventure_id>/', AdventureAnswerView.as_view()),
-    path('play/path_choice/<int:from_adventure_id>/<int:to_adventure_id>/', WhoAmIView.as_view()),
+    path('play/path_choice/<int:to_adventure_id>/', NextAdventureChoiceView.as_view()),
     path('play/desist/', WhoAmIView.as_view()),
     path('play/adventure_timeout/', WhoAmIView.as_view()),
     path('play/chapter_timeout/', WhoAmIView.as_view()),

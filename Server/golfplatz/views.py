@@ -9,7 +9,7 @@ from rest_framework import status
 from .models import PathChoiceDescription, NextAdventureChoiceDescription, NextAdventureChoice
 from .permissions import IsTutor, IsStudent
 from .serializers import *
-from .gameplay import grade_answers_and_get_next_adventure
+from .gameplay import grade_answers_and_get_next_adventure, get_summary
 
 
 class CourseView(APIView):
@@ -216,7 +216,7 @@ class AdventureAnswerView(APIView):
         if len(next_adventures) == 1 and next_adventures[0].is_terminal:
             return Response({
                 'response_type': 'summary',
-                'summary': {}  # TODO summary
+                'summary': AdventureSummarySerializer(get_summary(self.request.user, next_adventures[0]), many=True).data
             })
         elif len(next_adventures) == 1:
             return Response({
@@ -228,6 +228,16 @@ class AdventureAnswerView(APIView):
                 'response_type': 'choice',
                 'choice': NextAdventureChoiceSerializer(NextAdventureChoice.for_adventure(current_adventure)).data
             })
+
+
+class NextAdventureChoiceView(APIView):
+    permission_classes = [IsStudent]
+
+    def post(self, request, to_adventure_id):
+        return Response({
+            'response_type': 'adventure',
+            'adventure': AdventureSerializer(Adventure.objects.get(pk=to_adventure_id)).data
+        })
 
 
 class WhoAmIView(generics.RetrieveAPIView):

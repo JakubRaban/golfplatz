@@ -1,12 +1,12 @@
 import functools
 import re
 from decimal import Decimal
-from typing import List, Union, Tuple, Set
+from typing import List, Tuple, Set
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
-from django.conf import settings
 from django.db.models import Max
 from knox.models import AuthToken
 
@@ -135,7 +135,7 @@ class Chapter(models.Model):
         return [adventure[1] for adventure in internal_id_to_created_adventure.values()]
 
     def get_paths(self):
-        adventures = self.adventures
+        adventures = self.adventures.all()
         paths = []
         for adventure in adventures:
             paths.extend(Path.objects.filter(from_adventure=adventure))
@@ -168,11 +168,39 @@ class Adventure(models.Model):
             SurpriseExercise.objects.create(**surprise_exercise_data, point_source=self.point_source)
         self.point_source.add_questions(questions_data)
 
+    def get_time_modifier(self, time_in_seconds: int):
+        hundred_percent = 100
+        timer_rules = list(self.timer_rules.order_by('rule_end_time'))
+        if not timer_rules:
+            return hundred_percent
+        for index, timer_rule in enumerate(timer_rules):
+            if time_in_seconds > timer_rule.rule_end_time:
+                continue
+            if timer_rule.decreasing_method == TimerRule.DecreasingMethod.NONE:
+                return timer_rule.least_points_awarded_percent
+            elif timer_rule.decreasing_method == TimerRule.DecreasingMethod.LINEAR:
+                previous_rule = timer_rules[index - 1] if index > 0 else None
+                modifier_at_rule_start = previous_rule.least_points_awarded_percent if previous_rule else hundred_percent
+                time_at_rule_start = previous_rule.rule_end_time if previous_rule else 0
+                a, b = Adventure.line_through_points((time_at_rule_start, modifier_at_rule_start),
+                                                     (timer_rule.rule_end_time, timer_rule.least_points_awarded_percent))
+                return int(a * time_in_seconds + b)
+        else:
+            return timer_rules[-1].least_points_awarded_percent if not self.has_time_limit else 0
+
+    @staticmethod
+    def line_through_points(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple:
+        a = (p1[1] - p2[1]) / (p1[0] - p2[0])
+        b = p1[1] - a * p1[0]
+        return a, b
+
+    @property
     def paths_from_here(self):
         return Path.objects.filter(from_adventure=self)
 
+    @property
     def next_adventures(self):
-        return [path.to_adventure for path in self.paths_from_here()]
+        return [path.to_adventure for path in self.paths_from_here]
 
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \
@@ -297,11 +325,18 @@ class Question(models.Model):
         return self.points_per_correct_answer if is_correct else self.points_per_incorrect_answer
 
     @property
-    def is_multiple_choice(self):
+    def max_points_possible(self) -> Decimal:
+        if not self.is_multiple_choice:
+            return self.points_per_correct_answer
+        else:
+            return self.points_per_correct_answer * len(self.answers.all())
+
+    @property
+    def is_multiple_choice(self) -> bool:
         return len(self.answers.filter(is_correct=True)) > 1
 
     @property
-    def is_open(self):
+    def is_open(self) -> bool:
         return len(self.answers.all()) == 1
 
 
@@ -325,10 +360,25 @@ class NextAdventureChoice:
 
     @staticmethod
     def for_adventure(adventure: Adventure):
-        paths = adventure.paths_from_here()
+        paths = adventure.paths_from_here
         path_choices = [PathChoice(to_adventure=path.to_adventure,
                                    path_description=path.pathchoicedescription.description) for path in paths]
         self = NextAdventureChoice(from_adventure=adventure,
                                    choice_description=adventure.nextadventurechoicedescription.description,
                                    path_choices=path_choices)
         return self
+
+
+class QuestionSummary:
+    def __init__(self, **kwargs):
+        self.text = kwargs['text']
+        self.points_scored = kwargs['points_scored']
+        self.max_points = kwargs['max_points']
+
+
+class AdventureSummary:
+    def __init__(self, **kwargs):
+        self.adventure_name = kwargs['adventure_name']
+        self.answer_time = kwargs['answer_time']
+        self.time_modifier = kwargs['time_modifier']
+        self.question_summaries = kwargs['question_summaries']
