@@ -5,7 +5,8 @@ import { ADD_COURSE,
         ADD_COURSE_GROUPS,
         ADD_CHAPTER,
         GET_CHAPTER,
-        ADD_ADVENTURES }
+        ADD_ADVENTURES,
+        START_CHAPTER, }
 from '../actions/types.js';
 
 const initialState = {
@@ -16,6 +17,7 @@ const initialState = {
   chapters: [],
   chapterDetailed: {},
   adventures: [],
+  chapterTaken: {},
 };
 
 export default function(state = initialState, action) {
@@ -60,6 +62,11 @@ export default function(state = initialState, action) {
         ...state,
         adventures: action.payload,
       };
+    case START_CHAPTER:
+      return {
+        ...state,
+        chapterTaken: action.payload,
+      }
     default:
       return state;
   }

@@ -24,6 +24,8 @@ import Chapter from './tutorComponents/Chapter';
 import StudentDashboard from './studentComponents/StudentDashboard';
 import { PersistGate } from 'redux-persist/integration/react';
 import Graph from './Graph';
+import ChapterPassing from './studentComponents/ChapterPassing';
+
 
 const alertOptions = {
   timeout: 3000,
@@ -58,6 +60,7 @@ class App extends React.Component {
                 <Route exact path="/ranking" component = {Ranking}/>
                 <Route exact path="/achievements" component = {Achievements}/>
                 <Route exact path="/student-marks" component = {StudentMarks}/>
+                <Route exact path="/open-chapter/:id" component = {ChapterPassing}/>
                 <Route exact path="/graph" component = {Graph} />
               </Switch>
             </Router>

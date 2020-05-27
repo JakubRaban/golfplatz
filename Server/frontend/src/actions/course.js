@@ -9,6 +9,7 @@ import { ADD_COURSE,
   ADD_CHAPTER,
   GET_CHAPTER,
   ADD_ADVENTURES,
+  START_CHAPTER,
  }
 from '../actions/types.js';
 
@@ -106,3 +107,12 @@ export const getChapter = (id) => (dispatch, getState) => {
     })
   })
 };
+
+export const startChapter = (id) => (dispatch, getState) => {
+  axios.get("/api/play/start/" + id + "/", tokenConfig(getState)).then(res => {
+    dispatch({
+      type: START_CHAPTER,
+      payload: res.data
+    })
+  })
+}
