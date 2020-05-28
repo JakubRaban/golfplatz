@@ -1,4 +1,3 @@
-
 from knox.models import AuthToken
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
@@ -182,7 +181,7 @@ class PathChoiceDescriptionView(APIView):
 class ChapterStartView(APIView):
     permission_classes = [IsStudent]
 
-    def post(self, request, chapter_id):
+    def get(self, request, chapter_id):
         chapter = Chapter.objects.get(pk=chapter_id)
         return Response({
             'response_type': 'adventure',
@@ -233,7 +232,7 @@ class AdventureAnswerView(APIView):
 class NextAdventureChoiceView(APIView):
     permission_classes = [IsStudent]
 
-    def post(self, request, to_adventure_id):
+    def get(self, request, to_adventure_id):
         return Response({
             'response_type': 'adventure',
             'adventure': AdventureSerializer(Adventure.objects.get(pk=to_adventure_id)).data

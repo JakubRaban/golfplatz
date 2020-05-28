@@ -281,6 +281,10 @@ class Answer(models.Model):
 
 
 class Question(models.Model):
+    class Type(models.TextChoices):
+        OPEN = 'OPEN', 'Open question'
+        CLOSED = 'CLOSED', 'Closed question'
+
     class InputType(models.TextChoices):
         NONE = 'NONE', 'None'
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
@@ -288,6 +292,7 @@ class Question(models.Model):
 
     point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE, related_name='questions')
     text = models.CharField(max_length=250)
+    question_type = models.CharField(max_length=6, choices=Type.choices)
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
     points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3, default=1.0)
     points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3, default=0.0)
@@ -337,7 +342,7 @@ class Question(models.Model):
 
     @property
     def is_open(self) -> bool:
-        return len(self.answers.all()) == 1
+        return self.question_type == Question.Type.OPEN
 
 
 class Grade(models.Model):
