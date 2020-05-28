@@ -164,7 +164,7 @@ export class Chapter extends Component {
   };
 
   onQuestionChange = i => (e)  => {
-    this.state.pointSource.questions[i].inputType = e.target.value;
+    this.state.pointSource.questions[i].questionType = e.target.value;
   };
 
   onTimerChange = i => (e)  => {
@@ -411,7 +411,7 @@ export class Chapter extends Component {
                           pointsPerIncorrectAnswer: 0.0,
                           messageAfterCorrectAnswer: "",
                           messageAfterIncorrectAnswer: "",
-                          inputType: "NONE",
+                          questionType: "OPEN",
                           answers: [],
                         })}
                       type="button">Dodaj kolejne pytanie

@@ -36,7 +36,7 @@ export class ChapterPassing extends Component {
       let tmpClosedQuestions = [];
       let questions = this.props.startedChapter.adventure.pointSource.questions;
       for (var i=0; i<questions.length; i++) {
-        if (questions[i].inputType === 'NONE') {
+        if (questions[i].questionType === 'CLOSED') {
           let answers = [];
           for (var j=0; j<questions[i].answers.length; j++){
             answers.push({id: questions[i].answers[j].id, marked: false})
