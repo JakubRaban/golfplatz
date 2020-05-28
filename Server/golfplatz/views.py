@@ -169,11 +169,10 @@ class PathChoiceDescriptionView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         for adventure_choice in data:
-            from_adventure = Adventure.objects.get(pk=adventure_choice['from_adventure'])
-            NextAdventureChoiceDescription.objects.create(from_adventure=from_adventure,
+            NextAdventureChoiceDescription.objects.create(from_adventure=data['from_adventure'],
                                                           description=adventure_choice['choice_description'])
             for path_choice in adventure_choice['path_choices']:
-                path = Path.objects.get(from_adventure=from_adventure, to_adventure_id=path_choice['to_adventure'])
+                path = Path.objects.get(from_adventure=data['from_adventure'], to_adventure=path_choice['to_adventure'])
                 PathChoiceDescription.objects.create(path=path, description=path_choice['path_description'])
         return Response()
 
