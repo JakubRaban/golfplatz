@@ -11,6 +11,24 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 
 
+class Timer extends React.Component {
+  format(time) {
+    let seconds = time % 60;
+    let minutes = Math.floor(time / 60);
+    minutes = minutes.toString().length === 1 ? "0" + minutes : minutes;
+    seconds = seconds.toString().length === 1 ? "0" + seconds : seconds;
+    return minutes + ':' + seconds;
+  }
+  render () {
+    const {time} = this.props;
+    return (
+      <div>
+        <h1>{this.format(time)}</h1>
+      </div>
+    )
+  }
+}
+
 export class ChapterPassing extends Component {
   constructor(props) {
     super(props);
@@ -21,6 +39,7 @@ export class ChapterPassing extends Component {
     loading: true,
     submitted: false,
     closedQuestions: [],
+    timeLimit: 90,
   }
 
   static propTypes = {
@@ -29,7 +48,20 @@ export class ChapterPassing extends Component {
     startedChapter: PropTypes.any,
   };
 
-  startTime = {};
+  tick() {
+    let current = this.state.timeLimit;
+    if (current === 0) {
+      this.transition();
+    } else {
+      this.setState({ timeLimit: current - 1 });
+    }
+  }
+
+  transition() {
+    clearInterval(this.timer);
+    //call timeout
+  }
+
 
   componentDidUpdate(prevProps) {
     if (prevProps.startedChapter !== this.props.startedChapter) {
@@ -54,6 +86,7 @@ export class ChapterPassing extends Component {
       console.log(tmpClosedQuestions);
       
       this.startTime = new Date();
+      this.timer = setInterval(() => this.tick(), 1000);
     }
   }
 
@@ -108,7 +141,7 @@ export class ChapterPassing extends Component {
             </Typography>
             {!this.state.submitted ? 
             <React.Fragment>
-              {this.props.startedChapter.adventure.hasTimeLimit ? <div>Wyświetl Timer</div> : <br/>}
+              {!this.props.startedChapter.adventure.hasTimeLimit && <Timer time={this.state.timeLimit}/>}
               {this.props.startedChapter.adventure.pointSource.questions.map((question, i) => (
                 <React.Fragment>
                   <Typography variant="subtitle1" gutterBottom>
@@ -185,35 +218,3 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, {startChapter, addAdventureAnswer})(ChapterPassing);
-
-/*import React, { Component } from "react";
-import { render } from "react-dom";
-
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { countDown: 15 };
-    this.timer = setInterval(() => this.tick(), props.timeout || 1000);
-  }
-
-  tick() {
-    let current = this.state.countDown;
-    if (current === 0) {
-      this.transition();
-    } else {
-      this.setState({ countDown: current - 1 });
-    }
-  }
-
-  transition() {
-    clearInterval(this.timer);
-    // do something else here, presumably.
-  }
-
-  render() {
-    return <div className="timer">{this.state.countDown}</div>;
-  }
-}
-
-render(<App seconds={10} />, document.getElementById("root"));
-*/
