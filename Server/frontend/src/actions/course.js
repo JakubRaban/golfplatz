@@ -10,6 +10,7 @@ import { ADD_COURSE,
   GET_CHAPTER,
   ADD_ADVENTURES,
   START_CHAPTER,
+  ADD_ANSWER,
  }
 from '../actions/types.js';
 
@@ -27,7 +28,6 @@ export const addAdventures = (adventures, chapterId) => (dispatch, getState) => 
 }
 
 export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
-  console.log(chapters, plotPartId);
   axios.post("/api/plot_parts/" + plotPartId + "/chapters/", chapters, tokenConfig(getState)).then(res => {
     dispatch({
       type: ADD_CHAPTER,
@@ -115,4 +115,15 @@ export const startChapter = (id) => (dispatch, getState) => {
       payload: res.data
     })
   })
+}
+
+export const addAdventureAnswer = (id, answer) => (dispatch, getState) => {
+  axios.post("/api/play/answer/" + id + "/", answer, tokenConfig(getState)).then(res => {
+    dispatch({
+      type: ADD_ANSWER,
+      payload: res.data
+    });
+  }).catch(err => {
+    dispatch(returnErrors(err.response.data, err.response.status));
+  });
 }

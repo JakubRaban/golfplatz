@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NavLink, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { startChapter } from "../../actions/course";
+import { startChapter, addAdventureAnswer } from "../../actions/course";
 import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
@@ -29,6 +29,8 @@ export class ChapterPassing extends Component {
     startedChapter: PropTypes.any,
   };
 
+  startTime = {};
+
   componentDidUpdate(prevProps) {
     if (prevProps.startedChapter !== this.props.startedChapter) {
       let tmpClosedQuestions = [];
@@ -37,7 +39,7 @@ export class ChapterPassing extends Component {
         if (questions[i].inputType === 'NONE') {
           let answers = [];
           for (var j=0; j<questions[i].answers.length; j++){
-            answers.push({id: questions[i].answers[j], marked: false})
+            answers.push({id: questions[i].answers[j].id, marked: false})
           }
           tmpClosedQuestions.push({id: questions[i].id, givenAnswers: answers})
         } else {
@@ -50,6 +52,8 @@ export class ChapterPassing extends Component {
       })
       console.log(this.props.startedChapter);
       console.log(tmpClosedQuestions);
+      
+      this.startTime = new Date();
     }
   }
 
@@ -62,9 +66,18 @@ export class ChapterPassing extends Component {
     })
   };
 
-  submit = (e) => {
-    console.log("bbb");
-
+  onSubmit = (e) => {
+    /*tymczasowo:*/
+    let answerTime = 16;
+    let closedQuestions = [];
+    let openQuestions = [];
+    this.state.closedQuestions.map(question => (
+      closedQuestions.push({questionId: question.id, markedAnswers: question.givenAnswers.filter(a => a.marked).map(a => a.id)})
+    ));
+    let adventureAnswer = {startTime: this.startTime.toISOString(), answerTime: answerTime, closedQuestions: closedQuestions, openQuestions: openQuestions};
+    
+    this.props.addAdventureAnswer(this.props.startedChapter.adventure.id, adventureAnswer);
+    
     this.setState({
       submitted: true,
     })
@@ -81,8 +94,9 @@ export class ChapterPassing extends Component {
     }
     return (
       <div>
+        {/* tu byłaby fajna nazwa rozdziału */}
         <Typography variant="h4" gutterBottom>
-          Przed Tobą walka
+          Przed Tobą walka 
         </Typography>
         {this.state.loading ? <div>Ładowanie</div> : 
           <div>
@@ -103,7 +117,6 @@ export class ChapterPassing extends Component {
                   <FormControl component="fieldset">
                     <FormGroup>
                       {question.answers.map((answer, j) => (
-                  
                         <FormControlLabel
                           control={<Checkbox checked={this.state.closedQuestions[i].givenAnswers[j].marked}
                           onChange={this.onAnswerChange(i, j)} name="answer" />}
@@ -115,12 +128,47 @@ export class ChapterPassing extends Component {
                 </React.Fragment>
               ))}
               <div style={{display: 'block'}}>
-                <Button variant="contained" onClick={this.submit}>Dalej</Button>
+                <Button variant="contained" onClick={this.onSubmit}>Zatwierdź</Button>
               </div>
               
             </React.Fragment>
-              : <div>po submicie</div>
-            
+              : 
+              <React.Fragment>
+              {this.props.startedChapter.adventure.pointSource.questions.map((question, i) => (
+                <React.Fragment>
+                  <Typography variant="subtitle1" gutterBottom>
+                    {question.text}
+                  </Typography>
+                  <FormControl component="fieldset">
+                    <FormGroup>
+                      {question.answers.map((answer, j) => (
+                      <React.Fragment>
+                        <FormControlLabel
+                          control={<Checkbox checked={this.state.closedQuestions[i].givenAnswers[j].marked}
+                          name="answer" />}
+                          label={answer.text}
+                        />
+                        {this.state.closedQuestions[i].givenAnswers[j].marked &&
+                          <Typography variant="subtitle2" gutterBottom>
+                            {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
+                          </Typography> 
+                        }
+                      </React.Fragment>
+                      ))}
+                    </FormGroup>
+                  </FormControl>
+                </React.Fragment>
+              ))}
+              <div style={{display: 'block'}}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Twój wynik to: przeliczyć xD
+                </Typography>
+              </div>
+              <div style={{display: 'block'}}>
+                <Button variant="contained" onClick={this.onSubmit}>Dalej</Button>
+              </div>
+              
+            </React.Fragment>
             }
           </div>
         }
@@ -136,7 +184,7 @@ const mapStateToProps = (state) => ({
   startedChapter: state.course.chapterTaken,
 });
 
-export default connect(mapStateToProps, {startChapter})(ChapterPassing);
+export default connect(mapStateToProps, {startChapter, addAdventureAnswer})(ChapterPassing);
 
 /*import React, { Component } from "react";
 import { render } from "react-dom";
