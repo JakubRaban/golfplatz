@@ -8,6 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import Button from '@material-ui/core/Button';
 
 
 export class ChapterPassing extends Component {
@@ -18,6 +19,8 @@ export class ChapterPassing extends Component {
 
   state = {
     loading: true,
+    submitted: false,
+    closedQuestions: [],
   }
 
   static propTypes = {
@@ -28,15 +31,44 @@ export class ChapterPassing extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.startedChapter !== this.props.startedChapter) {
+      let tmpClosedQuestions = [];
+      let questions = this.props.startedChapter.adventure.pointSource.questions;
+      for (var i=0; i<questions.length; i++) {
+        if (questions[i].inputType === 'NONE') {
+          let answers = [];
+          for (var j=0; j<questions[i].answers.length; j++){
+            answers.push({id: questions[i].answers[j], marked: false})
+          }
+          tmpClosedQuestions.push({id: questions[i].id, givenAnswers: answers})
+        } else {
+          //tmpQuestions.push()
+        }
+      }
       this.setState({
         loading: false,
+        closedQuestions: tmpClosedQuestions,
       })
+      console.log(this.props.startedChapter);
+      console.log(tmpClosedQuestions);
     }
   }
 
-  onChange(){
-    console.log("XD");
-  }
+  onAnswerChange = (i, j) => (e)  => {
+    let tmpQuestions = this.state.closedQuestions;
+    tmpQuestions[i].givenAnswers[j].marked = e.target.checked;
+    console.log(tmpQuestions);
+    this.setState({
+      closedQuestions: tmpQuestions,
+    })
+  };
+
+  submit = (e) => {
+    console.log("bbb");
+
+    this.setState({
+      submitted: true,
+    })
+  };
 
   render() {
     if (!this.props.isAuthenticated) {
@@ -46,7 +78,7 @@ export class ChapterPassing extends Component {
       return (
         <Redirect to="/"/>
       )
-    }//musi zwracac nr przygody w rozdziale
+    }
     return (
       <div>
         <Typography variant="h4" gutterBottom>
@@ -60,25 +92,36 @@ export class ChapterPassing extends Component {
             <Typography variant="h6" gutterBottom>
               {this.props.startedChapter.adventure.taskDescription}
             </Typography>
-            {this.props.startedChapter.adventure.hasTimeLimit ? <div>Wyświetl Timer</div> : <br/>}
-            {this.props.startedChapter.adventure.pointSource.questions.map((question) => (
-              <React.Fragment>
-                <Typography variant="subtitle1" gutterBottom>
-                  {question.text}
-                </Typography>
-                <FormControl component="fieldset">
-                  <FormGroup>
-                    {question.answers.map((answer) => (
-                
-                      <FormControlLabel
-                        control={<Checkbox checked={false} onChange={this.onChange} name="answer" />}
-                        label={answer.text}
-                      />
-                    ))}
-                  </FormGroup>
-                </FormControl>
-              </React.Fragment>
-            ))}
+            {!this.state.submitted ? 
+            <React.Fragment>
+              {this.props.startedChapter.adventure.hasTimeLimit ? <div>Wyświetl Timer</div> : <br/>}
+              {this.props.startedChapter.adventure.pointSource.questions.map((question, i) => (
+                <React.Fragment>
+                  <Typography variant="subtitle1" gutterBottom>
+                    {question.text}
+                  </Typography>
+                  <FormControl component="fieldset">
+                    <FormGroup>
+                      {question.answers.map((answer, j) => (
+                  
+                        <FormControlLabel
+                          control={<Checkbox checked={this.state.closedQuestions[i].givenAnswers[j].marked}
+                          onChange={this.onAnswerChange(i, j)} name="answer" />}
+                          label={answer.text}
+                        />
+                      ))}
+                    </FormGroup>
+                  </FormControl>
+                </React.Fragment>
+              ))}
+              <div style={{display: 'block'}}>
+                <Button variant="contained" onClick={this.submit}>Dalej</Button>
+              </div>
+              
+            </React.Fragment>
+              : <div>po submicie</div>
+            
+            }
           </div>
         }
       </div>
