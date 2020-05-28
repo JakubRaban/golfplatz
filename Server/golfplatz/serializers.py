@@ -100,7 +100,7 @@ class TimerRuleSerializer(serializers.ModelSerializer):
 class PathSerializer(serializers.ModelSerializer):
     class Meta:
         model = Path
-        exclude = ['students']
+        fields = '__all__'
 
 
 class AdventureSerializer(serializers.ModelSerializer):
