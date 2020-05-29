@@ -296,6 +296,7 @@ class Question(models.Model):
     point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE, related_name='questions')
     text = models.CharField(max_length=250)
     question_type = models.CharField(max_length=6, choices=Type.choices)
+    is_multiple_choice = models.BooleanField(default=False)
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
     points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3, default=1.0)
     points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3, default=0.0)
