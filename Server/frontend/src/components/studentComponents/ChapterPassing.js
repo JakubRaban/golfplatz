@@ -6,6 +6,7 @@ import { startChapter, addAdventureAnswer, chooseNextAdventure } from "../../act
 import Typography from '@material-ui/core/Typography';
 import { Adventure } from './Adventure';
 import { NextAdventureChoice } from './NextAdventureChoice';
+import { Summary } from './Summary';
 
 
 export class ChapterPassing extends Component {
@@ -22,6 +23,7 @@ export class ChapterPassing extends Component {
     submitted: false,
     closedQuestions: [],
     timeLimit: 90,
+    ended: false,
   }
 
   static propTypes = {
@@ -31,20 +33,20 @@ export class ChapterPassing extends Component {
   };
 
   adventureAnswer = {};
-  // tick() {
-  //   let current = this.state.timeLimit;
-  //   if (current === 0) {
-  //     this.transition();
-  //   } else {
-  //     this.setState({ timeLimit: current - 1 });
-  //   }
-  // }
+  
+  tick() {
+    let current = this.state.timeLimit;
+    if (current === 0) {
+      this.transition();
+    } else {
+      this.setState({ timeLimit: current - 1 });
+    }
+  }
 
-  // transition() {
-  //   clearInterval(this.timer);
-  //   //call timeout
-  // }
-
+  transition() {
+    clearInterval(this.timer);
+    //call timeout
+  }
 
   componentDidUpdate(prevProps) {
     if (prevProps.adventurePart !== this.props.adventurePart) {
@@ -64,21 +66,32 @@ export class ChapterPassing extends Component {
         }
         this.setState({
           loading: false,
+          submitted: false,
           closedQuestions: tmpClosedQuestions,
-          answerMode: true,
-          choiceMode: false,
         })
         console.log(this.props.adventurePart);
         console.log(tmpClosedQuestions);
         
         this.startTime = new Date();
-        // this.timer = setInterval(() => this.tick(), 1000);
+        if (this.props.adventurePart.adventure.hasTimeLimit) {
+          this.timer = setInterval(() => this.tick(), 1000);
+        }
       }
       else if (this.props.adventurePart.responseType === 'choice') {
         this.setState({
           choiceMode: true,
           answerMode: false,
           summaryMode: false,
+          submitted: false,
+          loading: false,
+          closedQuestions: [],
+        })
+      }
+      else if (this.props.adventurePart.responseType === 'summary') {
+        this.setState({
+          choiceMode: false,
+          answerMode: false,
+          summaryMode: true,
           submitted: false,
           loading: false,
           closedQuestions: [],
@@ -118,8 +131,14 @@ export class ChapterPassing extends Component {
   }
 
   onSubmitPathChoice = id => (e) => {
-    this.setState({loading: true});
+    this.setState({loading: true, answerMode: true, choiceMode: false});
     this.props.chooseNextAdventure(id);
+  }
+
+  endChapter(){
+    this.setState({
+      ended: true,
+    })
   }
 
   render() {
@@ -127,6 +146,11 @@ export class ChapterPassing extends Component {
       return <Redirect to="/login" />;
     }
     if (this.props.user.groups[0] === 2) {
+      return (
+        <Redirect to="/"/>
+      )
+    }
+    if (this.state.ended) {
       return (
         <Redirect to="/"/>
       )
@@ -153,6 +177,12 @@ export class ChapterPassing extends Component {
             <NextAdventureChoice
                 adventurePart={this.props.adventurePart}
                 onSubmit={this.onSubmitPathChoice}
+                />
+            }
+            {this.state.summaryMode &&
+            <Summary
+                adventurePart={this.props.adventurePart}
+                endChapter={this.props.endChapter}
                 />
             }
           </React.Fragment>

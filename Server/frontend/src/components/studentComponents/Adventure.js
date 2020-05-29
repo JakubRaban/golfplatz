@@ -6,6 +6,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
+import TextField, { Input } from '@material/react-text-field';
 
 
 class Timer extends React.Component {
@@ -27,6 +28,10 @@ class Timer extends React.Component {
 }
 
 export class Adventure extends Component {
+  onChange(e) {
+    console.log("XD");
+  }
+
   render() {
     return (
       <div>
@@ -44,6 +49,16 @@ export class Adventure extends Component {
               <Typography variant="subtitle1" gutterBottom>
                 {question.text}
               </Typography>
+              {question.answers.length === 0 ? 
+              <TextField className="answer" label="Twoja odpowiedź:">
+                <Input
+                  type="answer"
+                  name="answer"
+                  onChange={this.onChange}
+                  value={""}
+                />
+              </TextField>
+              :
               <FormControl component="fieldset">
                 <FormGroup>
                   {question.answers.map((answer, j) => (
@@ -55,6 +70,7 @@ export class Adventure extends Component {
                   ))}
                 </FormGroup>
               </FormControl>
+              }
             </React.Fragment>
           ))}
           <div style={{display: 'block'}}>
@@ -89,11 +105,6 @@ export class Adventure extends Component {
               </FormControl>
             </React.Fragment>
           ))}
-          <div style={{display: 'block'}}>
-            <Typography variant="subtitle1" gutterBottom>
-              Twój wynik to: przeliczyć xD
-            </Typography>
-          </div>
           <div style={{display: 'block'}}>
             <Button variant="contained" onClick={this.props.onNext}>Dalej</Button>
           </div>
