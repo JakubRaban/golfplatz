@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { startChapter, addAdventureAnswer } from "../../actions/course";
+import { startChapter, addAdventureAnswer, chooseNextAdventure } from "../../actions/course";
 import Typography from '@material-ui/core/Typography';
 import { Adventure } from './Adventure';
 import { NextAdventureChoice } from './NextAdventureChoice';
@@ -30,45 +30,60 @@ export class ChapterPassing extends Component {
     adventurePart: PropTypes.any,
   };
 
-  tick() {
-    let current = this.state.timeLimit;
-    if (current === 0) {
-      this.transition();
-    } else {
-      this.setState({ timeLimit: current - 1 });
-    }
-  }
+  adventureAnswer = {};
+  // tick() {
+  //   let current = this.state.timeLimit;
+  //   if (current === 0) {
+  //     this.transition();
+  //   } else {
+  //     this.setState({ timeLimit: current - 1 });
+  //   }
+  // }
 
-  transition() {
-    clearInterval(this.timer);
-    //call timeout
-  }
+  // transition() {
+  //   clearInterval(this.timer);
+  //   //call timeout
+  // }
 
 
   componentDidUpdate(prevProps) {
     if (prevProps.adventurePart !== this.props.adventurePart) {
-      let tmpClosedQuestions = [];
-      let questions = this.props.adventurePart.adventure.pointSource.questions;
-      for (var i=0; i<questions.length; i++) {
-        if (questions[i].questionType === 'CLOSED') {
-          let answers = [];
-          for (var j=0; j<questions[i].answers.length; j++){
-            answers.push({id: questions[i].answers[j].id, marked: false})
+      if (this.props.adventurePart.responseType === 'adventure') {
+        let tmpClosedQuestions = [];
+        let questions = this.props.adventurePart.adventure.pointSource.questions;
+        for (var i=0; i<questions.length; i++) {
+          if (questions[i].questionType === 'CLOSED') {
+            let answers = [];
+            for (var j=0; j<questions[i].answers.length; j++){
+              answers.push({id: questions[i].answers[j].id, marked: false})
+            }
+            tmpClosedQuestions.push({id: questions[i].id, givenAnswers: answers})
+          } else {
+            //tmpQuestions.push()
           }
-          tmpClosedQuestions.push({id: questions[i].id, givenAnswers: answers})
-        } else {
-          //tmpQuestions.push()
         }
+        this.setState({
+          loading: false,
+          closedQuestions: tmpClosedQuestions,
+          answerMode: true,
+          choiceMode: false,
+        })
+        console.log(this.props.adventurePart);
+        console.log(tmpClosedQuestions);
+        
+        this.startTime = new Date();
+        // this.timer = setInterval(() => this.tick(), 1000);
       }
-      this.setState({
-        loading: false,
-        closedQuestions: tmpClosedQuestions,
-      })
-      console.log(this.props.adventurePart);
-      console.log(tmpClosedQuestions);
-      
-      this.startTime = new Date();
-      this.timer = setInterval(() => this.tick(), 1000);
+      else if (this.props.adventurePart.responseType === 'choice') {
+        this.setState({
+          choiceMode: true,
+          answerMode: false,
+          summaryMode: false,
+          submitted: false,
+          loading: false,
+          closedQuestions: [],
+        })
+      }
     }
   }
 
@@ -89,29 +104,22 @@ export class ChapterPassing extends Component {
     this.state.closedQuestions.map(question => (
       closedQuestions.push({questionId: question.id, markedAnswers: question.givenAnswers.filter(a => a.marked).map(a => a.id)})
     ));
-    let adventureAnswer = {startTime: this.startTime.toISOString(), answerTime: answerTime, closedQuestions: closedQuestions, openQuestions: openQuestions};
-    
-    this.sendAnswer(adventureAnswer);
-  };
-
-  async sendAnswer(adventureAnswer){
-    await this.props.addAdventureAnswer(this.props.adventurePart.adventure.id, adventureAnswer);
+    this.adventureAnswer = {startTime: this.startTime.toISOString(), answerTime: answerTime, closedQuestions: closedQuestions, openQuestions: openQuestions};
     
     this.setState({
       submitted: true,
     })
-  }
+
+  };
 
   onNext = (e) => {
-    if (this.props.answerResponse.responseType === 'choice'){
+    this.setState({loading: true});
+    this.props.addAdventureAnswer(this.props.adventurePart.adventure.id, this.adventureAnswer);
+  }
 
-    } else if (this.props.answerResponse.responseType === 'adventure'){
-
-    } else if (this.props.answerResponse.responseType === 'summary'){
-      
-    } else {
-      console.log("Potężny error");
-    }
+  onSubmitPathChoice = id => (e) => {
+    this.setState({loading: true});
+    this.props.chooseNextAdventure(id);
   }
 
   render() {
@@ -136,13 +144,16 @@ export class ChapterPassing extends Component {
                       closedQuestions={this.state.closedQuestions}
                       submitted={this.state.submitted}
                       adventurePart={this.props.adventurePart}
-                      onAnswerChange={this.onAnswerChange}
-                      onSubmitAnswer={this.onSubmitAnswer}
+                      onAnswer={this.onAnswerChange}
+                      onSubmit={this.onSubmitAnswer}
                       onNext={this.onNext}
                       />
             }
             {this.state.choiceMode &&
-            <NextAdventureChoice/>
+            <NextAdventureChoice
+                adventurePart={this.props.adventurePart}
+                onSubmit={this.onSubmitPathChoice}
+                />
             }
           </React.Fragment>
         }
@@ -158,4 +169,4 @@ const mapStateToProps = (state) => ({
   adventurePart: state.course.adventurePart,
 });
 
-export default connect(mapStateToProps, {startChapter, addAdventureAnswer})(ChapterPassing);
+export default connect(mapStateToProps, {startChapter, addAdventureAnswer, chooseNextAdventure})(ChapterPassing);

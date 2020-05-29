@@ -11,6 +11,7 @@ import { ADD_COURSE,
   ADD_ADVENTURES,
   START_CHAPTER,
   ADD_ANSWER,
+  NEXT_ADVENTURE,
  }
 from '../actions/types.js';
 
@@ -126,4 +127,13 @@ export const addAdventureAnswer = (id, answer) => (dispatch, getState) => {
   }).catch(err => {
     dispatch(returnErrors(err.response.data, err.response.status));
   });
+}
+
+export const chooseNextAdventure = (id) => (dispatch, getState) => {
+  axios.get("/api/play/path_choice/" + id + "/", tokenConfig(getState)).then(res => {
+    dispatch({
+      type: NEXT_ADVENTURE,
+      payload: res.data
+    })
+  })
 }

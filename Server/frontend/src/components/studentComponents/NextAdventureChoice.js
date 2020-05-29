@@ -11,8 +11,16 @@ import Button from '@material-ui/core/Button';
 export class NextAdventureChoice extends Component {
   render() {
     return (
-      <div>XD
-        </div>
+      <div>
+        <Typography variant="h5" gutterBottom>
+          {this.props.adventurePart.choice.choiceDescription}
+        </Typography>
+        {this.props.adventurePart.choice.pathChoices.map(pathChoice => (
+          <Button variant="contained" onClick={this.props.onSubmit(pathChoice.toAdventure)}>
+            {pathChoice.pathDescription}
+          </Button>
+        ))}
+      </div>
     )
   }
 }

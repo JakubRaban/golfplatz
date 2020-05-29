@@ -38,7 +38,7 @@ export class Adventure extends Component {
         </Typography>
         {!this.props.submitted ?
         <React.Fragment>
-          {!this.props.adventurePart.adventure.hasTimeLimit && <Timer time={this.props.timeLimit}/>}
+          {/* {this.props.adventurePart.adventure.hasTimeLimit && <Timer time={this.props.timeLimit}/>} */}
           {this.props.adventurePart.adventure.pointSource.questions.map((question, i) => (
             <React.Fragment>
               <Typography variant="subtitle1" gutterBottom>
@@ -49,7 +49,7 @@ export class Adventure extends Component {
                   {question.answers.map((answer, j) => (
                     <FormControlLabel
                       control={<Checkbox checked={this.props.closedQuestions[i].givenAnswers[j].marked}
-                      onChange={this.props.onAnswerChange(i, j)} name="answer" />}
+                      onChange={this.props.onAnswer(i, j)} name="answer" />}
                       label={answer.text}
                     />
                   ))}
@@ -58,7 +58,7 @@ export class Adventure extends Component {
             </React.Fragment>
           ))}
           <div style={{display: 'block'}}>
-            <Button variant="contained" onClick={this.props.onSubmitAnswer}>Zatwierdź</Button>
+            <Button variant="contained" onClick={this.props.onSubmit}>Zatwierdź</Button>
           </div>
           
         </React.Fragment>
