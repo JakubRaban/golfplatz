@@ -43,14 +43,6 @@ class Course(models.Model):
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
 
-    def add_plot_part(self, **kwargs):
-        new_plot_part = PlotPart(name=kwargs['name'], introduction=kwargs['introduction'], course=self)
-        current_parts = PlotPart.objects.filter(course=self)
-        last_part_index = current_parts.aggregate(index=Max('position_in_course'))['index'] or 0
-        new_plot_part.position_in_course = last_part_index + 1
-        new_plot_part.save()
-        return new_plot_part
-
     def add_course_groups(self, names: List[str]):
         return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]
 
@@ -83,13 +75,12 @@ class PlotPart(models.Model):
             models.UniqueConstraint(fields=['name', 'course'], name='plot_part_name_constraint')
         ]
 
-    def add_chapter(self, **kwargs):
-        new_chapter = Chapter(name=kwargs['name'], description=kwargs['description'], plot_part=self)
-        current_chapters = Chapter.objects.filter(plot_part=self)
-        last_part_index = current_chapters.aggregate(index=Max('position_in_plot_part'))['index'] or 0
-        new_chapter.position_in_plot_part = last_part_index + 1
-        new_chapter.save()
-        return new_chapter
+    def save(self, *args, **kwargs):
+        if 'position_in_course' not in kwargs:
+            current_parts = PlotPart.objects.filter(course=self.course)
+            last_part_index = current_parts.aggregate(index=Max('position_in_course'))['index'] or 0
+            self.position_in_course = last_part_index + 1
+        super(PlotPart, self).save(*args, **kwargs)
 
     def __str__(self):
         return f'Plot part {self.name} in {self.course.name}'
@@ -109,6 +100,13 @@ class Chapter(models.Model):
                                     name='position_in_plot_part_constraint'),
             models.UniqueConstraint(fields=['name', 'plot_part'], name='chapter_name_constraint')
         ]
+
+    def save(self, *args, **kwargs):
+        if 'position_in_plot_part' not in kwargs:
+            current_chapters = Chapter.objects.filter(plot_part=self.plot_part)
+            last_part_index = current_chapters.aggregate(index=Max('position_in_plot_part'))['index'] or 0
+            self.position_in_plot_part = last_part_index + 1
+        super(Chapter, self).save(*args, **kwargs)
 
     def add_adventures(self, adventure_list):
         internal_id_to_created_adventure = {}
@@ -211,6 +209,11 @@ class TimerRule(models.Model):
     class DecreasingMethod(models.TextChoices):
         LINEAR = 'LIN', 'Linear'
         NONE = 'NONE', 'None'
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['rule_end_time', 'adventure'], name='single_rule_for_end_time_in_adventure')
+        ]
 
     adventure = models.ForeignKey('Adventure', on_delete=models.CASCADE, related_name='timer_rules')
     least_points_awarded_percent = models.PositiveSmallIntegerField()
@@ -316,7 +319,7 @@ class Question(models.Model):
         else:
             all_answers = self.answers.all()
             unchecked_answers = set(all_answers) - set(given_answers)
-            points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer), given_answers, 0)
+            points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer), given_answers)
             points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer, invert=True),
                                              unchecked_answers, points_scored)
             return points_scored
@@ -334,11 +337,11 @@ class Question(models.Model):
         if not self.is_multiple_choice:
             return self.points_per_correct_answer
         else:
-            return self.points_per_correct_answer * len(self.answers.all())
+            return self.points_per_correct_answer * self.answers.count()
 
     @property
     def is_multiple_choice(self) -> bool:
-        return len(self.answers.filter(is_correct=True)) > 1
+        return self.answers.filter(is_correct=True).count() > 1
 
     @property
     def is_open(self) -> bool:
