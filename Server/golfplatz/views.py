@@ -172,7 +172,7 @@ class PathChoiceDescriptionView(APIView):
             NextAdventureChoiceDescription.objects.create(from_adventure=adventure_choice['from_adventure'],
                                                           description=adventure_choice['choice_description'])
             for path_choice in adventure_choice['path_choices']:
-                path = Path.objects.get(from_adventure=data['from_adventure'], to_adventure=path_choice['to_adventure'])
+                path = Path.objects.get(from_adventure=adventure_choice['from_adventure'], to_adventure=path_choice['to_adventure'])
                 PathChoiceDescription.objects.create(path=path, description=path_choice['path_description'])
         return Response()
 

@@ -18,8 +18,7 @@ const initialState = {
   chapters: [],
   chapterDetailed: {},
   adventures: [],
-  chapterTaken: {},
-  answerResponse: {},
+  adventurePart: {},
 };
 
 export default function(state = initialState, action) {
@@ -65,14 +64,10 @@ export default function(state = initialState, action) {
         adventures: action.payload,
       };
     case START_CHAPTER:
-      return {
-        ...state,
-        chapterTaken: action.payload,
-      }
     case ADD_ANSWER:
       return {
         ...state,
-        answerResponse: action.payload,
+        adventurePart: action.payload,
       }
     default:
       return state;

@@ -4,30 +4,9 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { startChapter, addAdventureAnswer } from "../../actions/course";
 import Typography from '@material-ui/core/Typography';
-import FormControl from '@material-ui/core/FormControl';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
+import { Adventure } from './Adventure';
+import { NextAdventureChoice } from './NextAdventureChoice';
 
-
-class Timer extends React.Component {
-  format(time) {
-    let seconds = time % 60;
-    let minutes = Math.floor(time / 60);
-    minutes = minutes.toString().length === 1 ? "0" + minutes : minutes;
-    seconds = seconds.toString().length === 1 ? "0" + seconds : seconds;
-    return minutes + ':' + seconds;
-  }
-  render () {
-    const {time} = this.props;
-    return (
-      <div>
-        <h1>{this.format(time)}</h1>
-      </div>
-    )
-  }
-}
 
 export class ChapterPassing extends Component {
   constructor(props) {
@@ -36,6 +15,9 @@ export class ChapterPassing extends Component {
   }
 
   state = {
+    choiceMode: false,
+    answerMode: true,
+    summaryMode: false,
     loading: true,
     submitted: false,
     closedQuestions: [],
@@ -45,7 +27,7 @@ export class ChapterPassing extends Component {
   static propTypes = {
     isAuthenticated: PropTypes.bool,
     user: PropTypes.any,
-    startedChapter: PropTypes.any,
+    adventurePart: PropTypes.any,
   };
 
   tick() {
@@ -64,9 +46,9 @@ export class ChapterPassing extends Component {
 
 
   componentDidUpdate(prevProps) {
-    if (prevProps.startedChapter !== this.props.startedChapter) {
+    if (prevProps.adventurePart !== this.props.adventurePart) {
       let tmpClosedQuestions = [];
-      let questions = this.props.startedChapter.adventure.pointSource.questions;
+      let questions = this.props.adventurePart.adventure.pointSource.questions;
       for (var i=0; i<questions.length; i++) {
         if (questions[i].questionType === 'CLOSED') {
           let answers = [];
@@ -82,7 +64,7 @@ export class ChapterPassing extends Component {
         loading: false,
         closedQuestions: tmpClosedQuestions,
       })
-      console.log(this.props.startedChapter);
+      console.log(this.props.adventurePart);
       console.log(tmpClosedQuestions);
       
       this.startTime = new Date();
@@ -99,7 +81,7 @@ export class ChapterPassing extends Component {
     })
   };
 
-  onSubmit = (e) => {
+  onSubmitAnswer = (e) => {
     /*tymczasowo:*/
     let answerTime = 16;
     let closedQuestions = [];
@@ -109,12 +91,28 @@ export class ChapterPassing extends Component {
     ));
     let adventureAnswer = {startTime: this.startTime.toISOString(), answerTime: answerTime, closedQuestions: closedQuestions, openQuestions: openQuestions};
     
-    this.props.addAdventureAnswer(this.props.startedChapter.adventure.id, adventureAnswer);
+    this.sendAnswer(adventureAnswer);
+  };
+
+  async sendAnswer(adventureAnswer){
+    await this.props.addAdventureAnswer(this.props.adventurePart.adventure.id, adventureAnswer);
     
     this.setState({
       submitted: true,
     })
-  };
+  }
+
+  onNext = (e) => {
+    if (this.props.answerResponse.responseType === 'choice'){
+
+    } else if (this.props.answerResponse.responseType === 'adventure'){
+
+    } else if (this.props.answerResponse.responseType === 'summary'){
+      
+    } else {
+      console.log("Potężny error");
+    }
+  }
 
   render() {
     if (!this.props.isAuthenticated) {
@@ -132,78 +130,21 @@ export class ChapterPassing extends Component {
           Przed Tobą walka 
         </Typography>
         {this.state.loading ? <div>Ładowanie</div> : 
-          <div>
-            <Typography variant="h5" gutterBottom>
-              {this.props.startedChapter.adventure.name}
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              {this.props.startedChapter.adventure.taskDescription}
-            </Typography>
-            {!this.state.submitted ? 
-            <React.Fragment>
-              {!this.props.startedChapter.adventure.hasTimeLimit && <Timer time={this.state.timeLimit}/>}
-              {this.props.startedChapter.adventure.pointSource.questions.map((question, i) => (
-                <React.Fragment>
-                  <Typography variant="subtitle1" gutterBottom>
-                    {question.text}
-                  </Typography>
-                  <FormControl component="fieldset">
-                    <FormGroup>
-                      {question.answers.map((answer, j) => (
-                        <FormControlLabel
-                          control={<Checkbox checked={this.state.closedQuestions[i].givenAnswers[j].marked}
-                          onChange={this.onAnswerChange(i, j)} name="answer" />}
-                          label={answer.text}
-                        />
-                      ))}
-                    </FormGroup>
-                  </FormControl>
-                </React.Fragment>
-              ))}
-              <div style={{display: 'block'}}>
-                <Button variant="contained" onClick={this.onSubmit}>Zatwierdź</Button>
-              </div>
-              
-            </React.Fragment>
-              : 
-              <React.Fragment>
-              {this.props.startedChapter.adventure.pointSource.questions.map((question, i) => (
-                <React.Fragment>
-                  <Typography variant="subtitle1" gutterBottom>
-                    {question.text}
-                  </Typography>
-                  <FormControl component="fieldset">
-                    <FormGroup>
-                      {question.answers.map((answer, j) => (
-                      <React.Fragment>
-                        <FormControlLabel
-                          control={<Checkbox checked={this.state.closedQuestions[i].givenAnswers[j].marked}
-                          name="answer" />}
-                          label={answer.text}
-                        />
-                        {this.state.closedQuestions[i].givenAnswers[j].marked &&
-                          <Typography variant="subtitle2" gutterBottom>
-                            {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
-                          </Typography> 
-                        }
-                      </React.Fragment>
-                      ))}
-                    </FormGroup>
-                  </FormControl>
-                </React.Fragment>
-              ))}
-              <div style={{display: 'block'}}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Twój wynik to: przeliczyć xD
-                </Typography>
-              </div>
-              <div style={{display: 'block'}}>
-                <Button variant="contained" onClick={this.onSubmit}>Dalej</Button>
-              </div>
-              
-            </React.Fragment>
+          <React.Fragment>
+            {this.state.answerMode &&
+            <Adventure timeLimit={this.state.timeLimit}
+                      closedQuestions={this.state.closedQuestions}
+                      submitted={this.state.submitted}
+                      adventurePart={this.props.adventurePart}
+                      onAnswerChange={this.onAnswerChange}
+                      onSubmitAnswer={this.onSubmitAnswer}
+                      onNext={this.onNext}
+                      />
             }
-          </div>
+            {this.state.choiceMode &&
+            <NextAdventureChoice/>
+            }
+          </React.Fragment>
         }
       </div>
 
@@ -214,7 +155,7 @@ export class ChapterPassing extends Component {
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
-  startedChapter: state.course.chapterTaken,
+  adventurePart: state.course.adventurePart,
 });
 
 export default connect(mapStateToProps, {startChapter, addAdventureAnswer})(ChapterPassing);
