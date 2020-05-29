@@ -242,6 +242,11 @@ class AccomplishedAdventure(models.Model):
     adventure_started_time = models.DateTimeField()
     time_elapsed_seconds = models.PositiveSmallIntegerField()
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['student', 'adventure'], name='student_accomplishes_adventure_once')
+        ]
+
 
 class PointSource(models.Model):
     class AutoCheckedCategory(models.TextChoices):
