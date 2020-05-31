@@ -110,8 +110,6 @@ class Chapter(models.Model):
 
     def add_adventures(self, adventure_list):
         internal_id_to_created_adventure = {}
-        dummy_terminal_adventure = Adventure.objects.create(is_terminal=True, name="The End",
-                                                            task_description="The End", chapter=self)
         for adventure_dict in adventure_list:
             internal_id = adventure_dict.pop('internal_id')
             point_source_data = adventure_dict.pop('point_source')
@@ -123,13 +121,9 @@ class Chapter(models.Model):
             new_adventure.attach_point_source(point_source_data)
             internal_id_to_created_adventure[internal_id] = next_adventures_data, new_adventure
         for (new_id, (next_ids, adventure)) in internal_id_to_created_adventure.items():
-            if next_ids:
-                for next_id in next_ids:
-                    Path.objects.create(from_adventure=adventure,
-                                        to_adventure=internal_id_to_created_adventure[next_id][1])
-            else:
+            for next_id in next_ids:
                 Path.objects.create(from_adventure=adventure,
-                                    to_adventure=dummy_terminal_adventure)
+                                    to_adventure=internal_id_to_created_adventure[next_id][1])
         return [adventure[1] for adventure in internal_id_to_created_adventure.values()]
 
     def get_paths(self):
@@ -151,7 +145,6 @@ class Adventure(models.Model):
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='adventures')
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
-    is_terminal = models.BooleanField(default=False)
     has_time_limit = models.BooleanField(default=False)
     done_by_students = models.ManyToManyField('Participant', through='AccomplishedAdventure')
 
@@ -181,7 +174,8 @@ class Adventure(models.Model):
                 modifier_at_rule_start = previous_rule.least_points_awarded_percent if previous_rule else hundred_percent
                 time_at_rule_start = previous_rule.rule_end_time if previous_rule else 0
                 a, b = Adventure.line_through_points((time_at_rule_start, modifier_at_rule_start),
-                                                     (timer_rule.rule_end_time, timer_rule.least_points_awarded_percent))
+                                                     (
+                                                     timer_rule.rule_end_time, timer_rule.least_points_awarded_percent))
                 return int(a * time_in_seconds + b)
         else:
             return timer_rules[-1].least_points_awarded_percent if not self.has_time_limit else 0
@@ -325,7 +319,7 @@ class Question(models.Model):
         else:
             all_answers = self.answers.all()
             unchecked_answers = set(all_answers) - set(given_answers)
-            points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer), given_answers)
+            points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer), given_answers, 0)
             points_scored = functools.reduce(lambda acc, answer: acc + self._points_for_answer(answer, invert=True),
                                              unchecked_answers, points_scored)
             return points_scored

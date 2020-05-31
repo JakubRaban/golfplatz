@@ -39,3 +39,13 @@ class CourseStructureTest(TestCase):
         ch1 = Chapter.objects.create(name='ch1', description='ch1', plot_part=pp, points_for_max_grade=100)
         with self.assertRaises(IntegrityError):
             ch2 = Chapter.objects.create(name='ch1', description='ch12', plot_part=pp, points_for_max_grade=100)
+
+    def test_chapter_is_created_and_properly_assigned_position_in_plot_part(self):
+        p = PlotPart.objects.create(name='ttcc', introduction='abc', course=self.c)
+        p2 = PlotPart.objects.create(name='ttcc2', introduction='abc', course=self.c)
+        c1 = Chapter.objects.create(name='pp12', description='abc', plot_part=p, points_for_max_grade=1)
+        self.assertEquals(c1.position_in_plot_part, 1)
+        c2 = Chapter.objects.create(name='pp22', description='ppo2', plot_part=p, points_for_max_grade=1)
+        self.assertEquals(c2.position_in_plot_part, 2)
+        c3 = Chapter.objects.create(name='pp12', description='ppo2', plot_part=p2, points_for_max_grade=1)
+        self.assertEquals(c3.position_in_plot_part, 1)

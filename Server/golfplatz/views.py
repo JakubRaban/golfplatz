@@ -212,10 +212,10 @@ class AdventureAnswerView(APIView):
                                                                current_adventure,
                                                                data['start_time'], data['answer_time'], closed_questions,
                                                                open_questions)
-        if len(next_adventures) == 1 and next_adventures[0].is_terminal:
+        if len(next_adventures) == 0:
             return Response({
                 'response_type': 'summary',
-                'summary': AdventureSummarySerializer(get_summary(self.request.user, next_adventures[0]), many=True).data
+                'summary': AdventureSummarySerializer(get_summary(self.request.user, current_adventure), many=True).data
             })
         elif len(next_adventures) == 1:
             return Response({
