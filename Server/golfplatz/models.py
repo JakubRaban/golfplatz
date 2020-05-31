@@ -174,8 +174,7 @@ class Adventure(models.Model):
                 modifier_at_rule_start = previous_rule.least_points_awarded_percent if previous_rule else hundred_percent
                 time_at_rule_start = previous_rule.rule_end_time if previous_rule else 0
                 a, b = Adventure.line_through_points((time_at_rule_start, modifier_at_rule_start),
-                                                     (
-                                                     timer_rule.rule_end_time, timer_rule.least_points_awarded_percent))
+                                                     (timer_rule.rule_end_time, timer_rule.least_points_awarded_percent))
                 return int(a * time_in_seconds + b)
         else:
             return timer_rules[-1].least_points_awarded_percent if not self.has_time_limit else 0
