@@ -359,8 +359,9 @@ export class Chapter extends Component {
                               </div>
                               <div className="col-75">
                                 <select name="nested-questions-type" onChange={this.onQuestionChange(i)}>
-                                  <option value="OPEN">Otwarte</option>
-                                  <option value="CLOSED">Zamknięte</option>
+                                  <option value="TEXT_AREA">Krótka odpowiedź</option>
+                                  <option value="TEXT_FIELD">Krótka odpowiedź</option>
+                                  <option value="NONE">Zamknięte</option>
                                 </select>
                               </div>
                             </div>

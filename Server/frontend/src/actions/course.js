@@ -9,6 +9,9 @@ import { ADD_COURSE,
   ADD_CHAPTER,
   GET_CHAPTER,
   ADD_ADVENTURES,
+  START_CHAPTER,
+  ADD_ANSWER,
+  NEXT_ADVENTURE,
  }
 from '../actions/types.js';
 
@@ -26,7 +29,6 @@ export const addAdventures = (adventures, chapterId) => (dispatch, getState) => 
 }
 
 export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
-  console.log(chapters, plotPartId);
   axios.post("/api/plot_parts/" + plotPartId + "/chapters/", chapters, tokenConfig(getState)).then(res => {
     dispatch({
       type: ADD_CHAPTER,
@@ -106,3 +108,32 @@ export const getChapter = (id) => (dispatch, getState) => {
     })
   })
 };
+
+export const startChapter = (id) => (dispatch, getState) => {
+  axios.get("/api/play/start/" + id + "/", tokenConfig(getState)).then(res => {
+    dispatch({
+      type: START_CHAPTER,
+      payload: res.data
+    })
+  })
+}
+
+export const addAdventureAnswer = (id, answer) => (dispatch, getState) => {
+  axios.post("/api/play/answer/" + id + "/", answer, tokenConfig(getState)).then(res => {
+    dispatch({
+      type: ADD_ANSWER,
+      payload: res.data
+    });
+  }).catch(err => {
+    dispatch(returnErrors(err.response.data, err.response.status));
+  });
+}
+
+export const chooseNextAdventure = (id) => (dispatch, getState) => {
+  axios.get("/api/play/path_choice/" + id + "/", tokenConfig(getState)).then(res => {
+    dispatch({
+      type: NEXT_ADVENTURE,
+      payload: res.data
+    })
+  })
+}
