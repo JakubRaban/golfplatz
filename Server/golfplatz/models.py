@@ -339,10 +339,6 @@ class Question(models.Model):
             return self.points_per_correct_answer * self.answers.count()
 
     @property
-    def is_multiple_choice(self) -> bool:
-        return self.answers.filter(is_correct=True).count() > 1
-
-    @property
     def is_open(self) -> bool:
         return self.question_type == Question.Type.OPEN
 
