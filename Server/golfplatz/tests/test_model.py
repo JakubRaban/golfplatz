@@ -1,7 +1,7 @@
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
-from golfplatz.models import Course, PlotPart, Chapter, Adventure, Path, TimerRule
+from golfplatz.models import Course, PlotPart, Chapter, Adventure, Path, TimerRule, PointSource, Question, Answer
 
 
 class CourseStructureTest(TestCase):
@@ -16,7 +16,23 @@ class CourseStructureTest(TestCase):
                            for i in range(4)]
         self.paths = [
             Path.objects.create(from_adventure=self.adventures[path[0]], to_adventure=self.adventures[path[1]])
-            for path in [(0, 1), (0, 2), (1, 2), (2, 3)]]
+            for path in [(0, 1), (0, 2), (1, 2), (2, 3)]
+        ]
+        self.point_sources = [PointSource.objects.create(adventure=adv,
+                                                         category=PointSource.AutoCheckedCategory.GENERIC)
+                              for adv in self.adventures]
+        self.questions = [Question.objects.create(point_source=self.point_sources[0],
+                                                  text='abc',
+                                                  question_type=Question.Type.CLOSED),
+                          Question.objects.create(point_source=self.point_sources[0],
+                                                  text='def',
+                                                  question_type=Question.Type.OPEN),
+                          Question.objects.create(point_source=self.point_sources[0],
+                                                  text='ghi',
+                                                  question_type=Question.Type.OPEN)]
+        self.closed_answers = [Answer.objects.create(text=t[0], is_correct=t[1], is_regex=False)
+                               for t in [('A', True), ('B', True), ('C', False), ('D', False)]]
+        self.open_answer = Answer.objects.create("Tak")
 
     def test_duplicate_course_name_fails(self):
         with self.assertRaises(IntegrityError):
