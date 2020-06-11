@@ -104,7 +104,10 @@ export class CourseDetails extends Component {
     this.state.chapters.unshift(this.firstChapter);
 
     const { chapters } = this.state;
-    
+
+    //statyczne dodanie 100% punktow - tymczasowo!
+    chapters.forEach(x => {x.pointsForMaxGrade = 100});
+
     this.updateChapters(chapters);
   };
 
@@ -265,7 +268,7 @@ export class CourseDetails extends Component {
                           <div style={{margin: '10px'}}>
                           <Form onSubmit={this.onSubmit}>
                             {formApi => (
-                            <form onSubmit={formApi.submitForm} id="course-group-form">
+                            <form onSubmit={formApi.submitForm} id="chapter-form">
                               <div key={0}>
                                 <Chapters i={0} />
                               </div>
