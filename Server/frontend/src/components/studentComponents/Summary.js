@@ -6,7 +6,6 @@ import Button from '@material-ui/core/Button';
 
 export class Summary extends Component {
   render() {
-      console.log(this.props.adventurePart);
     return (
       <div>
         <Typography variant="h5" gutterBottom>
@@ -26,7 +25,7 @@ export class Summary extends Component {
                   {question.text}
                 </Typography>
                 <Typography variant="subtitle2" gutterBottom>
-                  {question.pointScored}/{question.maxPoints}
+                  {question.pointsScored}/{question.maxPoints}
                 </Typography>
               </React.Fragment>  
             ))}

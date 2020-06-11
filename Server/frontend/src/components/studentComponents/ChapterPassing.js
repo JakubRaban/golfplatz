@@ -1,12 +1,39 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { startChapter, addAdventureAnswer, chooseNextAdventure } from "../../actions/course";
 import Typography from '@material-ui/core/Typography';
 import { Adventure } from './Adventure';
 import { NextAdventureChoice } from './NextAdventureChoice';
 import { Summary } from './Summary';
+import {styles} from "../../styles/style.js";
+import compose from 'recompose/compose';
+import { createMuiTheme } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import clsx from 'clsx';
+import IconButton from '@material-ui/core/IconButton';
+import Badge from '@material-ui/core/Badge';
+import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import { withStyles } from '@material-ui/core/styles';
+import { logout } from '../../actions/auth';
+
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: '#42a5f5', //get na szate graficzna kursu w przyszlosci
+      contrastText: '#fff',
+    },
+    secondary: {
+      main: '#f44336',
+    }
+  },
+});
 
 
 export class ChapterPassing extends Component {
@@ -22,6 +49,7 @@ export class ChapterPassing extends Component {
     loading: true,
     submitted: false,
     closedQuestions: [],
+    openQuestions: [],
     timeLimit: 90,
     ended: false,
   }
@@ -52,6 +80,7 @@ export class ChapterPassing extends Component {
     if (prevProps.adventurePart !== this.props.adventurePart) {
       if (this.props.adventurePart.responseType === 'adventure') {
         let tmpClosedQuestions = [];
+        let tmpOpenQuestions = [];
         let questions = this.props.adventurePart.adventure.pointSource.questions;
         for (var i=0; i<questions.length; i++) {
           if (questions[i].questionType === 'CLOSED') {
@@ -61,16 +90,15 @@ export class ChapterPassing extends Component {
             }
             tmpClosedQuestions.push({id: questions[i].id, givenAnswers: answers})
           } else {
-            //tmpQuestions.push()
+            tmpOpenQuestions.push({questionId: questions[i].id, givenAnswer: ""});
           }
         }
         this.setState({
           loading: false,
           submitted: false,
           closedQuestions: tmpClosedQuestions,
+          openQuestions: tmpOpenQuestions,
         })
-        console.log(this.props.adventurePart);
-        console.log(tmpClosedQuestions);
         
         this.startTime = new Date();
         if (this.props.adventurePart.adventure.hasTimeLimit) {
@@ -85,6 +113,7 @@ export class ChapterPassing extends Component {
           submitted: false,
           loading: false,
           closedQuestions: [],
+          openQuestions: [],
         })
       }
       else if (this.props.adventurePart.responseType === 'summary') {
@@ -95,9 +124,19 @@ export class ChapterPassing extends Component {
           submitted: false,
           loading: false,
           closedQuestions: [],
+          openQuestions: [],
         })
       }
     }
+  }
+
+  onOpenAnswer = (i) => (e) => {
+    let tmpQuestions = this.state.openQuestions;
+    tmpQuestions[i].givenAnswer = e.target.value;
+    console.log(tmpQuestions);
+    this.setState({
+      openQuestions: tmpQuestions,
+    })
   }
 
   onAnswerChange = (i, j) => (e)  => {
@@ -113,7 +152,7 @@ export class ChapterPassing extends Component {
     /*tymczasowo:*/
     let answerTime = 16;
     let closedQuestions = [];
-    let openQuestions = [];
+    let openQuestions = this.state.openQuestions;
     this.state.closedQuestions.map(question => (
       closedQuestions.push({questionId: question.id, markedAnswers: question.givenAnswers.filter(a => a.marked).map(a => a.id)})
     ));
@@ -142,6 +181,8 @@ export class ChapterPassing extends Component {
   }
 
   render() {
+    const { classes } = this.props;
+
     if (!this.props.isAuthenticated) {
       return <Redirect to="/login" />;
     }
@@ -156,37 +197,69 @@ export class ChapterPassing extends Component {
       )
     }
     return (
-      <div>
-        {/* tu byłaby fajna nazwa rozdziału */}
-        <Typography variant="h4" gutterBottom>
-          Przed Tobą walka 
-        </Typography>
-        {this.state.loading ? <div>Ładowanie</div> : 
-          <React.Fragment>
-            {this.state.answerMode &&
-            <Adventure timeLimit={this.state.timeLimit}
-                      closedQuestions={this.state.closedQuestions}
-                      submitted={this.state.submitted}
-                      adventurePart={this.props.adventurePart}
-                      onAnswer={this.onAnswerChange}
-                      onSubmit={this.onSubmitAnswer}
-                      onNext={this.onNext}
-                      />
-            }
-            {this.state.choiceMode &&
-            <NextAdventureChoice
-                adventurePart={this.props.adventurePart}
-                onSubmit={this.onSubmitPathChoice}
-                />
-            }
-            {this.state.summaryMode &&
-            <Summary
-                adventurePart={this.props.adventurePart}
-                endChapter={this.props.endChapter}
-                />
-            }
-          </React.Fragment>
-        }
+      <div className={classes.root}>
+        <CssBaseline />
+        <AppBar position="absolute" className={clsx(classes.appBar, false && classes.appBarShift)}>
+          <Toolbar className={classes.toolbar}>
+            <IconButton component={Link} to="/"
+              edge="start"
+              color="inherit"
+              aria-label="Powrót"
+              className={clsx(classes.menuButton, false && classes.menuButtonHidden)}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+              Przed Tobą walka
+            </Typography>
+            <IconButton color="inherit">
+              <Badge badgeContent={4} color="secondary">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <IconButton color="inherit" onClick={this.props.logout.bind(this)}>
+              <Badge color="secondary">
+                <PowerSettingsNewIcon />
+              </Badge>
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <main className={classes.content}>
+        <div className={classes.appBarSpacer} />
+          <div style={{margin: '5px'}}>
+          {this.state.loading ? <div>Ładowanie</div> : 
+            <React.Fragment>
+              <Typography variant="h4" gutterBottom>
+                {this.props.adventurePart.chapterName} 
+              </Typography>
+              {this.state.answerMode &&
+              <Adventure timeLimit={this.state.timeLimit}
+                        closedQuestions={this.state.closedQuestions}
+                        openQuestions={this.state.openQuestions}
+                        submitted={this.state.submitted}
+                        adventurePart={this.props.adventurePart}
+                        onAnswer={this.onAnswerChange}
+                        onOpenAnswer={this.onOpenAnswer}
+                        onSubmit={this.onSubmitAnswer}
+                        onNext={this.onNext}
+                        />
+              }
+              {this.state.choiceMode &&
+              <NextAdventureChoice
+                  adventurePart={this.props.adventurePart}
+                  onSubmit={this.onSubmitPathChoice}
+                  />
+              }
+              {this.state.summaryMode &&
+              <Summary
+                  adventurePart={this.props.adventurePart}
+                  endChapter={this.props.endChapter}
+                  />
+              }
+            </React.Fragment>
+          }
+          </div>
+        </main>
       </div>
 
     );
@@ -199,4 +272,7 @@ const mapStateToProps = (state) => ({
   adventurePart: state.course.adventurePart,
 });
 
-export default connect(mapStateToProps, {startChapter, addAdventureAnswer, chooseNextAdventure})(ChapterPassing);
+export default compose(
+  connect(mapStateToProps, {startChapter, addAdventureAnswer, chooseNextAdventure, logout}),
+  withStyles(styles)
+)(ChapterPassing);

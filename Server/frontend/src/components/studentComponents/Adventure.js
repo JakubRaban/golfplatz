@@ -7,6 +7,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import Button from '@material-ui/core/Button';
 import TextField, { Input } from '@material/react-text-field';
+import Box from '@material-ui/core/Box';
 
 
 class Timer extends React.Component {
@@ -28,17 +29,13 @@ class Timer extends React.Component {
 }
 
 export class Adventure extends Component {
-  onChange(e) {
-    console.log("XD");
-  }
-
   render() {
     return (
       <div>
         <Typography variant="h5" gutterBottom>
           {this.props.adventurePart.adventure.name}
         </Typography>
-        <Typography variant="h6" gutterBottom>
+        <Typography variant="subtitle1" gutterBottom>
           {this.props.adventurePart.adventure.taskDescription}
         </Typography>
         {!this.props.submitted ?
@@ -46,30 +43,33 @@ export class Adventure extends Component {
           {/* {this.props.adventurePart.adventure.hasTimeLimit && <Timer time={this.props.timeLimit}/>} */}
           {this.props.adventurePart.adventure.pointSource.questions.map((question, i) => (
             <React.Fragment>
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography variant="subtitle2" gutterBottom>
                 {question.text}
               </Typography>
-              {question.answers.length === 0 ? 
-              <TextField className="answer" label="Twoja odpowiedź:">
-                <Input
-                  type="answer"
-                  name="answer"
-                  onChange={this.onChange}
-                  value={""}
-                />
-              </TextField>
-              :
-              <FormControl component="fieldset">
-                <FormGroup>
-                  {question.answers.map((answer, j) => (
-                    <FormControlLabel
-                      control={<Checkbox checked={this.props.closedQuestions[i].givenAnswers[j].marked}
-                      onChange={this.props.onAnswer(i, j)} name="answer" />}
-                      label={answer.text}
-                    />
-                  ))}
-                </FormGroup>
-              </FormControl>
+              {question.questionType === "OPEN" ? 
+                <TextField className="answer" label="Twoja odpowiedź:">
+                  <Input
+                    type="answer"
+                    name="answer"
+                    onChange={this.props.onOpenAnswer(i)}
+                    value={this.props.openQuestions[i].givenAnswer}
+                  />
+                </TextField>
+                :
+                <FormControl component="fieldset">
+                  <FormGroup>
+                    {question.answers.map((answer, j) => (
+                      <FormControlLabel
+                        control={
+                          <Checkbox 
+                            checked={this.props.closedQuestions[i].givenAnswers[j].marked}
+                            onChange={this.props.onAnswer(i, j)} name="answer"
+                          />
+                        }                          
+                        label={<Box component="div" fontSize={13}> {answer.text} </Box>} />
+                    ))}
+                  </FormGroup>
+                </FormControl>
               }
             </React.Fragment>
           ))}
@@ -85,24 +85,30 @@ export class Adventure extends Component {
               <Typography variant="subtitle1" gutterBottom>
                 {question.text}
               </Typography>
-              <FormControl component="fieldset">
-                <FormGroup>
-                  {question.answers.map((answer, j) => (
-                  <React.Fragment>
-                    <FormControlLabel
-                      control={<Checkbox checked={this.props.closedQuestions[i].givenAnswers[j].marked}
-                      name="answer" />}
-                      label={answer.text}
-                    />
-                    {this.props.closedQuestions[i].givenAnswers[j].marked &&
-                      <Typography variant="subtitle2" gutterBottom>
-                        {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
-                      </Typography> 
-                    }
-                  </React.Fragment>
-                  ))}
-                </FormGroup>
-              </FormControl>
+              {question.questionType === "CLOSED" ? 
+                <FormControl component="fieldset">
+                  <FormGroup>
+                    {question.answers.map((answer, j) => (
+                    <React.Fragment>
+                      <FormControlLabel
+                        control={<Checkbox checked={this.props.closedQuestions[i].givenAnswers[j].marked}
+                        name="answer" />}
+                        label={answer.text}
+                      />
+                      {this.props.closedQuestions[i].givenAnswers[j].marked &&
+                        <Typography variant="subtitle2" gutterBottom>
+                          {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
+                        </Typography> 
+                      }
+                    </React.Fragment>
+                    ))}
+                  </FormGroup>
+                </FormControl>
+              :
+              <Typography variant="subtitle2" gutterBottom>
+                Twoja odpowiedź: {this.props.openQuestions[i].givenAnswer}
+              </Typography>
+            }
             </React.Fragment>
           ))}
           <div style={{display: 'block'}}>
