@@ -46,7 +46,7 @@ export class Adventure extends Component {
               <Typography variant="subtitle2" gutterBottom>
                 {question.text}
               </Typography>
-              {this.props.closedQuestions.length === 0 ? 
+              {question.questionType === "OPEN" ? 
                 <TextField className="answer" label="Twoja odpowiedź:">
                   <Input
                     type="answer"
@@ -85,24 +85,30 @@ export class Adventure extends Component {
               <Typography variant="subtitle1" gutterBottom>
                 {question.text}
               </Typography>
-              <FormControl component="fieldset">
-                <FormGroup>
-                  {question.answers.map((answer, j) => (
-                  <React.Fragment>
-                    <FormControlLabel
-                      control={<Checkbox checked={this.props.closedQuestions[i].givenAnswers[j].marked}
-                      name="answer" />}
-                      label={answer.text}
-                    />
-                    {this.props.closedQuestions[i].givenAnswers[j].marked &&
-                      <Typography variant="subtitle2" gutterBottom>
-                        {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
-                      </Typography> 
-                    }
-                  </React.Fragment>
-                  ))}
-                </FormGroup>
-              </FormControl>
+              {question.questionType === "CLOSED" ? 
+                <FormControl component="fieldset">
+                  <FormGroup>
+                    {question.answers.map((answer, j) => (
+                    <React.Fragment>
+                      <FormControlLabel
+                        control={<Checkbox checked={this.props.closedQuestions[i].givenAnswers[j].marked}
+                        name="answer" />}
+                        label={answer.text}
+                      />
+                      {this.props.closedQuestions[i].givenAnswers[j].marked &&
+                        <Typography variant="subtitle2" gutterBottom>
+                          {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
+                        </Typography> 
+                      }
+                    </React.Fragment>
+                    ))}
+                  </FormGroup>
+                </FormControl>
+              :
+              <Typography variant="subtitle2" gutterBottom>
+                Twoja odpowiedź: {this.props.openQuestions[i].givenAnswer}
+              </Typography>
+            }
             </React.Fragment>
           ))}
           <div style={{display: 'block'}}>

@@ -90,7 +90,7 @@ export class ChapterPassing extends Component {
             }
             tmpClosedQuestions.push({id: questions[i].id, givenAnswers: answers})
           } else {
-            tmpOpenQuestions.push({id: questions[i].id, givenAnswer: ""});
+            tmpOpenQuestions.push({questionId: questions[i].id, givenAnswer: ""});
           }
         }
         this.setState({
