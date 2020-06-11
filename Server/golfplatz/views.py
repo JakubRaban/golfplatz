@@ -184,6 +184,7 @@ class ChapterStartView(APIView):
         chapter = Chapter.objects.get(pk=chapter_id)
         return Response({
             'response_type': 'adventure',
+            'chapter_name': chapter.name,
             'adventure': AdventureSerializer(chapter.get_initial_adventure()).data
         })
 
@@ -211,10 +212,10 @@ class AdventureAnswerView(APIView):
                                                                current_adventure,
                                                                data['start_time'], data['answer_time'], closed_questions,
                                                                open_questions)
-        if len(next_adventures) == 1 and next_adventures[0].is_terminal:
+        if len(next_adventures) == 0:
             return Response({
                 'response_type': 'summary',
-                'summary': AdventureSummarySerializer(get_summary(self.request.user, next_adventures[0]), many=True).data
+                'summary': AdventureSummarySerializer(get_summary(self.request.user, current_adventure), many=True).data
             })
         elif len(next_adventures) == 1:
             return Response({
