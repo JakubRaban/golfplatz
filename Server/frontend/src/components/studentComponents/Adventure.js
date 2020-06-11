@@ -29,10 +29,6 @@ class Timer extends React.Component {
 }
 
 export class Adventure extends Component {
-  onChange(e) {
-    console.log("XD");
-  }
-
   render() {
     return (
       <div>
@@ -50,30 +46,30 @@ export class Adventure extends Component {
               <Typography variant="subtitle2" gutterBottom>
                 {question.text}
               </Typography>
-              {question.answers.length === 0 ? 
-              <TextField className="answer" label="Twoja odpowiedź:">
-                <Input
-                  type="answer"
-                  name="answer"
-                  onChange={this.onChange}
-                  value={""}
-                />
-              </TextField>
-              :
-              <FormControl component="fieldset">
-                <FormGroup>
-                  {question.answers.map((answer, j) => (
-                    <FormControlLabel
-                      control={
-                        <Checkbox 
-                          checked={this.props.closedQuestions[i].givenAnswers[j].marked}
-                          onChange={this.props.onAnswer(i, j)} name="answer"
-                        />
-                      }                          
-                      label={<Box component="div" fontSize={13}> {answer.text} </Box>} />
-                  ))}
-                </FormGroup>
-              </FormControl>
+              {this.props.closedQuestions.length === 0 ? 
+                <TextField className="answer" label="Twoja odpowiedź:">
+                  <Input
+                    type="answer"
+                    name="answer"
+                    onChange={this.props.onOpenAnswer(i)}
+                    value={this.props.openQuestions[i].givenAnswer}
+                  />
+                </TextField>
+                :
+                <FormControl component="fieldset">
+                  <FormGroup>
+                    {question.answers.map((answer, j) => (
+                      <FormControlLabel
+                        control={
+                          <Checkbox 
+                            checked={this.props.closedQuestions[i].givenAnswers[j].marked}
+                            onChange={this.props.onAnswer(i, j)} name="answer"
+                          />
+                        }                          
+                        label={<Box component="div" fontSize={13}> {answer.text} </Box>} />
+                    ))}
+                  </FormGroup>
+                </FormControl>
               }
             </React.Fragment>
           ))}

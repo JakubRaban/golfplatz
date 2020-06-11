@@ -49,6 +49,7 @@ export class ChapterPassing extends Component {
     loading: true,
     submitted: false,
     closedQuestions: [],
+    openQuestions: [],
     timeLimit: 90,
     ended: false,
   }
@@ -79,6 +80,7 @@ export class ChapterPassing extends Component {
     if (prevProps.adventurePart !== this.props.adventurePart) {
       if (this.props.adventurePart.responseType === 'adventure') {
         let tmpClosedQuestions = [];
+        let tmpOpenQuestions = [];
         let questions = this.props.adventurePart.adventure.pointSource.questions;
         for (var i=0; i<questions.length; i++) {
           if (questions[i].questionType === 'CLOSED') {
@@ -88,16 +90,15 @@ export class ChapterPassing extends Component {
             }
             tmpClosedQuestions.push({id: questions[i].id, givenAnswers: answers})
           } else {
-            //tmpQuestions.push()
+            tmpOpenQuestions.push({id: questions[i].id, givenAnswer: ""});
           }
         }
         this.setState({
           loading: false,
           submitted: false,
           closedQuestions: tmpClosedQuestions,
+          openQuestions: tmpOpenQuestions,
         })
-        console.log(this.props.adventurePart);
-        console.log(tmpClosedQuestions);
         
         this.startTime = new Date();
         if (this.props.adventurePart.adventure.hasTimeLimit) {
@@ -112,6 +113,7 @@ export class ChapterPassing extends Component {
           submitted: false,
           loading: false,
           closedQuestions: [],
+          openQuestions: [],
         })
       }
       else if (this.props.adventurePart.responseType === 'summary') {
@@ -122,9 +124,19 @@ export class ChapterPassing extends Component {
           submitted: false,
           loading: false,
           closedQuestions: [],
+          openQuestions: [],
         })
       }
     }
+  }
+
+  onOpenAnswer = (i) => (e) => {
+    let tmpQuestions = this.state.openQuestions;
+    tmpQuestions[i].givenAnswer = e.target.value;
+    console.log(tmpQuestions);
+    this.setState({
+      openQuestions: tmpQuestions,
+    })
   }
 
   onAnswerChange = (i, j) => (e)  => {
@@ -140,7 +152,7 @@ export class ChapterPassing extends Component {
     /*tymczasowo:*/
     let answerTime = 16;
     let closedQuestions = [];
-    let openQuestions = [];
+    let openQuestions = this.state.openQuestions;
     this.state.closedQuestions.map(question => (
       closedQuestions.push({questionId: question.id, markedAnswers: question.givenAnswers.filter(a => a.marked).map(a => a.id)})
     ));
@@ -223,9 +235,11 @@ export class ChapterPassing extends Component {
               {this.state.answerMode &&
               <Adventure timeLimit={this.state.timeLimit}
                         closedQuestions={this.state.closedQuestions}
+                        openQuestions={this.state.openQuestions}
                         submitted={this.state.submitted}
                         adventurePart={this.props.adventurePart}
                         onAnswer={this.onAnswerChange}
+                        onOpenAnswer={this.onOpenAnswer}
                         onSubmit={this.onSubmitAnswer}
                         onNext={this.onNext}
                         />
