@@ -33,6 +33,7 @@ class CourseStructureTest(TestCase):
         self.closed_answers = [Answer.objects.create(text=t[0], is_correct=t[1], is_regex=False)
                                for t in [('A', True), ('B', True), ('C', False), ('D', False)]]
         self.open_answer = Answer.objects.create("Tak")
+        # TODO dopisać cały testowy kurs
 
     def test_duplicate_course_name_fails(self):
         with self.assertRaises(IntegrityError):
