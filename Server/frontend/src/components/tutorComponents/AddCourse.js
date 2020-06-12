@@ -7,7 +7,7 @@ import AddGroupsAndPlot from "./AddGroupsAndPlot";
 import AddCourseConfirm from "./AddCourseConfirm";
 import { Link, Redirect } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
-import {styles} from "./styles/style.js";
+import {styles} from "../../styles/style.js";
 import compose from 'recompose/compose';
 import { logout } from '../../actions/auth';
 import CssBaseline from '@material-ui/core/CssBaseline';

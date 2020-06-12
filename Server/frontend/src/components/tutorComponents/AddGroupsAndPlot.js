@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Dialog from '@material-ui/core/Dialog';
 import { Form, Text, NestedForm } from "react-form";
-import Popup from "reactjs-popup";
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Button from '@material-ui/core/Button';
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
 import { createMuiTheme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import "./styles/course-forms.css";
+import "../../styles/course-forms.css";
 
 
 const PlotPart = ({ i }) => (

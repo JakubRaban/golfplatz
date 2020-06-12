@@ -88,7 +88,7 @@ class PlotPartView(APIView):
         serializer = CreatePlotPartSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         course = Course.objects.get(pk=course_id)
-        new_plot_parts = [course.add_plot_part(**serialized_plot_part)
+        new_plot_parts = [PlotPart.objects.create(course=course, **serialized_plot_part)
                           for serialized_plot_part in serializer.validated_data]
         return Response(PlotPartSerializer(new_plot_parts, many=True).data)
 
@@ -108,7 +108,7 @@ class ChapterView(APIView):
         serializer = CreateChapterSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         plot_part = PlotPart.objects.get(pk=plot_part_id)
-        created_chapters = [plot_part.add_chapter(**chapter_dict) for chapter_dict in serializer.validated_data]
+        created_chapters = [Chapter.objects.create(plot_part=plot_part, **chapter_dict) for chapter_dict in serializer.validated_data]
         return Response(ChapterSerializer(created_chapters, many=True).data)
 
     def get(self, request, plot_part_id):
@@ -184,6 +184,7 @@ class ChapterStartView(APIView):
         chapter = Chapter.objects.get(pk=chapter_id)
         return Response({
             'response_type': 'adventure',
+            'chapter_name': chapter.name,
             'adventure': AdventureSerializer(chapter.get_initial_adventure()).data
         })
 
@@ -211,10 +212,10 @@ class AdventureAnswerView(APIView):
                                                                current_adventure,
                                                                data['start_time'], data['answer_time'], closed_questions,
                                                                open_questions)
-        if len(next_adventures) == 1 and next_adventures[0].is_terminal:
+        if len(next_adventures) == 0:
             return Response({
                 'response_type': 'summary',
-                'summary': AdventureSummarySerializer(get_summary(self.request.user, next_adventures[0]), many=True).data
+                'summary': AdventureSummarySerializer(get_summary(self.request.user, current_adventure), many=True).data
             })
         elif len(next_adventures) == 1:
             return Response({

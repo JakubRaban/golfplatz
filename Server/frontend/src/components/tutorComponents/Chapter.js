@@ -6,7 +6,7 @@ import { getChapter, addAdventures } from "../../actions/course";
 import { Form, Text, NestedForm } from "react-form";
 import Popup from "reactjs-popup";
 import { withStyles } from '@material-ui/core/styles';
-import {styles} from "./styles/style.js";
+import {styles} from "../../styles/style.js";
 import compose from 'recompose/compose';
 import { logout } from '../../actions/auth';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -19,7 +19,7 @@ import Badge from '@material-ui/core/Badge';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import "./styles/course-forms.css";
+import "../../styles/course-forms.css";
 
 
 const Answers = ({ i }) => (

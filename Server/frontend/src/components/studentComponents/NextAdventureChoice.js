@@ -8,7 +8,7 @@ export class NextAdventureChoice extends Component {
   render() {
     return (
       <div>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="subtitle1" gutterBottom>
           {this.props.adventurePart.choice.choiceDescription}
         </Typography>
         {this.props.adventurePart.choice.pathChoices.map(pathChoice => (
