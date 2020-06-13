@@ -48,8 +48,8 @@ export class ChapterPassing extends Component {
     summaryMode: false,
     loading: true,
     submitted: false,
-    closedQuestions: [],
-    openQuestions: [],
+    closedQuestions: new Map(),
+    openQuestions: new Map(),
     timeLimit: 90,
     ended: false,
   }
@@ -79,8 +79,8 @@ export class ChapterPassing extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.adventurePart !== this.props.adventurePart) {
       if (this.props.adventurePart.responseType === 'adventure') {
-        let tmpClosedQuestions = [];
-        let tmpOpenQuestions = [];
+        let tmpClosedQuestions = new Map();
+        let tmpOpenQuestions = new Map();
         let questions = this.props.adventurePart.adventure.pointSource.questions;
         for (var i=0; i<questions.length; i++) {
           if (questions[i].questionType === 'CLOSED') {
@@ -88,9 +88,9 @@ export class ChapterPassing extends Component {
             for (var j=0; j<questions[i].answers.length; j++){
               answers.push({id: questions[i].answers[j].id, marked: false})
             }
-            tmpClosedQuestions.push({id: questions[i].id, givenAnswers: answers})
+            tmpClosedQuestions.set(questions[i].id, answers);
           } else {
-            tmpOpenQuestions.push({questionId: questions[i].id, givenAnswer: ""});
+            tmpOpenQuestions.set(questions[i].id, "");
           }
         }
         this.setState({
@@ -112,8 +112,8 @@ export class ChapterPassing extends Component {
           summaryMode: false,
           submitted: false,
           loading: false,
-          closedQuestions: [],
-          openQuestions: [],
+          closedQuestions: new Map(),
+          openQuestions: new Map(),
         })
       }
       else if (this.props.adventurePart.responseType === 'summary') {
@@ -123,28 +123,28 @@ export class ChapterPassing extends Component {
           summaryMode: true,
           submitted: false,
           loading: false,
-          closedQuestions: [],
-          openQuestions: [],
+          closedQuestions: new Map(),
+          openQuestions: new Map(),
         })
       }
     }
   }
 
-  onOpenAnswerChange = (i) => (e) => {
+  onOpenAnswerChange = (id) => (e) => {
     let tmpQuestions = this.state.openQuestions;
-    tmpQuestions[i].givenAnswer = e.target.value;
-    console.log(tmpQuestions);
+    tmpQuestions.set(id, e.target.value);
+
     this.setState({
       openQuestions: tmpQuestions,
     })
   }
 
-  onAnswerChange = (i, j) => (e)  => {
+  onAnswerChange = (id, j, i) => (e)  => {
     let tmpQuestions = this.state.closedQuestions;
     if (!this.props.adventurePart.adventure.pointSource.questions[i].isMultipleChoice)
-      tmpQuestions[i].givenAnswers.map(x => x.marked = false);
+      tmpQuestions.get(id).map(x => x.marked = false);
    
-    tmpQuestions[i].givenAnswers[j].marked = e.target.checked;
+    tmpQuestions.get(id)[j].marked = e.target.checked;
     this.setState({
       closedQuestions: tmpQuestions,
     })
@@ -153,13 +153,19 @@ export class ChapterPassing extends Component {
   onSubmitAnswer = (e) => {
     /*tymczasowo:*/
     let answerTime = 16;
+
     let closedQuestions = [];
-    let openQuestions = this.state.openQuestions;
-    this.state.closedQuestions.map(question => (
-      closedQuestions.push({questionId: question.id, markedAnswers: question.givenAnswers.filter(a => a.marked).map(a => a.id)})
-    ));
+    let openQuestions = [];
+    // this.state.closedQuestions.map(question => (
+    //   closedQuestions.push({questionId: question.id, markedAnswers: question.givenAnswers.filter(a => a.marked).map(a => a.id)})
+    // ));
+    this.state.closedQuestions.forEach((value, key) => 
+                              closedQuestions.push({questionId: key, markedAnswers: value.filter(a => a.marked).map(a => a.id)})
+    );
+    this.state.openQuestions.forEach((value, key) => openQuestions.push({questionId: key, givenAnswer: value}));
     this.adventureAnswer = {startTime: this.startTime.toISOString(), answerTime: answerTime, closedQuestions: closedQuestions, openQuestions: openQuestions};
-    
+    console.log(this.adventureAnswer);
+
     this.setState({
       submitted: true,
     })
@@ -176,7 +182,7 @@ export class ChapterPassing extends Component {
     this.props.chooseNextAdventure(id);
   }
 
-  endChapter(){
+  endChapter = (e) => {
     this.setState({
       ended: true,
     })
@@ -255,7 +261,7 @@ export class ChapterPassing extends Component {
               {this.state.summaryMode &&
               <Summary
                   adventurePart={this.props.adventurePart}
-                  endChapter={this.props.endChapter}
+                  endChapter={this.endChapter}
                   />
               }
             </React.Fragment>

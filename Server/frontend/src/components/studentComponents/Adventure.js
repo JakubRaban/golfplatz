@@ -51,8 +51,8 @@ export class Adventure extends Component {
                   <Input
                     type="answer"
                     name="answer"
-                    onChange={this.props.onOpenAnswerChange(i)}
-                    value={this.props.openQuestions[i].givenAnswer}
+                    onChange={this.props.onOpenAnswerChange(question.id)}
+                    value={this.props.openQuestions.get(question.id)}
                   />
                 </TextField>
                 :
@@ -62,8 +62,8 @@ export class Adventure extends Component {
                       <FormControlLabel
                         control={
                           <Checkbox 
-                            checked={this.props.closedQuestions[i].givenAnswers[j].marked}
-                            onChange={this.props.onAnswerChange(i, j)} name="answer"
+                            checked={this.props.closedQuestions.get(question.id)[j].marked}
+                            onChange={this.props.onAnswerChange(question.id, j, i)} name="answer"
                           />
                         }                          
                         label={<Box component="div" fontSize={13}> {answer.text} </Box>} />
@@ -80,7 +80,7 @@ export class Adventure extends Component {
         </React.Fragment>
           : 
           <React.Fragment>
-          {this.props.adventurePart.adventure.pointSource.questions.map((question, i) => (
+          {this.props.adventurePart.adventure.pointSource.questions.map((question) => (
             <React.Fragment>
               <Typography variant="subtitle1" gutterBottom>
                 {question.text}
@@ -91,11 +91,11 @@ export class Adventure extends Component {
                     {question.answers.map((answer, j) => (
                     <React.Fragment>
                       <FormControlLabel
-                        control={<Checkbox checked={this.props.closedQuestions[i].givenAnswers[j].marked}
+                        control={<Checkbox checked={this.props.closedQuestions.get(question.id)[j].marked}
                         name="answer" />}
                         label={answer.text}
                       />
-                      {this.props.closedQuestions[i].givenAnswers[j].marked &&
+                      {this.props.closedQuestions.get(question.id)[j].marked &&
                         <Typography variant="subtitle2" gutterBottom>
                           {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
                         </Typography> 
@@ -106,7 +106,7 @@ export class Adventure extends Component {
                 </FormControl>
               :
               <Typography variant="subtitle2" gutterBottom>
-                Twoja odpowiedź: {this.props.openQuestions[i].givenAnswer}
+                Twoja odpowiedź: {this.props.openQuestions.get(question.id)}
               </Typography>
             }
             </React.Fragment>
