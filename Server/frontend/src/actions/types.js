@@ -16,3 +16,6 @@ export const GET_COURSE = 'GET_COURSE';
 export const ADD_CHAPTER = 'ADD_CHAPTER';
 export const GET_CHAPTER = 'GET_CHAPTER';
 export const ADD_ADVENTURES = 'ADD_ADVENTURES';
+export const START_CHAPTER = 'START_CHAPTER';
+export const ADD_ANSWER = 'ADD_ANSWER';
+export const NEXT_ADVENTURE = 'NEXT_ADVENTURE';

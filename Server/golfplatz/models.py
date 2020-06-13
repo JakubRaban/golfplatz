@@ -313,6 +313,8 @@ class Question(models.Model):
         return self.points_per_correct_answer if answer.is_correct ^ invert else self.points_per_incorrect_answer
 
     def score_for_closed_question(self, given_answers: Set[Answer]) -> Decimal:
+        if not given_answers:
+            return self.points_per_incorrect_answer
         if not self.is_multiple_choice:
             return self._points_for_answer(given_answers.pop())
         else:
@@ -324,12 +326,16 @@ class Question(models.Model):
             return points_scored
 
     def score_for_open_question(self, given_answer: str) -> Decimal:
-        correct_answer = self.answers.all()[0]
-        if not correct_answer.is_regex:
-            is_correct = given_answer.lower() == correct_answer.text.lower()
-        else:
-            is_correct = re.compile(fr"^{correct_answer.text}$", re.IGNORECASE).match(given_answer)
+        is_correct = False
+        for correct_answer in self.answers.all():
+            if not correct_answer.is_regex:
+                is_correct = given_answer.lower() == correct_answer.text.lower()
+            else:
+                is_correct = re.compile(fr"^{correct_answer.text}$", re.IGNORECASE).match(given_answer)
+            if is_correct:
+                break
         return self.points_per_correct_answer if is_correct else self.points_per_incorrect_answer
+
 
     @property
     def max_points_possible(self) -> Decimal:
