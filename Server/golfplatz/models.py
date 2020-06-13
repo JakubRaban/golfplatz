@@ -336,7 +336,6 @@ class Question(models.Model):
                 break
         return self.points_per_correct_answer if is_correct else self.points_per_incorrect_answer
 
-
     @property
     def max_points_possible(self) -> Decimal:
         if not self.is_multiple_choice:

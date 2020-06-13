@@ -5,35 +5,41 @@ from golfplatz.models import Course, PlotPart, Chapter, Adventure, Path, TimerRu
 
 
 class CourseStructureTest(TestCase):
-    def setUp(self) -> None:
-        self.course1 = Course.objects.create(name="Kurs", description="Opis")
-        self.course2 = Course.objects.create(name="Kurs2", description="Opis")
-        self.plot_part1 = PlotPart.objects.create(name="Cz1", introduction="Wprowadzenie", course=self.course1)
-        self.chapter1 = Chapter.objects.create(name='chapter', description="Opis", plot_part=self.plot_part1,
-                                               points_for_max_grade=100)
-        self.adventures = [Adventure.objects.create(name=str(i), task_description='abc',
-                                                    chapter=self.chapter1, has_time_limit=i == 0)
-                           for i in range(4)]
-        self.paths = [
-            Path.objects.create(from_adventure=self.adventures[path[0]], to_adventure=self.adventures[path[1]])
+    @classmethod
+    def setUpTestData(cls):
+        cls.course1 = Course.objects.create(name="Kurs", description="Opis")
+        cls.course2 = Course.objects.create(name="Kurs2", description="Opis")
+        cls.plot_part1 = PlotPart.objects.create(name="Cz1", introduction="Wprowadzenie", course=cls.course1)
+        cls.chapter1 = Chapter.objects.create(name='chapter', description="Opis", plot_part=cls.plot_part1,
+                                              points_for_max_grade=100)
+        cls.adventures = [Adventure.objects.create(name=str(i), task_description='abc',
+                                                   chapter=cls.chapter1, has_time_limit=i == 0)
+                          for i in range(4)]
+        cls.paths = [
+            Path.objects.create(from_adventure=cls.adventures[path[0]], to_adventure=cls.adventures[path[1]])
             for path in [(0, 1), (0, 2), (1, 2), (2, 3)]
         ]
-        self.point_sources = [PointSource.objects.create(adventure=adv,
-                                                         category=PointSource.AutoCheckedCategory.GENERIC)
-                              for adv in self.adventures]
-        self.questions = [Question.objects.create(point_source=self.point_sources[0],
-                                                  text='abc',
-                                                  question_type=Question.Type.CLOSED),
-                          Question.objects.create(point_source=self.point_sources[0],
-                                                  text='def',
-                                                  question_type=Question.Type.OPEN),
-                          Question.objects.create(point_source=self.point_sources[0],
-                                                  text='ghi',
-                                                  question_type=Question.Type.OPEN)]
-        self.closed_answers = [Answer.objects.create(text=t[0], is_correct=t[1], is_regex=False)
-                               for t in [('A', True), ('B', True), ('C', False), ('D', False)]]
-        self.open_answer = Answer.objects.create("Tak")
-        # TODO dopisać cały testowy kurs
+        cls.point_sources = [PointSource.objects.create(adventure=adv,
+                                                        category=PointSource.AutoCheckedCategory.GENERIC)
+                             for adv in cls.adventures]
+        cls.questions = [Question.objects.create(point_source=cls.point_sources[0],
+                                                 text='abc',
+                                                 question_type=Question.Type.CLOSED,
+                                                 is_multiple_choice=True,
+                                                 points_per_correct_answer=3,
+                                                 points_per_incorrect_answer=-1),
+                         Question.objects.create(point_source=cls.point_sources[0],
+                                                 text='def',
+                                                 question_type=Question.Type.OPEN),
+                         Question.objects.create(point_source=cls.point_sources[0],
+                                                 text='ghi',
+                                                 question_type=Question.Type.OPEN)]
+        cls.closed_answers = [Answer.objects.create(text=t[0], is_correct=t[1],
+                                                    is_regex=False, question=cls.questions[0])
+                              for t in [('A', True), ('B', True), ('C', False), ('D', False)]]
+        Answer.objects.create(text="Tak", is_correct=True, question=cls.questions[1])
+        Answer.objects.create(text="Nie", is_correct=True, question=cls.questions[1])
+        Answer.objects.create(text=r"abc\d{1,3}", is_correct=True, is_regex=True, question=cls.questions[2])
 
     def test_duplicate_course_name_fails(self):
         with self.assertRaises(IntegrityError):
@@ -114,3 +120,33 @@ class CourseStructureTest(TestCase):
         for adv in self.adventures[0].next_adventures:
             self.assertIn(adv, self.adventures[1:3])
         self.assertEquals(len(self.adventures[3].next_adventures), 0)
+
+    def test_question_points_for_answer(self):
+        question = self.questions[0]
+        self.assertEquals(question._points_for_answer(self.closed_answers[0]), 3)
+        self.assertEquals(question._points_for_answer(self.closed_answers[2]), -1)
+        self.assertEquals(question._points_for_answer(self.closed_answers[2],
+                                                      invert=True), 3)
+
+    def test_question_score_for_closed_question(self):
+        question = self.questions[0]
+        self.assertEquals(question.score_for_closed_question(set(self.closed_answers[:2])), 12)
+        self.assertEquals(question.score_for_closed_question(set(self.closed_answers[1:3])), 4)
+        self.assertEquals(question.score_for_closed_question(set(self.closed_answers[2:])), -4)
+        self.assertEquals(question.score_for_closed_question(set(self.closed_answers[:3])), 8)
+        self.assertEquals(question.score_for_closed_question({}), -1)
+
+    def test_question_score_for_open_question(self):
+        question = self.questions[1]
+        self.assertEquals(question.score_for_open_question("tak"), 1)
+        self.assertEquals(question.score_for_open_question("TAK"), 1)
+        self.assertEquals(question.score_for_open_question("tAk"), 1)
+        self.assertEquals(question.score_for_open_question("Takk"), 0)
+        self.assertEquals(question.score_for_open_question("niE"), 1)
+
+    def test_question_score_for_open_question_with_regex(self):
+        question = self.questions[2]
+        self.assertEquals(question.score_for_open_question("abc5"), 1)
+        self.assertEquals(question.score_for_open_question("abc802"), 1)
+        self.assertEquals(question.score_for_open_question("AbC555"), 1)
+        self.assertEquals(question.score_for_open_question("abC1234"), 0)
