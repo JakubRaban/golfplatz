@@ -51,7 +51,7 @@ export class Adventure extends Component {
                   <Input
                     type="answer"
                     name="answer"
-                    onChange={this.props.onOpenAnswer(i)}
+                    onChange={this.props.onOpenAnswerChange(i)}
                     value={this.props.openQuestions[i].givenAnswer}
                   />
                 </TextField>
@@ -63,7 +63,7 @@ export class Adventure extends Component {
                         control={
                           <Checkbox 
                             checked={this.props.closedQuestions[i].givenAnswers[j].marked}
-                            onChange={this.props.onAnswer(i, j)} name="answer"
+                            onChange={this.props.onAnswerChange(i, j)} name="answer"
                           />
                         }                          
                         label={<Box component="div" fontSize={13}> {answer.text} </Box>} />

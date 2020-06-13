@@ -130,7 +130,7 @@ export class ChapterPassing extends Component {
     }
   }
 
-  onOpenAnswer = (i) => (e) => {
+  onOpenAnswerChange = (i) => (e) => {
     let tmpQuestions = this.state.openQuestions;
     tmpQuestions[i].givenAnswer = e.target.value;
     console.log(tmpQuestions);
@@ -141,8 +141,10 @@ export class ChapterPassing extends Component {
 
   onAnswerChange = (i, j) => (e)  => {
     let tmpQuestions = this.state.closedQuestions;
+    if (!this.props.adventurePart.adventure.pointSource.questions[i].isMultipleChoice)
+      tmpQuestions[i].givenAnswers.map(x => x.marked = false);
+   
     tmpQuestions[i].givenAnswers[j].marked = e.target.checked;
-    console.log(tmpQuestions);
     this.setState({
       closedQuestions: tmpQuestions,
     })
@@ -234,15 +236,15 @@ export class ChapterPassing extends Component {
               </Typography>
               {this.state.answerMode &&
               <Adventure timeLimit={this.state.timeLimit}
-                        closedQuestions={this.state.closedQuestions}
-                        openQuestions={this.state.openQuestions}
-                        submitted={this.state.submitted}
-                        adventurePart={this.props.adventurePart}
-                        onAnswer={this.onAnswerChange}
-                        onOpenAnswer={this.onOpenAnswer}
-                        onSubmit={this.onSubmitAnswer}
-                        onNext={this.onNext}
-                        />
+                  closedQuestions={this.state.closedQuestions}
+                  openQuestions={this.state.openQuestions}
+                  submitted={this.state.submitted}
+                  adventurePart={this.props.adventurePart}
+                  onAnswerChange={this.onAnswerChange}
+                  onOpenAnswerChange={this.onOpenAnswerChange}
+                  onSubmit={this.onSubmitAnswer}
+                  onNext={this.onNext}
+                  />
               }
               {this.state.choiceMode &&
               <NextAdventureChoice
