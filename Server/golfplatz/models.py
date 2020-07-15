@@ -90,7 +90,7 @@ class Chapter(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
     plot_part = models.ForeignKey('PlotPart', on_delete=models.CASCADE, related_name='chapters')
-    points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3)
+    points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3, default=0)
     position_in_plot_part = models.PositiveSmallIntegerField()
 
     class Meta:
