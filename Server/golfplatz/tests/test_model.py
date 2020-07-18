@@ -20,7 +20,7 @@ class CourseStructureTest(TestCase):
             for path in [(0, 1), (0, 2), (1, 2), (2, 3)]
         ]
         cls.point_sources = [PointSource.objects.create(adventure=adv,
-                                                        category=PointSource.AutoCheckedCategory.GENERIC)
+                                                        category=PointSource.Category.GENERIC, is_auto_checked=True)
                              for adv in cls.adventures]
         cls.questions = [Question.objects.create(point_source=cls.point_sources[0],
                                                  text='abc',

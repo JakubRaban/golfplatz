@@ -252,7 +252,6 @@ class PointSource(models.Model):
 
     adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True, related_name='point_source')
     category = models.CharField(max_length=10, choices=Category.choices)
-    is_auto_checked = models.BooleanField()
 
     def add_questions(self, questions_data):
         for question_data in questions_data:
@@ -294,6 +293,7 @@ class Question(models.Model):
     text = models.CharField(max_length=250)
     question_type = models.CharField(max_length=6, choices=Type.choices)
     is_multiple_choice = models.BooleanField(default=False)
+    is_auto_checked = models.BooleanField()
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
     points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3, default=1.0)
     points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3, default=0.0)

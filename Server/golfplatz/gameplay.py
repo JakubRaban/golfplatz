@@ -8,16 +8,16 @@ from .models import Participant, Adventure, AccomplishedAdventure, Question, Ans
 def grade_answers_and_get_next_adventure(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]) -> List[Adventure]:
     AccomplishedAdventure.objects.create(student=participant, adventure=adventure,
                                          adventure_started_time=start_time, time_elapsed_seconds=answer_time)
-    _grade_answers(participant, closed_question_answers, open_question_answers, answer_time)
+    _grade_answers(participant, closed_question_answers, open_question_answers)
     return adventure.next_adventures
         
 
-def _grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]], answer_time: int):
+def _grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]):
     for question_answer_type in (closed_question_answers, open_question_answers):
         for question_answer in question_answer_type:
             question = question_answer[0]
             given_answer = question_answer[1]
-            if not question.point_source.is_auto_checked:
+            if not question.is_auto_checked:
                 Grade.objects.create(student=participant, question=question, points_scored=0, awaiting_tutor_grading=True)
             else:
                 if question_answer in closed_question_answers:
