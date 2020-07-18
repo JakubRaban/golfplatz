@@ -77,7 +77,8 @@ class PointSourceSerializer(serializers.ModelSerializer):
         model = PointSource
         exclude = ['adventure']
 
-    def points_validation(self, value):
+    @staticmethod
+    def points_validation(value):
         try:
             value = float(value)
         except ValueError:
@@ -123,6 +124,34 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Adventure
         exclude = ['chapter']
+
+    def create(self, validated_data):
+        validated_data.pop('internal_id')
+        validated_data.pop('next_adventures', [])
+        point_source_data = validated_data.pop('point_source')
+        timer_rules_data = validated_data.pop('timer_rules', [])
+        adventure = Adventure.objects.create(**validated_data)
+        for timer_rule_data in timer_rules_data:
+            TimerRule.objects.create(**timer_rule_data, adventure=adventure)
+        self.create_point_source(point_source_data, adventure)
+
+    def create_point_source(self, point_source_data, adventure):
+        surprise_exercise_data = point_source_data.pop('surprise_exercise', {})
+        questions_data = point_source_data.pop('questions', [])
+        point_source = PointSource.objects.create(**point_source_data, adventure=adventure)
+        if surprise_exercise_data:
+            SurpriseExercise.objects.create(**surprise_exercise_data, point_source=point_source)
+        for question_data in questions_data:
+            self.create_question(question_data, point_source)
+
+    def create_question(self, question_data, point_source):
+        answers_data = question_data.pop('answers', [])
+        question = Question.objects.create(**question_data, point_source=point_source)
+        for answer_data in answers_data:
+            self.create_answer(answer_data, question)
+
+    def create_answer(self, answer_data, question):
+        Answer.objects.create(**answer_data, question=question)
 
 
 class ChapterSerializer(serializers.ModelSerializer):
