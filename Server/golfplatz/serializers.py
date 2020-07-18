@@ -134,6 +134,7 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
         for timer_rule_data in timer_rules_data:
             TimerRule.objects.create(**timer_rule_data, adventure=adventure)
         self.create_point_source(point_source_data, adventure)
+        return adventure
 
     def create_point_source(self, point_source_data, adventure):
         surprise_exercise_data = point_source_data.pop('surprise_exercise', {})

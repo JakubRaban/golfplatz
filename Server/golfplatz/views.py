@@ -141,11 +141,27 @@ class AdventureView(APIView):
         serializer = CreateAdventuresSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         chapter = Chapter.objects.get(pk=chapter_id)
-        new_adventures = chapter.add_adventures(serializer.validated_data)
+        new_adventures = self.create_adventures(serializer.validated_data, chapter)
         return Response({
             'adventures': AdventureSerializer(new_adventures, many=True).data,
             'paths': PathSerializer(chapter.get_paths(), many=True).data
         })
+
+    @staticmethod
+    def create_adventures(adventures_data, chapter):
+        internal_id_to_created_adventure = {}
+        for adventure_data in adventures_data:
+            internal_id = adventure_data['internal_id']
+            next_adventures_data = adventure_data['next_adventures']
+            adventure_serializer = CreateAdventuresSerializer(data=adventure_data)
+            adventure_serializer.is_valid(raise_exception=True)
+            new_adventure = adventure_serializer.save(chapter=chapter)
+            internal_id_to_created_adventure[internal_id] = next_adventures_data, new_adventure
+        for (new_id, (next_ids, adventure)) in internal_id_to_created_adventure.items():
+            for next_id in next_ids:
+                Path.objects.create(from_adventure=adventure,
+                                    to_adventure=internal_id_to_created_adventure[next_id][1])
+        return [adventure[1] for adventure in internal_id_to_created_adventure.values()]
 
 
 class AdventurePathsView(APIView):
