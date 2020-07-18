@@ -90,7 +90,7 @@ class Chapter(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField()
     plot_part = models.ForeignKey('PlotPart', on_delete=models.CASCADE, related_name='chapters')
-    points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3)
+    points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3, default=0)
     position_in_plot_part = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -242,18 +242,16 @@ class AccomplishedAdventure(models.Model):
 
 
 class PointSource(models.Model):
-    class AutoCheckedCategory(models.TextChoices):
+    class Category(models.TextChoices):
         QUIZ = 'QUIZ', 'Quiz'
         SURPRISE_EXERCISE = 'SURPRISE', 'Surprise exercise'
         GENERIC = 'GENERIC', 'Generic lab exercise'
-
-    class TutorCheckedCategory(models.TextChoices):
         ACTIVENESS = 'ACTIVENESS', 'Activeness'
         TEST = 'TEST', 'Test'
         HOMEWORK = 'HOMEWORK', 'Homework or project'
 
     adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True, related_name='point_source')
-    category = models.CharField(max_length=10, choices=AutoCheckedCategory.choices + TutorCheckedCategory.choices)
+    category = models.CharField(max_length=10, choices=Category.choices)
 
     def add_questions(self, questions_data):
         for question_data in questions_data:
@@ -295,6 +293,7 @@ class Question(models.Model):
     text = models.CharField(max_length=250)
     question_type = models.CharField(max_length=6, choices=Type.choices)
     is_multiple_choice = models.BooleanField(default=False)
+    is_auto_checked = models.BooleanField()
     input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
     points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3, default=1.0)
     points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3, default=0.0)
@@ -352,6 +351,7 @@ class Grade(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     question = models.ForeignKey('Question', on_delete=models.PROTECT)
     points_scored = models.DecimalField(max_digits=6, decimal_places=3)
+    awaiting_tutor_grading = models.BooleanField(default=False)
 
 
 class PathChoice:
