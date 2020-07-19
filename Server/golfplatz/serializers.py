@@ -169,7 +169,7 @@ class ClosedQuestionAnswerSerializer(serializers.Serializer):
 
 class OpenQuestionAnswerSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
-    given_answer = serializers.CharField()
+    given_answer = serializers.CharField(allow_blank=True)
 
 
 class AdventureAnswerSerializer(serializers.Serializer):

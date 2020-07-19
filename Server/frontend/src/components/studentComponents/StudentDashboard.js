@@ -231,7 +231,7 @@ export class StudentDashboard extends Component {
               <Grid item xs={12} md={4} lg={3}>
                 <Paper className={classes.paper}>
                   <div> To będzie dostępne tylko o określonym czasie</div>
-                  <Link to="/open-chapter/5">Podejmij wyzwanie!</Link> 
+                  <Link to="/open-chapter/6">Podejmij wyzwanie!</Link> 
                 </Paper>
               </Grid>
             </Grid>
