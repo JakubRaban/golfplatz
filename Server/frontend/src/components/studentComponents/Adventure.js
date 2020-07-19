@@ -47,7 +47,7 @@ export class Adventure extends Component {
                 {question.text}
               </Typography>
               {question.questionType === "OPEN" ? 
-                <TextField className="answer" label="Twoja odpowiedź:">
+                <TextField label="Twoja odpowiedź:" variant="outlined" style = {{width: 500}}>
                   <Input
                     type="answer"
                     name="answer"

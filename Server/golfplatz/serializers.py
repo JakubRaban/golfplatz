@@ -181,6 +181,7 @@ class AdventureAnswerSerializer(serializers.Serializer):
 
 class QuestionSummarySerializer(serializers.Serializer):
     text = serializers.CharField()
+    is_auto_checked = serializers.BooleanField()
     points_scored = serializers.DecimalField(max_digits=6, decimal_places=3)
     max_points = serializers.DecimalField(max_digits=6, decimal_places=3)
 

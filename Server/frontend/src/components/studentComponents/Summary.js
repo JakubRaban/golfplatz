@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 
 export class Summary extends Component {
   render() {
+    console.log(this.props.adventurePart.summary);
     return (
       <div>
         <Typography variant="h5" gutterBottom>
@@ -24,16 +25,19 @@ export class Summary extends Component {
                 <Typography variant="subtitle1" gutterBottom>
                   {question.text}
                 </Typography>
-                <Typography variant="subtitle2" gutterBottom>
-                  {question.pointsScored}/{question.maxPoints}
-                </Typography>
+                {question.isAutoChecked ? 
+                  <Typography variant="subtitle2" gutterBottom>
+                    {question.pointsScored}/{question.maxPoints}
+                  </Typography>
+                  :
+                  <Typography variant="subtitle2" gutterBottom>
+                    To pytanie zostanie ocenione przez prowadzącego.
+                  </Typography>
+                }
               </React.Fragment>  
             ))}
           </React.Fragment>
         ))}
-        <Typography variant="h5" gutterBottom>
-          Dziękujemy za podróż z PKP Intercity
-        </Typography>
         <Button variant="contained" onClick={this.props.endChapter}>
           Zakończ rozdział
         </Button>
