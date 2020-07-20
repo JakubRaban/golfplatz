@@ -224,7 +224,8 @@ class AdventureAnswerView(APIView):
                                    question_data['given_answer']))
         next_adventures = grade_answers_and_get_next_adventure(self.request.user,
                                                                current_adventure,
-                                                               data['start_time'], data['answer_time'], closed_questions,
+                                                               data['start_time'], data['answer_time'],
+                                                               closed_questions,
                                                                open_questions)
         if len(next_adventures) == 0:
             return Response({

@@ -62,6 +62,20 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         exclude = ['point_source', 'grades']
 
+    def validate(self, attrs):
+        if attrs['is_auto_checked']:
+            answers = attrs.get('answers', [])
+            answers_by_correctness = [answer['is_correct'] for answer in answers]
+            if not answers:
+                raise serializers.ValidationError("Auto-checked question must be provided with answers")
+            if attrs['question_type'] == Question.Type.CLOSED and (answers_by_correctness.count(False) == 0 or
+                                                                   answers_by_correctness.count(True) == 0):
+                raise serializers.ValidationError("Closed question must have both correct and incorrect answers "
+                                                  "provided")
+            if [answer['is_regex'] for answer in answers].count(True):
+                raise serializers.ValidationError("Closed question cannot have regex-based answers")
+        return attrs
+
 
 class SurpriseExerciseSerializer(serializers.ModelSerializer):
     class Meta:
