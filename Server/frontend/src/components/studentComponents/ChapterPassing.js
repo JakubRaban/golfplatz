@@ -156,13 +156,13 @@ export class ChapterPassing extends Component {
 
     let closedQuestions = [];
     let openQuestions = [];
-    // this.state.closedQuestions.map(question => (
-    //   closedQuestions.push({questionId: question.id, markedAnswers: question.givenAnswers.filter(a => a.marked).map(a => a.id)})
-    // ));
+    
     this.state.closedQuestions.forEach((value, key) => 
-                              closedQuestions.push({questionId: key, markedAnswers: value.filter(a => a.marked).map(a => a.id)})
+      closedQuestions.push({questionId: key, markedAnswers: value.filter(a => a.marked).map(a => a.id)})
     );
-    this.state.openQuestions.forEach((value, key) => openQuestions.push({questionId: key, givenAnswer: value}));
+    this.state.openQuestions.forEach((value, key) => 
+      openQuestions.push({questionId: key, givenAnswer: value})
+    );
     this.adventureAnswer = {startTime: this.startTime.toISOString(), answerTime: answerTime, closedQuestions: closedQuestions, openQuestions: openQuestions};
     console.log(this.adventureAnswer);
 

@@ -380,6 +380,7 @@ class NextAdventureChoice:
 class QuestionSummary:
     def __init__(self, **kwargs):
         self.text = kwargs['text']
+        self.is_auto_checked = kwargs['is_auto_checked']
         self.points_scored = kwargs['points_scored']
         self.max_points = kwargs['max_points']
 

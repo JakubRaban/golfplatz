@@ -36,6 +36,7 @@ def get_summary(participant: Participant, last_adventure: Adventure):
         answer_time = accomplished_adventure.time_elapsed_seconds
         questions = adventure.point_source.questions.all()
         question_summaries = [QuestionSummary(text=question.text,
+                                              is_auto_checked=question.is_auto_checked,
                                               max_points=question.max_points_possible,
                                               points_scored=Grade.objects.get(question=question, student=participant).points_scored)
                               for question in questions]
