@@ -108,24 +108,6 @@ class Chapter(models.Model):
             self.position_in_plot_part = last_part_index + 1
         super(Chapter, self).save(*args, **kwargs)
 
-    def add_adventures(self, adventure_list):
-        internal_id_to_created_adventure = {}
-        for adventure_dict in adventure_list:
-            internal_id = adventure_dict.pop('internal_id')
-            point_source_data = adventure_dict.pop('point_source')
-            timer_rules_data = adventure_dict.pop('timer_rules')
-            next_adventures_data = adventure_dict.pop('next_adventures')
-            new_adventure = Adventure.objects.create(**adventure_dict, chapter=self)
-            for timer_rule in timer_rules_data:
-                TimerRule.objects.create(**timer_rule, adventure=new_adventure)
-            new_adventure.attach_point_source(point_source_data)
-            internal_id_to_created_adventure[internal_id] = next_adventures_data, new_adventure
-        for (new_id, (next_ids, adventure)) in internal_id_to_created_adventure.items():
-            for next_id in next_ids:
-                Path.objects.create(from_adventure=adventure,
-                                    to_adventure=internal_id_to_created_adventure[next_id][1])
-        return [adventure[1] for adventure in internal_id_to_created_adventure.values()]
-
     def get_paths(self):
         adventures = self.adventures.all()
         paths = []
@@ -150,14 +132,6 @@ class Adventure(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['chapter', 'name'], name='adventure_name_constraint')]
-
-    def attach_point_source(self, point_source_data):
-        surprise_exercise_data = point_source_data.pop('surprise_exercise', None)
-        questions_data = point_source_data.pop('questions')
-        self.point_source = PointSource.objects.create(**point_source_data, adventure=self)
-        if surprise_exercise_data:
-            SurpriseExercise.objects.create(**surprise_exercise_data, point_source=self.point_source)
-        self.point_source.add_questions(questions_data)
 
     def get_time_modifier(self, time_in_seconds: int):
         hundred_percent = 100
@@ -253,12 +227,6 @@ class PointSource(models.Model):
     adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True, related_name='point_source')
     category = models.CharField(max_length=10, choices=Category.choices)
 
-    def add_questions(self, questions_data):
-        for question_data in questions_data:
-            answer_data = question_data.pop('answers')
-            new_question = Question.objects.create(**question_data, point_source=self)
-            new_question.add_answers(answer_data)
-
 
 class SurpriseExercise(models.Model):
     class SendMethod(models.TextChoices):
@@ -303,10 +271,6 @@ class Question(models.Model):
 
     class Meta:
         ordering = ['id']
-
-    def add_answers(self, answers_data):
-        for answer_data in answers_data:
-            Answer.objects.create(**answer_data, question=self)
 
     def _points_for_answer(self, answer: Answer, invert: bool = False) -> Decimal:
         return self.points_per_correct_answer if answer.is_correct ^ invert else self.points_per_incorrect_answer
