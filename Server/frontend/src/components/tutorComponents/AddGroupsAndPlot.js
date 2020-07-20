@@ -2,13 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Dialog from '@material-ui/core/Dialog';
 import { Form, Text, NestedForm } from "react-form";
-import Popup from "reactjs-popup";
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Button from '@material-ui/core/Button';
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
 import { createMuiTheme } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import "./styles/course-forms.css";
+import "../../styles/course-forms.css";
 
 
 const PlotPart = ({ i }) => (
@@ -75,8 +74,8 @@ export class AddGroupsAndPlot extends Component {
   continue = e => {
     e.preventDefault();
 
-    this.props.values.courseGroups.pop();
-    this.props.values.courseGroups.unshift(this.firstCourseGroup);
+    const firstCourseGroup = {groupName: this.state.firstGroupName};
+    this.props.values.courseGroups.unshift(firstCourseGroup);
     this.props.handleChange('courseGroups', this.props.values.courseGroups);
     this.props.handleChange('plotParts', this.props.values.plotParts);
     this.props.nextStep();
@@ -87,14 +86,12 @@ export class AddGroupsAndPlot extends Component {
     this.props.prevStep();
   };
 
-  firstCourseGroup = {};
+  state = {
+    firstGroupName: ""
+  }
 
   mapAllGroups(groupsValues) {
-    if (groupsValues.length === 1) {
-      this.firstCourseGroup = groupsValues[0];
-    } else {
-      this.props.values.courseGroups = groupsValues;
-    }
+    this.props.values.courseGroups = groupsValues;
   }
 
   mapAllParts(plotPartValues) {
@@ -121,10 +118,20 @@ export class AddGroupsAndPlot extends Component {
                     Napisz kiedy odbywają się zajęcia
                   </Typography>
                   <div key={0}>
-                    <CourseGroup i={0} />
+                    <div className="row">
+                      <div className="col-25">
+                        <label className="label-class">Dzień i godzina zajęć: </label>
+                      </div>
+                      <div className="col-75">
+                        <input className="input-class" field="groupName" 
+                          value={this.state.firstGroupName} 
+                          onChange={e=>this.setState({firstGroupName: e.target.value})}
+                        />
+                      </div>
+                    </div>
                   </div>
                   {formApi.values.courseGroups &&
-                    formApi.values.courseGroups.slice(1).map((f, i) => (
+                    formApi.values.courseGroups.map((f, i) => (
                       <div key={i}>
                         <CourseGroup i={i} />
                       </div>

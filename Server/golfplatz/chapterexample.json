@@ -13,6 +13,7 @@
           "messageAfterCorrectAnswer": "Wyśmienicie!",
           "messageAfterIncorrectAnswer": "Niestety nie, pochodną liczy się według wzoru (x^a)' = ax^(a-1)",
           "questionType": "CLOSED",
+          "isAutoChecked": true,
           "answers": [
             {
               "text": "2x",
@@ -38,6 +39,7 @@
           "messageAfterCorrectAnswer": "Wyśmienicie!",
           "messageAfterIncorrectAnswer": "Niestety nie, pochodna to -1/x^2",
           "questionType": "CLOSED",
+          "isAutoChecked": true,
           "answers": [
             {
               "text": "1/(x^2)",

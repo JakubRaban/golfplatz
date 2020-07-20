@@ -10,7 +10,7 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import { Form, Text, NestedForm } from "react-form";
-import {styles} from "./styles/style.js";
+import {styles} from "../../styles/style.js";
 import compose from 'recompose/compose';
 import { logout } from '../../actions/auth';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -27,7 +27,7 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import { List, ListItem, ListItemText } from '@material-ui/core/';
-import "./styles/course-forms.css";
+import "../../styles/course-forms.css";
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button';
@@ -104,7 +104,10 @@ export class CourseDetails extends Component {
     this.state.chapters.unshift(this.firstChapter);
 
     const { chapters } = this.state;
-    
+
+    //statyczne dodanie 100% punktow - tymczasowo!
+    chapters.forEach(x => {x.pointsForMaxGrade = 100});
+
     this.updateChapters(chapters);
   };
 
@@ -265,7 +268,7 @@ export class CourseDetails extends Component {
                           <div style={{margin: '10px'}}>
                           <Form onSubmit={this.onSubmit}>
                             {formApi => (
-                            <form onSubmit={formApi.submitForm} id="course-group-form">
+                            <form onSubmit={formApi.submitForm} id="chapter-form">
                               <div key={0}>
                                 <Chapters i={0} />
                               </div>

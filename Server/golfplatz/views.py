@@ -88,7 +88,7 @@ class PlotPartView(APIView):
         serializer = CreatePlotPartSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         course = Course.objects.get(pk=course_id)
-        new_plot_parts = [course.add_plot_part(**serialized_plot_part)
+        new_plot_parts = [PlotPart.objects.create(course=course, **serialized_plot_part)
                           for serialized_plot_part in serializer.validated_data]
         return Response(PlotPartSerializer(new_plot_parts, many=True).data)
 
@@ -108,7 +108,7 @@ class ChapterView(APIView):
         serializer = CreateChapterSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         plot_part = PlotPart.objects.get(pk=plot_part_id)
-        created_chapters = [plot_part.add_chapter(**chapter_dict) for chapter_dict in serializer.validated_data]
+        created_chapters = [Chapter.objects.create(plot_part=plot_part, **chapter_dict) for chapter_dict in serializer.validated_data]
         return Response(ChapterSerializer(created_chapters, many=True).data)
 
     def get(self, request, plot_part_id):
@@ -141,11 +141,25 @@ class AdventureView(APIView):
         serializer = CreateAdventuresSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         chapter = Chapter.objects.get(pk=chapter_id)
-        new_adventures = chapter.add_adventures(serializer.validated_data)
+        new_adventures = serializer.save(chapter=chapter)
+        self.create_paths(new_adventures, serializer.validated_data)
         return Response({
             'adventures': AdventureSerializer(new_adventures, many=True).data,
             'paths': PathSerializer(chapter.get_paths(), many=True).data
         })
+
+    @staticmethod
+    def create_paths(adventures, adventures_data):
+        internal_id_to_created_adventure = {}
+        for index, adventure_data in enumerate(adventures_data):
+            internal_id = adventure_data['internal_id']
+            next_adventures_ids = adventure_data['next_adventures']
+            new_adventure = adventures[index]
+            internal_id_to_created_adventure[internal_id] = next_adventures_ids, new_adventure
+        for (new_id, (next_ids, adventure)) in internal_id_to_created_adventure.items():
+            for next_id in next_ids:
+                Path.objects.create(from_adventure=adventure,
+                                    to_adventure=internal_id_to_created_adventure[next_id][1])
 
 
 class AdventurePathsView(APIView):
@@ -169,11 +183,10 @@ class PathChoiceDescriptionView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         for adventure_choice in data:
-            from_adventure = Adventure.objects.get(pk=adventure_choice['from_adventure'])
-            NextAdventureChoiceDescription.objects.create(from_adventure=from_adventure,
+            NextAdventureChoiceDescription.objects.create(from_adventure=adventure_choice['from_adventure'],
                                                           description=adventure_choice['choice_description'])
             for path_choice in adventure_choice['path_choices']:
-                path = Path.objects.get(from_adventure=from_adventure, to_adventure_id=path_choice['to_adventure'])
+                path = Path.objects.get(from_adventure=adventure_choice['from_adventure'], to_adventure=path_choice['to_adventure'])
                 PathChoiceDescription.objects.create(path=path, description=path_choice['path_description'])
         return Response()
 
@@ -185,6 +198,7 @@ class ChapterStartView(APIView):
         chapter = Chapter.objects.get(pk=chapter_id)
         return Response({
             'response_type': 'adventure',
+            'chapter_name': chapter.name,
             'adventure': AdventureSerializer(chapter.get_initial_adventure()).data
         })
 
@@ -210,12 +224,13 @@ class AdventureAnswerView(APIView):
                                    question_data['given_answer']))
         next_adventures = grade_answers_and_get_next_adventure(self.request.user,
                                                                current_adventure,
-                                                               data['start_time'], data['answer_time'], closed_questions,
+                                                               data['start_time'], data['answer_time'],
+                                                               closed_questions,
                                                                open_questions)
-        if len(next_adventures) == 1 and next_adventures[0].is_terminal:
+        if len(next_adventures) == 0:
             return Response({
                 'response_type': 'summary',
-                'summary': AdventureSummarySerializer(get_summary(self.request.user, next_adventures[0]), many=True).data
+                'summary': AdventureSummarySerializer(get_summary(self.request.user, current_adventure), many=True).data
             })
         elif len(next_adventures) == 1:
             return Response({

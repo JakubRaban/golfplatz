@@ -22,7 +22,7 @@ import { withStyles } from '@material-ui/styles';
 import compose from 'recompose/compose';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
-import {styles} from "./styles/style.js";
+import {styles} from "../../styles/style.js";
 
 
 function Copyright() {
