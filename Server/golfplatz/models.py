@@ -253,7 +253,6 @@ class Question(models.Model):
         CLOSED = 'CLOSED', 'Closed question'
 
     class InputType(models.TextChoices):
-        NONE = 'NONE', 'None'
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
         TEXT_AREA = 'TEXTAREA', 'Large text area'
 
@@ -262,7 +261,7 @@ class Question(models.Model):
     question_type = models.CharField(max_length=6, choices=Type.choices)
     is_multiple_choice = models.BooleanField(default=False)
     is_auto_checked = models.BooleanField()
-    input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.NONE)
+    input_type = models.CharField(max_length=9, choices=InputType.choices, default=InputType.TEXT_FIELD)
     points_per_correct_answer = models.DecimalField(max_digits=6, decimal_places=3, default=1.0)
     points_per_incorrect_answer = models.DecimalField(max_digits=6, decimal_places=3, default=0.0)
     message_after_correct_answer = models.TextField(blank=True)
