@@ -2,23 +2,14 @@ import React, {Component} from "react";
 import { getCourses } from "../../actions/course";
 import {connect} from "react-redux";
 import PropTypes from "prop-types"
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import {styles} from "../../styles/style.js";
 import compose from 'recompose/compose';
 import { logout } from '../../actions/auth';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import clsx from 'clsx';
-import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
-import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import MaterialTable from 'material-table';
-
+import NavBar from "../common/NavBar";
 
 export class GetCourses extends Component {
   constructor(props) {
@@ -86,31 +77,7 @@ export class GetCourses extends Component {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <AppBar position="absolute" className={clsx(classes.appBar, false && classes.appBarShift)}>
-          <Toolbar className={classes.toolbar}>
-            <IconButton component={Link} to="/"
-              edge="start"
-              color="inherit"
-              aria-label="Powrót"
-              className={clsx(classes.menuButton, false && classes.menuButtonHidden)}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-            <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-              Lista kursów
-            </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton color="inherit" onClick={this.props.logout.bind(this)}>
-              <Badge color="secondary">
-                <PowerSettingsNewIcon />
-              </Badge>
-            </IconButton>
-          </Toolbar>
-        </AppBar>
+        <NavBar logout={this.props.logout} title={'Lista kursów'} returnLink={'/'} />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
           <MaterialTable
