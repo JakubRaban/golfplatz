@@ -21,6 +21,7 @@ import NotificationsIcon from '@material-ui/icons/Notifications';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { withStyles } from '@material-ui/core/styles';
 import { logout } from '../../actions/auth';
+import NavBar from '../common/NavBar';
 
 
 const theme = createMuiTheme({
@@ -207,31 +208,7 @@ export class ChapterPassing extends Component {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <AppBar position="absolute" className={clsx(classes.appBar, false && classes.appBarShift)}>
-          <Toolbar className={classes.toolbar}>
-            <IconButton component={Link} to="/"
-              edge="start"
-              color="inherit"
-              aria-label="Powrót"
-              className={clsx(classes.menuButton, false && classes.menuButtonHidden)}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-            <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-              Przed Tobą walka
-            </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <IconButton color="inherit" onClick={this.props.logout.bind(this)}>
-              <Badge color="secondary">
-                <PowerSettingsNewIcon />
-              </Badge>
-            </IconButton>
-          </Toolbar>
-        </AppBar>
+        <NavBar logout={this.props.logout} title={'Przed Tobą walka'} returnLink={'/'} />
         <main className={classes.content}>
         <div className={classes.appBarSpacer} />
           <div style={{margin: '5px'}}>
