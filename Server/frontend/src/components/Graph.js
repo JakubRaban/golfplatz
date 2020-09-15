@@ -1,98 +1,81 @@
-import {
-    GraphView,
-  } from 'react-digraph';
-  import React, { Component } from 'react';
-  
-  const GraphConfig =  {
-    NodeTypes: {
-      empty: { // required to show empty nodes
-        typeText: "None",
-        shapeId: "#empty", // relates to the type property of a node
-        shape: (
-          <symbol viewBox="0 0 100 100" id="empty" key="0">
-            <circle cx="50" cy="50" r="45"></circle>
-          </symbol>
-        )
-      },
-    },
-    NodeSubtypes: {},
-    EdgeTypes: {
-      emptyEdge: {  // required to show empty edges
-        shapeId: "#emptyEdge",
-        shape: (
-          <symbol viewBox="0 0 50 50" id="emptyEdge" key="0">
-            <circle cx="25" cy="25" r="8" fill="currentColor"> </circle>
-          </symbol>
-        )
-      }
-    }
+import React from 'react';
+import CytoscapeComponent from 'react-cytoscapejs';
+import graphStyle from '../styles/graphStyle.js';
+import '../styles/graph.css';
+import edgesConfig from './common/graphConfig/Edges';
+import contextMenuConfig from './common/graphConfig/ContextMenu';
+
+class Graph extends React.Component {
+  state = { adventures: [{id: 1, label: 'xd'}, {id: 2, label: 'Palpatine'}, {id: 3, label: 'Chrzanowskie noce'}, {id: 4, label: 'Wiśniówka'}, {id: 5, label: 'Moda na sukces'}], elements: [], layout: { name: 'grid' }, finishedLoading: false };
+  cy = null;
+  edgeHandler = null;
+  contextMenu = null;
+
+  componentDidMount() {
+    const elements = this.getAllNodes(); 
+    this.setState({ elements }, ()=>this.cy.layout(this.state.layout).run());
   }
 
-
-  const NODE_KEY = "id"       // Allows D3 to correctly update DOM
-  
-  class Graph extends Component {
-    constructor(props) {
-      super(props);
-  
-      this.state = {
-        graph: {
-          "nodes": [],
-          "edges": [],
+  getAllNodes() {
+    return this.state.adventures.map((adventure) => {
+      return {
+        data: {
+          id: adventure.id,
+          label: adventure.label,
         },
-        selected: {}
-      }
-    }
-
-    addStartNode = () => {
-      const graph = this.state.graph;
-  
-      graph.nodes = [
-        {
-          id: 1,
-          title: 'Node A',
-          type: 'empty',
-          x: 0,
-          y: 0,
-        },
-        ...this.state.graph.nodes,
-      ];
-      this.setState({
-        graph,
-      });
-    };
-    
-    render() {
-      const nodes = this.state.graph.nodes;
-      const edges = this.state.graph.edges;
-      const selected = this.state.selected;
-  
-      const NodeTypes = GraphConfig.NodeTypes;
-      const NodeSubtypes = GraphConfig.NodeSubtypes;
-      const EdgeTypes = GraphConfig.EdgeTypes;
-  
-      return (
-        <div id='graph' style={{height: "600px"}}>
-          <button onClick={this.addStartNode}>Add Node</button>
-          <GraphView  ref='GraphView'
-                      nodeKey={NODE_KEY}
-                      nodes={nodes}
-                      edges={edges}
-                      selected={selected}
-                      nodeTypes={NodeTypes}
-                      nodeSubtypes={NodeSubtypes}
-                      edgeTypes={EdgeTypes}
-                      onSelectNode={this.onSelectNode}
-                      onCreateNode={this.onCreateNode}
-                      onUpdateNode={this.onUpdateNode}
-                      onDeleteNode={this.onDeleteNode}
-                      onSelectEdge={this.onSelectEdge}
-                      onCreateEdge={this.onCreateEdge}
-                      onSwapEdge={this.onSwapEdge}
-                      onDeleteEdge={this.onDeleteEdge}/>
-        </div>
-      );
-    }
-  
+      };
+    });
   }
+
+  componentWillUnmount() {
+    this.cy.destroy();
+  }
+
+  createContextMenu() {
+    contextMenuConfig.commands = [
+      { 
+        select: (edge) => {
+          this.cy.remove(edge);
+        },
+        content: 'Usuń',
+      }
+    ];
+    this.contextMenu = this.cy.cxtmenu(contextMenuConfig);
+  }
+
+  onDiagramCreated = (cy) => {
+    if (!this.cy) {
+      this.cy = cy;
+      this.edgeHandler = cy.edgehandles(edgesConfig);
+    }
+    cy.fit();
+    this.createContextMenu();
+  };
+
+  postPaths = () => {
+    let paths = [];
+    this.cy.$('edge').forEach((edge) => {
+      paths.push({ fromAdventure: edge.data().source, toAdventure: edge.data().target });
+    });
+    console.log(paths);
+  }
+
+  render() {
+    return (
+      <>
+        <CytoscapeComponent
+          className='graph-container'
+          cy={this.onDiagramCreated}
+          elements={this.state.elements}
+          hideEdgesOnViewport={true}
+          maxZoom={5}
+          minZoom={0.1}
+          stylesheet={graphStyle}
+        />
+        <button onClick={this.postPaths}></button>
+      </>
+    );
+  }
+}
+
 export default Graph;
