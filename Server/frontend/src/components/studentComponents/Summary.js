@@ -12,7 +12,7 @@ export class Summary extends Component {
         <Typography variant="h5" gutterBottom>
           Podsumowanie Twoich wyników:
         </Typography>
-        {this.props.adventurePart.summary.map(sum =>(
+        {this.props.adventurePart.summary.map((sum) =>
           <React.Fragment>
             <Typography variant="h6" gutterBottom>
               {sum.adventureName}
@@ -20,30 +20,29 @@ export class Summary extends Component {
             <Typography variant="body1" gutterBottom>
               Udzieliłeś odpowiedzi w ciągu: <Typography variant="subtitle2" gutterBottom>{sum.answerTime}</Typography>
             </Typography>
-            {sum.questionSummaries.map(question =>(
+            {sum.questionSummaries.map((question) =>
               <React.Fragment>
                 <Typography variant="subtitle1" gutterBottom>
                   {question.text}
                 </Typography>
-                {question.isAutoChecked ? 
+                {question.isAutoChecked ?
                   <Typography variant="subtitle2" gutterBottom>
                     {question.pointsScored}/{question.maxPoints}
-                  </Typography>
-                  :
+                  </Typography> :
                   <Typography variant="subtitle2" gutterBottom>
                     To pytanie zostanie ocenione przez prowadzącego.
                   </Typography>
                 }
-              </React.Fragment>  
-            ))}
-          </React.Fragment>
-        ))}
+              </React.Fragment>,
+            )}
+          </React.Fragment>,
+        )}
         <Button variant="contained" onClick={this.props.endChapter}>
           Zakończ rozdział
         </Button>
-       
+
       </div>
-    )
+    );
   }
 }
 

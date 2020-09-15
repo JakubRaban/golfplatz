@@ -6,7 +6,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
-import {styles} from "../../styles/style.js";
+import { styles } from '../../styles/style.js';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -17,7 +17,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 class DashboardNavbar extends Component {
   render() {
     const { classes } = this.props;
-    const open = this.props.open;
+    const { open } = this.props;
     return (
       <>
         <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>

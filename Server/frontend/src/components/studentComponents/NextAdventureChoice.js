@@ -11,13 +11,13 @@ export class NextAdventureChoice extends Component {
         <Typography variant="subtitle1" gutterBottom>
           {this.props.adventurePart.choice.choiceDescription}
         </Typography>
-        {this.props.adventurePart.choice.pathChoices.map(pathChoice => (
+        {this.props.adventurePart.choice.pathChoices.map((pathChoice) =>
           <Button variant="contained" onClick={this.props.onSubmit(pathChoice.toAdventure)}>
             {pathChoice.pathDescription}
-          </Button>
-        ))}
+          </Button>,
+        )}
       </div>
-    )
+    );
   }
 }
 

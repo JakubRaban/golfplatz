@@ -6,9 +6,9 @@ import {
   LOGIN_SUCCESS,
   LOGIN_FAIL,
   LOGOUT_SUCCESS,
-  USER_LOADED
+  USER_LOADED,
 } from './types';
-import {createMessage, returnErrors} from './messages';
+import { createMessage, returnErrors } from './messages';
 import axios from 'axios';
 
 
@@ -36,7 +36,7 @@ export const logout = () => (dispatch, getState) => {
   axios
     .post('/api/logout/', null, tokenConfig(getState))
     .then((res) => {
-      dispatch(createMessage({logout: "Wylogowano pomyślnie"}));
+      dispatch(createMessage({ logout: 'Wylogowano pomyślnie' }));
       dispatch({
         type: LOGOUT_SUCCESS,
       });
@@ -66,25 +66,25 @@ export const login = (email, password) => (dispatch) => {
     });
 };
 
-export const registerTutor = ({firstName, lastName, email, password}) => (dispatch) => {
-  const body = JSON.stringify({firstName, lastName, email, password});
+export const registerTutor = ({ firstName, lastName, email, password }) => (dispatch) => {
+  const body = JSON.stringify({ firstName, lastName, email, password });
 
   postRegisterRequest('tutor', body, dispatch);
 };
 
-export const registerStudent = ({firstName, lastName, email, password, studentNumber, phoneNumber}) => (dispatch) => {
-  const body = JSON.stringify({firstName, lastName, email, password, studentNumber, phoneNumber});
+export const registerStudent = ({ firstName, lastName, email, password, studentNumber, phoneNumber }) => (dispatch) => {
+  const body = JSON.stringify({ firstName, lastName, email, password, studentNumber, phoneNumber });
 
   postRegisterRequest('student', body, dispatch);
 };
 
 function postRegisterRequest(user, body, dispatch) {
   const config = getBasicHeader();
-  const apiAddress = '/api/register/' + user + '/';
+  const apiAddress = `/api/register/${user}/`;
   axios
     .post(apiAddress, body, config)
     .then((res) => {
-      dispatch(createMessage({userRegistered: `${user} pomyślnie zarejestrowany`}));
+      dispatch(createMessage({ userRegistered: `${user} pomyślnie zarejestrowany` }));
       dispatch({
         type: REGISTER_SUCCESS,
         payload: res.data,
@@ -107,12 +107,12 @@ function getBasicHeader() {
 }
 
 export const tokenConfig = (getState) => {
-  const token = getState().auth.token;
+  const { token } = getState().auth;
 
   const config = getBasicHeader();
 
   if (token) {
-    config.headers['Authorization'] = `Token ${token}`;
+    config.headers.Authorization = `Token ${token}`;
   }
 
   return config;

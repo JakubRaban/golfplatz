@@ -1,15 +1,15 @@
-import { ADD_COURSE, 
-        GET_COURSES, 
-        GET_COURSE, 
-        ADD_PLOT_PARTS, 
-        ADD_COURSE_GROUPS,
-        ADD_CHAPTER,
-        GET_CHAPTER,
-        ADD_ADVENTURES,
-        START_CHAPTER, 
-        ADD_ANSWER,
-        NEXT_ADVENTURE, }
-from '../actions/types.js';
+import { ADD_COURSE,
+  GET_COURSES,
+  GET_COURSE,
+  ADD_PLOT_PARTS,
+  ADD_COURSE_GROUPS,
+  ADD_CHAPTER,
+  GET_CHAPTER,
+  ADD_ADVENTURES,
+  START_CHAPTER,
+  ADD_ANSWER,
+  NEXT_ADVENTURE }
+  from '../actions/types.js';
 
 const initialState = {
   courses: [],
@@ -22,22 +22,22 @@ const initialState = {
   adventurePart: {},
 };
 
-export default function(state = initialState, action) {
-  switch(action.type) {
+export default function (state = initialState, action) {
+  switch (action.type) {
     case ADD_COURSE:
       return {
         ...state,
-        courses: [...state.courses, action.payload]
+        courses: [...state.courses, action.payload],
       };
     case ADD_PLOT_PARTS:
       return {
         ...state,
-        plotParts: [...state.plotParts, action.payload]
+        plotParts: [...state.plotParts, action.payload],
       };
     case ADD_COURSE_GROUPS:
       return {
         ...state,
-        courseGroups: [...state.courseGroups, action.payload]
+        courseGroups: [...state.courseGroups, action.payload],
       };
     case GET_COURSES:
       return {
@@ -70,7 +70,7 @@ export default function(state = initialState, action) {
       return {
         ...state,
         adventurePart: action.payload,
-      }
+      };
     default:
       return state;
   }

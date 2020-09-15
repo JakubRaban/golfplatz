@@ -8,7 +8,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import clsx from 'clsx';
 import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
-import {styles} from "../../styles/style.js";
+import { styles } from '../../styles/style.js';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 

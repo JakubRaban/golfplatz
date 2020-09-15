@@ -42,4 +42,4 @@ export const edgesConfig = {
   drawoff() { },
 };
 export default edgesConfig;
-  
+

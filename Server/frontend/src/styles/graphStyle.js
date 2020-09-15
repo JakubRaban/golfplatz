@@ -46,32 +46,32 @@ export const graphStyle = [
       'height': 12,
       'shape': 'ellipse',
       'overlay-opacity': 0,
-      'border-width': 30, 
-      'border-opacity': 0
-    }
+      'border-width': 30,
+      'border-opacity': 0,
+    },
   },
 
   {
     selector: '.eh-hover',
     style: {
-      'background-color': 'red'
-    }
+      'background-color': 'red',
+    },
   },
 
   {
     selector: '.eh-source',
     style: {
       'border-width': 2,
-      'border-color': 'red'
-    }
+      'border-color': 'red',
+    },
   },
 
   {
     selector: '.eh-target',
     style: {
       'border-width': 2,
-      'border-color': 'red'
-    }
+      'border-color': 'red',
+    },
   },
 
   {
@@ -80,16 +80,16 @@ export const graphStyle = [
       'background-color': 'red',
       'line-color': 'red',
       'target-arrow-color': 'red',
-      'source-arrow-color': 'red'
-    }
+      'source-arrow-color': 'red',
+    },
   },
 
   {
     selector: '.eh-ghost-edge.eh-preview-active',
     style: {
-      'opacity': 0
-    }
-  }
+      'opacity': 0,
+    },
+  },
 ];
 
 export default graphStyle;

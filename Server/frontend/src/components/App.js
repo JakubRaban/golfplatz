@@ -1,22 +1,22 @@
 import React from 'react';
-import {Provider} from 'react-redux';
-import {Switch, Route, HashRouter as Router} from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { Switch, Route, HashRouter as Router } from 'react-router-dom';
 import store from '../store';
-import {persistor} from '../store';
+import { persistor } from '../store';
 import AddCourse from './tutorComponents/AddCourse.js';
 import RegisterStudent from './authentication/RegisterStudent.js';
 import RegisterTutor from './authentication/RegisterTutor.js';
 import TutorDashboard from './tutorComponents/TutorDashboard.js';
 import Login from './authentication/Login.js';
-import {Provider as AlertProvider} from "react-alert"
-import AlertTemplate from "react-alert-template-basic";
-import Alerts from "./layout/Alerts";
-import GetCourses from "./tutorComponents/GetCourses";
-import Marks from "./tutorComponents/Marks";
-import Ranking from "./studentComponents/Ranking";
-import Achievements from "./studentComponents/Achievements";
-import GameCard from "./studentComponents/GameCard";
-import StudentMarks from "./studentComponents/StudentMarks";
+import { Provider as AlertProvider } from 'react-alert';
+import AlertTemplate from 'react-alert-template-basic';
+import Alerts from './layout/Alerts';
+import GetCourses from './tutorComponents/GetCourses';
+import Marks from './tutorComponents/Marks';
+import Ranking from './studentComponents/Ranking';
+import Achievements from './studentComponents/Achievements';
+import GameCard from './studentComponents/GameCard';
+import StudentMarks from './studentComponents/StudentMarks';
 import PrivateRoute from './PrivateRoute';
 import { loadUser } from '../actions/auth';
 import CourseDetails from './tutorComponents/CourseDetails';
@@ -26,17 +26,15 @@ import { PersistGate } from 'redux-persist/integration/react';
 import Graph from './Graph';
 import ChapterPassing from './studentComponents/ChapterPassing';
 
-
 const alertOptions = {
   timeout: 3000,
-  position: "top center"
+  position: 'top center',
 };
 
 class App extends React.Component {
   componentDidMount() {
     store.dispatch(loadUser());
   }
-
 
   render() {
     return (
@@ -52,7 +50,7 @@ class App extends React.Component {
                 <Route exact path="/add-courses" component={AddCourse}/>
                 <Route exact path="/courses" component={GetCourses}/>
                 <Route exact path="/courses/:id" component={CourseDetails}/>
-                <Route exact path="/chapters/:id" component={Chapter}/>  
+                <Route exact path="/chapters/:id" component={Chapter}/>
                 <Route exact path="/register-student" component={RegisterStudent}/>
                 <Route exact path="/register-tutor" component={RegisterTutor}/>
                 <Route exact path="/marks" component={Marks}/>
