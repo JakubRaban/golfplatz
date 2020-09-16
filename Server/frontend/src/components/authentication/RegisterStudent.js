@@ -1,18 +1,20 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
-import PropTypes from 'prop-types';
-import {registerStudent} from '../../actions/auth';
-import {createMessage} from '../../actions/messages';
-import { Link, Redirect } from 'react-router-dom';
-import TextField, { Input } from '@material/react-text-field';
 import '@material/react-text-field/dist/text-field.css';
-import '../../../style/login.css'
+import '../../../style/login.css';
 import '@material/react-button/dist/button.css';
-import Button from '@material/react-button';
 import 'typeface-roboto';
-import Typography from "@material-ui/core/Typography";
+
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import Typography from '@material-ui/core/Typography';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import Button from '@material/react-button';
+import TextField, { Input } from '@material/react-text-field';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link, Redirect } from 'react-router-dom';
+
+import { registerStudent } from '../../actions/auth.js';
+import { createMessage } from '../../actions/messages.js';
 
 
 export class RegisterStudent extends Component {
@@ -33,10 +35,8 @@ export class RegisterStudent extends Component {
 
   onSubmit = (e) => {
     e.preventDefault();
-    const {firstName, lastName, email, password, password2, studentNumber, phoneNumber} = this.state;
-    if (password !== password2) {
-      this.props.createMessage({passwordNotMatch: 'Podane hasła są różne'});
-    } else {
+    const { firstName, lastName, email, password, password2, studentNumber, phoneNumber } = this.state;
+    if (password === password2) {
       const newStudent = {
         firstName,
         lastName,
@@ -44,16 +44,16 @@ export class RegisterStudent extends Component {
         password,
         password2,
         studentNumber,
-        phoneNumber
+        phoneNumber,
       };
       this.props.registerStudent(newStudent);
-    }
+    } else this.props.createMessage({ passwordNotMatch: 'Podane hasła są różne' });
   };
 
-  onChange = (e) => this.setState({[e.target.name]: e.target.value});
+  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
   render() {
-    const {firstName, lastName, email, password, password2, studentNumber, phoneNumber} = this.state;
+    const { firstName, lastName, email, password, password2, studentNumber, phoneNumber } = this.state;
     if (this.props.isAuthenticated) {
       return <Redirect to="/" />;
     }
@@ -127,7 +127,7 @@ export class RegisterStudent extends Component {
             </div>
             <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
               <Typography color="textPrimary">Masz już konto? </Typography>
-              <Link to="/login">Zaloguj się!</Link>           
+              <Link to="/login">Zaloguj się!</Link>
             </Breadcrumbs>
           </form>
         </div>
@@ -140,4 +140,4 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, {registerStudent, createMessage})(RegisterStudent);
+export default connect(mapStateToProps, { registerStudent, createMessage })(RegisterStudent);

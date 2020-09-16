@@ -1,19 +1,20 @@
 import axios from 'axios';
-import { tokenConfig } from './auth.js';
-import { createMessage, returnErrors } from './messages';
-import { ADD_COURSE,
-  GET_COURSES,
-  GET_COURSE,
-  ADD_PLOT_PARTS,
-  ADD_COURSE_GROUPS,
-  ADD_CHAPTER,
-  GET_CHAPTER,
-  ADD_ADVENTURES,
-  START_CHAPTER,
+
+import { ADD_ADVENTURES,
   ADD_ANSWER,
+  ADD_CHAPTER,
+  ADD_COURSE,
+  ADD_COURSE_GROUPS,
+  ADD_PLOT_PARTS,
+  GET_CHAPTER,
+  GET_COURSE,
+  GET_COURSES,
   NEXT_ADVENTURE,
+  START_CHAPTER,
 }
   from '../actions/types.js';
+import { tokenConfig } from './auth.js';
+import { createMessage, returnErrors } from './messages.js';
 
 
 export const addAdventures = (adventures, chapterId) => (dispatch, getState) => {
@@ -71,7 +72,7 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, 
       dispatch(returnErrors(err.response.data, err.response.status));
     });
 
-  let plotPartsData = [];
+  // let plotPartsData = [];
 
   await axios.post(`/api/courses/${courseId}/plot_parts/`, plotParts, tokenConfig(getState)).then((res) => {
     dispatch(createMessage({ courseAdded: 'Kurs dodany pomyślnie' }));
@@ -79,7 +80,7 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, 
       type: ADD_PLOT_PARTS,
       payload: res.data,
     });
-    plotPartsData = res.data;
+    // plotPartsData = res.data;
   })
     .catch((err) => {
       dispatch(returnErrors(err.response.data, err.response.status));

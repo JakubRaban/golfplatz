@@ -1,8 +1,9 @@
 import { combineReducers } from 'redux';
-import course from './course';
-import errors from './errors';
-import messages from './messages';
-import auth from './auth';
+
+import auth from './auth.js';
+import course from './course.js';
+import errors from './errors.js';
+import messages from './messages.js';
 
 
 export default combineReducers({

@@ -1,30 +1,30 @@
 import React from 'react';
-import { Provider } from 'react-redux';
-import { Switch, Route, HashRouter as Router } from 'react-router-dom';
-import store from '../store';
-import { persistor } from '../store';
-import AddCourse from './tutorComponents/AddCourse.js';
-import RegisterStudent from './authentication/RegisterStudent.js';
-import RegisterTutor from './authentication/RegisterTutor.js';
-import TutorDashboard from './tutorComponents/TutorDashboard.js';
-import Login from './authentication/Login.js';
 import { Provider as AlertProvider } from 'react-alert';
 import AlertTemplate from 'react-alert-template-basic';
-import Alerts from './layout/Alerts';
-import GetCourses from './tutorComponents/GetCourses';
-import Marks from './tutorComponents/Marks';
-import Ranking from './studentComponents/Ranking';
-import Achievements from './studentComponents/Achievements';
-import GameCard from './studentComponents/GameCard';
-import StudentMarks from './studentComponents/StudentMarks';
-import PrivateRoute from './PrivateRoute';
-import { loadUser } from '../actions/auth';
-import CourseDetails from './tutorComponents/CourseDetails';
-import Chapter from './tutorComponents/Chapter';
-import StudentDashboard from './studentComponents/StudentDashboard';
+import { Provider } from 'react-redux';
+import { HashRouter as Router, Route, Switch } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
-import Graph from './Graph';
-import ChapterPassing from './studentComponents/ChapterPassing';
+
+import { loadUser } from '../actions/auth.js';
+import store, { persistor } from '../store.js';
+import Login from './authentication/Login.js';
+import RegisterStudent from './authentication/RegisterStudent.js';
+import RegisterTutor from './authentication/RegisterTutor.js';
+import Graph from './Graph.js';
+import Alerts from './layout/Alerts.js';
+import PrivateRoute from './PrivateRoute.js';
+import Achievements from './studentComponents/Achievements.js';
+import ChapterPassing from './studentComponents/ChapterPassing.js';
+import GameCard from './studentComponents/GameCard.js';
+import Ranking from './studentComponents/Ranking.js';
+import StudentDashboard from './studentComponents/StudentDashboard.js';
+import StudentMarks from './studentComponents/StudentMarks.js';
+import AddCourse from './tutorComponents/AddCourse.js';
+import Chapter from './tutorComponents/Chapter.js';
+import CourseDetails from './tutorComponents/CourseDetails.js';
+import GetCourses from './tutorComponents/GetCourses.js';
+import Marks from './tutorComponents/Marks.js';
+import TutorDashboard from './tutorComponents/TutorDashboard.js';
 
 const alertOptions = {
   timeout: 3000,

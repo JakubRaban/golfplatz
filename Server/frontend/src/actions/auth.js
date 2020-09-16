@@ -1,15 +1,16 @@
+import axios from 'axios';
+
+import { createMessage, returnErrors } from './messages.js';
 import {
   AUTH_ERROR,
-  REGISTER_SUCCESS,
-  USER_LOADING,
-  REGISTER_FAIL,
-  LOGIN_SUCCESS,
   LOGIN_FAIL,
+  LOGIN_SUCCESS,
   LOGOUT_SUCCESS,
+  REGISTER_FAIL,
+  REGISTER_SUCCESS,
   USER_LOADED,
-} from './types';
-import { createMessage, returnErrors } from './messages';
-import axios from 'axios';
+  USER_LOADING,
+} from './types.js';
 
 
 export const loadUser = () => (dispatch, getState) => {

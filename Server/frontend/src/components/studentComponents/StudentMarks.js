@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NavLink, Redirect } from 'react-router-dom';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { NavLink, Redirect } from 'react-router-dom';
 
 
 export class StudentMarks extends Component {
@@ -17,7 +17,7 @@ export class StudentMarks extends Component {
     if (this.props.user.groups[0] === 2) {
       return (
         <Redirect to="/"/>
-      )
+      );
     }
     return (
       <div>

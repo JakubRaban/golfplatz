@@ -1,17 +1,25 @@
-import React, {Component} from "react";
-import { getCourses } from "../../actions/course";
-import {connect} from "react-redux";
-import PropTypes from "prop-types"
-import { Redirect } from 'react-router-dom';
-import { withStyles } from '@material-ui/core/styles';
-import {styles} from "../../styles/style.js";
-import compose from 'recompose/compose';
-import { logout } from '../../actions/auth';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { withStyles } from '@material-ui/core/styles';
 import MaterialTable from 'material-table';
-import NavBar from "../common/NavBar";
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
+import compose from 'recompose/compose';
+
+import { logout } from '../../actions/auth.js';
+import { getCourses } from '../../actions/course.js';
+import { styles } from '../../styles/style.js';
+import NavBar from '../common/NavBar.js';
 
 export class GetCourses extends Component {
+  columns = [
+    { title: 'ID kursu', field: 'id', type: 'numeric' },
+    { title: 'Nazwa', field: 'name' },
+    { title: 'Opis', field: 'description' },
+    { title: 'Utworzono', field: 'createdOn', type: 'date' },
+  ];
+
   constructor(props) {
     super(props);
     props.getCourses();
@@ -21,26 +29,13 @@ export class GetCourses extends Component {
     chosenCourseId: -1,
     data: [],
   }
-  
+
   static propTypes = {
-    courses: PropTypes.array,
     logout: PropTypes.func.isRequired,
+    courses: PropTypes.array,
     isAuthenticated: PropTypes.bool,
     user: PropTypes.any,
   };
-
-  columns = [
-    { title: 'ID kursu', field: 'id', type: 'numeric' },
-    { title: 'Nazwa', field: 'name' },
-    { title: 'Opis', field: 'description' },
-    { title: 'Utworzono', field: 'createdOn', type: 'date' },
-  ];
-
-  setRedirectedParams(d) {
-    this.setState({
-      chosenCourseId: d.id,
-    })
-  }
 
   componentDidMount() {
 
@@ -48,14 +43,20 @@ export class GetCourses extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.courses !== this.props.courses) {
-      let dataTmp = [];
-      this.props.courses.map(course =>
-        (dataTmp.push({id: course.id, name: course.name, description: course.description, createdOn: course.createdOn}))
+      const dataTmp = [];
+      this.props.courses.map((course) =>
+        dataTmp.push({ id: course.id, name: course.name, description: course.description, createdOn: course.createdOn }),
       );
       this.setState({
         data: dataTmp,
-      })   
+      });
     }
+  }
+
+  setRedirectedParams(d) {
+    this.setState({
+      chosenCourseId: d.id,
+    });
   }
 
   render() {
@@ -66,13 +67,13 @@ export class GetCourses extends Component {
     if (this.props.user.groups[0] === 1) {
       return (
         <Redirect to="/"/>
-      )
+      );
     }
     if (this.state.chosenCourseId !== -1) {
-      let url = "/courses/" + this.state.chosenCourseId;
+      const url = `/courses/${this.state.chosenCourseId}`;
       return (
         <Redirect to={url}/>
-      )
+      );
     }
     return (
       <div className={classes.root}>
@@ -88,40 +89,39 @@ export class GetCourses extends Component {
               {
                 icon: 'edit',
                 tooltip: 'Zobacz/edytuj informacje o kursie',
-                onClick: (event, d) => this.setRedirectedParams(d)
+                onClick: (event, d) => this.setRedirectedParams(d),
               },
             ]}
             options={{
-              actionsColumnIndex: -1
+              actionsColumnIndex: -1,
             }}
             localization={{
               pagination: {
-                  labelDisplayedRows: '{from}-{to} z {count}',
-                  labelRowsSelect: "wyników",
+                labelDisplayedRows: '{from}-{to} z {count}',
+                labelRowsSelect: 'wyników',
               },
               toolbar: {
-                  nRowsSelected: 'Wybrano {0} pozycji',
-                  searchPlaceholder: "Wyszukaj",
+                nRowsSelected: 'Wybrano {0} pozycji',
+                searchPlaceholder: 'Wyszukaj',
               },
               header: {
-                  actions: 'Opcje'
+                actions: 'Opcje',
               },
               body: {
-                  emptyDataSourceMessage: 'Brak danych',
-                  filterRow: {
-                      filterTooltip: 'Filtruj'
-                  }
-              }
-          }}
+                emptyDataSourceMessage: 'Brak danych',
+                filterRow: {
+                  filterTooltip: 'Filtruj',
+                },
+              },
+            }}
           />
         </main>
       </div>
     );
   }
-
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   courses: state.course.courses,
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
@@ -129,5 +129,5 @@ const mapStateToProps = state => ({
 
 export default compose(
   connect(mapStateToProps, { getCourses, logout }),
-  withStyles(styles)
+  withStyles(styles),
 )(GetCourses);

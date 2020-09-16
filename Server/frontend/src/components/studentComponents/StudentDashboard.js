@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { logout } from '../../actions/auth';
-import { Link, Redirect } from 'react-router-dom';
-import clsx from 'clsx';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/styles';
-import compose from 'recompose/compose'
-import {styles} from "../../styles/style.js";
-import DashboardNavbar from '../common/DashboardNavbar';
+import clsx from 'clsx';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link, Redirect } from 'react-router-dom';
+import compose from 'recompose/compose';
+
+import { logout } from '../../actions/auth.js';
+import { styles } from '../../styles/style.js';
+import DashboardNavbar from '../common/DashboardNavbar.js';
 
 
 function Copyright() {
@@ -31,11 +32,11 @@ function Copyright() {
 
 export class StudentDashboard extends Component {
   static propTypes = {
+    logout: PropTypes.func.isRequired,
     isAuthenticated: PropTypes.bool,
     user: PropTypes.any,
-    logout: PropTypes.func.isRequired,
   };
-  
+
   state = {
     open: false,
   };
@@ -59,17 +60,16 @@ export class StudentDashboard extends Component {
     if (this.props.user.groups[0] === 2) {
       return (
         <Redirect to="/"/>
-      )
+      );
     }
     const { classes } = this.props;
     const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
-    let open = this.state.open;
 
     return (
       <div className={classes.root}>
         <CssBaseline />
         <DashboardNavbar title={'Panel uczestnika kursu'} handleDrawerOpen={this.handleDrawerOpen}
-           handleDrawerClose={this.handleDrawerClose} logout={this.props.logout} open={this.state.open}
+          handleDrawerClose={this.handleDrawerClose} logout={this.props.logout} open={this.state.open}
         />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
@@ -79,29 +79,29 @@ export class StudentDashboard extends Component {
             <Grid container spacing={3}>
               <Grid item xs={12} md={4} lg={3}>
                 <Paper className={fixedHeightPaper}>
-                  <Link to="/game-card">Podejrzyj kartę gry</Link>          
+                  <Link to="/game-card">Podejrzyj kartę gry</Link>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={4} lg={3}>
                 <Paper className={fixedHeightPaper}>
-                  <Link to="/student-marks">Zobacz swoje oceny</Link> 
+                  <Link to="/student-marks">Zobacz swoje oceny</Link>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={4} lg={3}>
                 <Paper className={fixedHeightPaper}>
-                  <Link to="/achievements">Zobacz swoje odznaki</Link> 
+                  <Link to="/achievements">Zobacz swoje odznaki</Link>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={8} lg={9}>
                 <Paper className={fixedHeightPaper.paper}>
                   <div>można go wyrenderować tutaj</div>
-                  <Link to="/ranking">Podgląd rankingu</Link> 
+                  <Link to="/ranking">Podgląd rankingu</Link>
                 </Paper>
               </Grid>
               <Grid item xs={12} md={4} lg={3}>
                 <Paper className={classes.paper}>
                   <div> To będzie dostępne tylko o określonym czasie</div>
-                  <Link to="/open-chapter/6">Podejmij wyzwanie!</Link> 
+                  <Link to="/open-chapter/6">Podejmij wyzwanie!</Link>
                 </Paper>
               </Grid>
             </Grid>
@@ -121,6 +121,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default compose(
-  connect(mapStateToProps, {logout}),
-  withStyles(styles)
+  connect(mapStateToProps, { logout }),
+  withStyles(styles),
 )(StudentDashboard);

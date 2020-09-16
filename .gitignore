@@ -91,6 +91,7 @@ local_settings.py
 
 #React
 node_modules
+pnpm-lock.yaml
 
 .env
 db.sqlite3

@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
-import { createMuiTheme } from '@material-ui/core/styles';
+import '../../styles/course-forms.css';
+
+import Button from '@material-ui/core/Button';
 import blue from '@material-ui/core/colors/blue';
 import green from '@material-ui/core/colors/green';
-import Dialog from '@material-ui/core/Dialog';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import "../../styles/course-forms.css";
+import Dialog from '@material-ui/core/Dialog';
+import { createMuiTheme, ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 
 const theme = createMuiTheme({
@@ -19,7 +19,7 @@ const theme = createMuiTheme({
 });
 
 export class AddCourseInitialInfo extends Component {
-  continue = e => {
+  continue = (e) => {
     e.preventDefault();
     this.props.nextStep();
   };
@@ -27,49 +27,49 @@ export class AddCourseInitialInfo extends Component {
   render() {
     const { values, handleChange } = this.props;
 
-    return(
+    return (
       <MuiThemeProvider theme={theme}>
         <CssBaseline/>
         <React.Fragment>
-        <Dialog 
+          <Dialog
             open="true"
             fullWidth="true"
             maxWidth='sm'
           >
-          <div style={{margin: "10px"}}>
-            <Typography variant="h6" gutterBottom>
-              Wprowadź podstawowe informacje o kursie:      
-            </Typography>
-            <div className="row">
-              <div className="col-25">
-                <label className="label-class">Podaj nazwę kursu:</label>
+            <div style={{ margin: '10px' }}>
+              <Typography variant="h6" gutterBottom>
+              Wprowadź podstawowe informacje o kursie:
+              </Typography>
+              <div className="row">
+                <div className="col-25">
+                  <label className="label-class">Podaj nazwę kursu:</label>
+                </div>
+                <div className="col-75">
+                  <input className="input-class" value={values.name} type="text"
+                    name="name" onChange={handleChange('name')}/>
+                </div>
               </div>
-              <div className="col-75">
-                <input className="input-class" value={values.name} type="text"
-                  name="name" onChange={handleChange('name')}/>
+              <div className="row">
+                <div className="col-25">
+                  <label className="label-class">Krótko opisz kurs:</label>
+                </div>
+                <div className="col-75">
+                  <textarea className="input-class" value={values.description} type="text"
+                    name="description" onChange={handleChange('description')}/>
+                </div>
+              </div>
+              <div style={{ float: 'right' }}>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  onClick={this.continue}
+                >Dalej</Button>
               </div>
             </div>
-            <div className="row">
-              <div className="col-25">
-                <label className="label-class">Krótko opisz kurs:</label>
-              </div>
-              <div className="col-75">
-                <textarea className="input-class" value={values.description} type="text"
-                  name="description" onChange={handleChange('description')}/>
-              </div>
-            </div>
-            <div style={{float: 'right'}}>
-              <Button
-                color="primary"
-                variant="contained"
-                onClick={this.continue}
-              >Dalej</Button>
-            </div>
-          </div>
-        </Dialog>
-      </React.Fragment>
-    </MuiThemeProvider>
-    )
+          </Dialog>
+        </React.Fragment>
+      </MuiThemeProvider>
+    );
   }
 }
 

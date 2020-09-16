@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { logout } from '../../actions/auth';
-import { Link } from 'react-router-dom';
-import clsx from 'clsx';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/styles';
+import clsx from 'clsx';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import compose from 'recompose/compose';
-import {styles} from "../../styles/style.js";
-import DashboardNavbar from '../common/DashboardNavbar';
+
+import { logout } from '../../actions/auth.js';
+import { styles } from '../../styles/style.js';
+import DashboardNavbar from '../common/DashboardNavbar.js';
 
 function Copyright() {
   return (
@@ -53,13 +54,12 @@ export class TutorDashboard extends Component {
   render() {
     const { classes } = this.props;
     const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
-    let open = this.state.open;
 
     return (
       <div className={classes.root}>
         <CssBaseline />
         <DashboardNavbar title={'Panel prowadzącego'} handleDrawerOpen={this.handleDrawerOpen}
-           handleDrawerClose={this.handleDrawerClose} logout={this.props.logout} open={this.state.open}
+          handleDrawerClose={this.handleDrawerClose} logout={this.props.logout} open={this.state.open}
         />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
@@ -72,12 +72,12 @@ export class TutorDashboard extends Component {
               </Grid>
               <Grid item xs={12} md={4} lg={3}>
                 <Paper className={fixedHeightPaper}>
-                  <Link to="/courses">Zobacz swoje kursy</Link> 
+                  <Link to="/courses">Zobacz swoje kursy</Link>
                 </Paper>
               </Grid>
               <Grid item xs={12}>
                 <Paper className={classes.paper}>
-                  <Link to="/marks">Podgląd ocen</Link> 
+                  <Link to="/marks">Podgląd ocen</Link>
                 </Paper>
               </Grid>
             </Grid>
@@ -93,5 +93,5 @@ export class TutorDashboard extends Component {
 
 export default compose(
   connect(null, { logout }),
-  withStyles(styles)
+  withStyles(styles),
 )(TutorDashboard);

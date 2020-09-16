@@ -1,13 +1,13 @@
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
+import Checkbox from '@material-ui/core/Checkbox';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormGroup from '@material-ui/core/FormGroup';
+import Typography from '@material-ui/core/Typography';
+import TextField, { Input } from '@material/react-text-field';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Typography from '@material-ui/core/Typography';
-import FormControl from '@material-ui/core/FormControl';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import Button from '@material-ui/core/Button';
-import TextField, { Input } from '@material/react-text-field';
-import Box from '@material-ui/core/Box';
 
 
 class Timer extends React.Component {
@@ -43,7 +43,7 @@ export class Adventure extends Component {
           <React.Fragment>
             {/* {this.props.adventurePart.adventure.hasTimeLimit && <Timer time={this.props.timeLimit}/>} */}
             {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
-              <React.Fragment>
+              <React.Fragment key={i}>
                 <Typography variant="subtitle2" gutterBottom>
                   {question.text}
                 </Typography>
@@ -59,7 +59,7 @@ export class Adventure extends Component {
                   <FormControl component="fieldset">
                     <FormGroup>
                       {question.answers.map((answer, j) =>
-                        <FormControlLabel
+                        <FormControlLabel key={i * j}
                           control={
                             <Checkbox
                               checked={this.props.closedQuestions.get(question.id)[j].marked}
@@ -79,8 +79,8 @@ export class Adventure extends Component {
 
           </React.Fragment> :
           <React.Fragment>
-            {this.props.adventurePart.adventure.pointSource.questions.map((question) =>
-              <React.Fragment>
+            {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
+              <React.Fragment key={i}>
                 <Typography variant="subtitle1" gutterBottom>
                   {question.text}
                 </Typography>
@@ -88,7 +88,7 @@ export class Adventure extends Component {
                   <FormControl component="fieldset">
                     <FormGroup>
                       {question.answers.map((answer, j) =>
-                        <React.Fragment>
+                        <React.Fragment key={i * j}>
                           <FormControlLabel
                             control={<Checkbox checked={this.props.closedQuestions.get(question.id)[j].marked}
                               name="answer" />}

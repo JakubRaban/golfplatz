@@ -1,9 +1,10 @@
-import { createStore, applyMiddleware } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import thunk from 'redux-thunk';
+import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { persistStore, persistReducer } from 'redux-persist';
-import rootReducer from './reducers';
+import thunk from 'redux-thunk';
+
+import rootReducer from './reducers.js';
 
 const persistConfig = {
   key: 'root',
@@ -19,7 +20,6 @@ const middleware = [thunk];
 export const store = createStore(
   persistedReducer,
   initialState,
-  // ...middleware -> cala zawartosc const middleware
   composeWithDevTools(applyMiddleware(...middleware)),
 );
 

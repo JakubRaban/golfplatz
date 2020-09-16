@@ -1,22 +1,22 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import Dialog from '@material-ui/core/Dialog';
-import { Form, Text, NestedForm } from "react-form";
-import CssBaseline from '@material-ui/core/CssBaseline';
+import '../../styles/course-forms.css';
+
 import Button from '@material-ui/core/Button';
-import { ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles'
-import { createMuiTheme } from '@material-ui/core/styles';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Dialog from '@material-ui/core/Dialog';
+import { createMuiTheme, ThemeProvider as MuiThemeProvider } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import "../../styles/course-forms.css";
+import React, { Component } from 'react';
+import { Form, NestedForm, Text } from 'react-form';
+import { connect } from 'react-redux';
 
 
-const PlotPart = ({ i }) => (
-  <NestedForm field={["plotParts", i]} key={`nested-plot-part-${i}`}>
+const PlotPart = ({ i }) =>
+  <NestedForm field={['plotParts', i]} key={`nested-plot-part-${i}`}>
     <Form>
-      {formApi => (
+      {(formApi) =>
         <div>
           <Typography variant="subtitle2" gutterBottom>
-            {i+1} część fabuły. 
+            {i + 1} część fabuły.
           </Typography>
           <div className="row">
             <div className="col-25">
@@ -35,15 +35,13 @@ const PlotPart = ({ i }) => (
             </div>
           </div>
         </div>
-      )}
+      }
     </Form>
-  </NestedForm>
-);
-
-const CourseGroup = ({ i }) => (
-  <NestedForm field={["courseGroups", i]} key={`nested-course-group-${i}`}>
+  </NestedForm>;
+const CourseGroup = ({ i }) =>
+  <NestedForm field={['courseGroups', i]} key={`nested-course-group-${i}`}>
     <Form>
-      {formApi => (
+      {(formApi) =>
         <div className="row">
           <div className="col-25">
             <label className="label-class" htmlFor={`nested-course-group-first-${i}`}>Dzień i godzina zajęć: </label>
@@ -52,11 +50,9 @@ const CourseGroup = ({ i }) => (
             <Text className="input-class" field="groupName" id={`nested-course-group-first-${i}`} />
           </div>
         </div>
-      )}
+      }
     </Form>
-  </NestedForm>
-);
-
+  </NestedForm>;
 const theme = createMuiTheme({
   palette: {
     primary: {
@@ -65,30 +61,30 @@ const theme = createMuiTheme({
     },
     secondary: {
       main: '#f44336',
-    }
+    },
   },
 });
 
 
 export class AddGroupsAndPlot extends Component {
-  continue = e => {
+  state = {
+    firstGroupName: '',
+  }
+
+  continue = (e) => {
     e.preventDefault();
 
-    const firstCourseGroup = {groupName: this.state.firstGroupName};
+    const firstCourseGroup = { groupName: this.state.firstGroupName };
     this.props.values.courseGroups.unshift(firstCourseGroup);
     this.props.handleChange('courseGroups', this.props.values.courseGroups);
     this.props.handleChange('plotParts', this.props.values.plotParts);
     this.props.nextStep();
   };
 
-  back = e => {
+  back = (e) => {
     e.preventDefault();
     this.props.prevStep();
   };
-
-  state = {
-    firstGroupName: ""
-  }
 
   mapAllGroups(groupsValues) {
     this.props.values.courseGroups = groupsValues;
@@ -99,88 +95,88 @@ export class AddGroupsAndPlot extends Component {
   }
 
   render() {
-    return(
+    return (
       <MuiThemeProvider theme={theme}>
-      <React.Fragment>
-        <CssBaseline />
-        <Dialog 
+        <React.Fragment>
+          <CssBaseline />
+          <Dialog
             open="true"
             fullWidth="true"
             maxWidth='sm'
           >
-          <div style={{margin: "10px"}}>
+            <div style={{ margin: '10px' }}>
 
-            <Form onSubmit={this.onSubmit}>
-            {formApi => (
-              <div>
-                <form onSubmit={formApi.submitForm} id="course-group-form">
-                  <Typography variant="h6" gutterBottom>
+              <Form onSubmit={this.onSubmit}>
+                {(formApi) =>
+                  <div>
+                    <form onSubmit={formApi.submitForm} id="course-group-form">
+                      <Typography variant="h6" gutterBottom>
                     Napisz kiedy odbywają się zajęcia
-                  </Typography>
-                  <div key={0}>
-                    <div className="row">
-                      <div className="col-25">
-                        <label className="label-class">Dzień i godzina zajęć: </label>
+                      </Typography>
+                      <div key={0}>
+                        <div className="row">
+                          <div className="col-25">
+                            <label className="label-class">Dzień i godzina zajęć: </label>
+                          </div>
+                          <div className="col-75">
+                            <input className="input-class" field="groupName"
+                              value={this.state.firstGroupName}
+                              onChange={(e) => this.setState({ firstGroupName: e.target.value })}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div className="col-75">
-                        <input className="input-class" field="groupName" 
-                          value={this.state.firstGroupName} 
-                          onChange={e=>this.setState({firstGroupName: e.target.value})}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  {formApi.values.courseGroups &&
-                    formApi.values.courseGroups.map((f, i) => (
+                      {formApi.values.courseGroups &&
+                    formApi.values.courseGroups.map((f, i) =>
                       <div key={i}>
                         <CourseGroup i={i} />
                       </div>
-                    ), this.mapAllGroups(formApi.values.courseGroups))}
-                  <Button
-                      color="secondary"
-                      variant='outlined'
-                      onClick={() =>
-                        formApi.addValue("courseGroups", {
-                          groupName: "",
-                        })}
-                    >Dodaj kolejny termin zajęć</Button> 
-                </form>
-                <form onSubmit={formApi.submitForm} id="plot-form">
-                  <Typography variant="h6" gutterBottom>
+                    , this.mapAllGroups(formApi.values.courseGroups))}
+                      <Button
+                        color="secondary"
+                        variant='outlined'
+                        onClick={() =>
+                          formApi.addValue('courseGroups', {
+                            groupName: '',
+                          })}
+                      >Dodaj kolejny termin zajęć</Button>
+                    </form>
+                    <form onSubmit={formApi.submitForm} id="plot-form">
+                      <Typography variant="h6" gutterBottom>
                     Dodaj części fabuły do kursu
-                  </Typography>  
-                    {formApi.values.plotParts &&
-                      formApi.values.plotParts.map((f, i) => (
+                      </Typography>
+                      {formApi.values.plotParts &&
+                      formApi.values.plotParts.map((f, i) =>
                         <div key={i}>
                           <PlotPart i={i} />
                         </div>
-                      ), this.mapAllParts(formApi.values.plotParts))}
-                    <Button
-                      color="secondary"
-                      variant='outlined'
-                      onClick={() =>
-                        formApi.addValue("plotParts", {
-                          name: "",
-                          introduction: ""
-                        })}
-                    >Dodaj część fabuły</Button>        
-                  <div style={{float: 'right'}}>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      onClick={this.continue}
-                    >Dalej</Button>
+                      , this.mapAllParts(formApi.values.plotParts))}
+                      <Button
+                        color="secondary"
+                        variant='outlined'
+                        onClick={() =>
+                          formApi.addValue('plotParts', {
+                            name: '',
+                            introduction: '',
+                          })}
+                      >Dodaj część fabuły</Button>
+                      <div style={{ float: 'right' }}>
+                        <Button
+                          color="primary"
+                          variant="contained"
+                          onClick={this.continue}
+                        >Dalej</Button>
+                      </div>
+                    </form>
                   </div>
-                </form>        
-              </div>
-            )}
-            </Form>
-          </div>
-        </Dialog>
+                }
+              </Form>
+            </div>
+          </Dialog>
 
-      </React.Fragment> 
+        </React.Fragment>
       </MuiThemeProvider>
-    )
+    );
   }
 }
 

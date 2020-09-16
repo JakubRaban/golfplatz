@@ -1,19 +1,26 @@
+import '../styles/graph.css';
+
 import React from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
+
 import graphStyle from '../styles/graphStyle.js';
-import '../styles/graph.css';
-import edgesConfig from './common/graphConfig/Edges';
-import contextMenuConfig from './common/graphConfig/ContextMenu';
+import contextMenuConfig from './common/graphConfig/ContextMenu.js';
+import edgesConfig from './common/graphConfig/Edges.js';
 
 class Graph extends React.Component {
-  state = { adventures: [{id: 1, label: 'xd'}, {id: 2, label: 'Palpatine'}, {id: 3, label: 'Chrzanowskie noce'}, {id: 4, label: 'Wiśniówka'}, {id: 5, label: 'Moda na sukces'}], elements: [], layout: { name: 'grid' }, finishedLoading: false };
+  // eslint-disable-next-line max-len
+  state = { adventures: [{ id: 1, label: 'xd' }, { id: 2, label: 'Palpatine' }, { id: 3, label: 'Chrzanowskie noce' }, { id: 4, label: 'Wiśniówka' }, { id: 5, label: 'Moda na sukces' }], elements: [], layout: { name: 'grid' } };
   cy = null;
   edgeHandler = null;
   contextMenu = null;
 
   componentDidMount() {
-    const elements = this.getAllNodes(); 
-    this.setState({ elements }, ()=>this.cy.layout(this.state.layout).run());
+    const elements = this.getAllNodes();
+    this.setState({ elements }, () => this.cy.layout(this.state.layout).run());
+  }
+
+  componentWillUnmount() {
+    this.cy.destroy();
   }
 
   getAllNodes() {
@@ -27,18 +34,14 @@ class Graph extends React.Component {
     });
   }
 
-  componentWillUnmount() {
-    this.cy.destroy();
-  }
-
   createContextMenu() {
     contextMenuConfig.commands = [
-      { 
+      {
         select: (edge) => {
           this.cy.remove(edge);
         },
         content: 'Usuń',
-      }
+      },
     ];
     this.contextMenu = this.cy.cxtmenu(contextMenuConfig);
   }
@@ -53,7 +56,7 @@ class Graph extends React.Component {
   };
 
   postPaths = () => {
-    let paths = [];
+    const paths = [];
     this.cy.$('edge').forEach((edge) => {
       paths.push({ fromAdventure: edge.data().source, toAdventure: edge.data().target });
     });
@@ -72,7 +75,7 @@ class Graph extends React.Component {
           minZoom={0.1}
           stylesheet={graphStyle}
         />
-        <button onClick={this.postPaths}></button>
+        <button onClick={this.postPaths} />
       </>
     );
   }

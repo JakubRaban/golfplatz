@@ -1,20 +1,21 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Redirect, Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { withStyles } from '@material-ui/core/styles';
-import {styles} from "../../styles/style.js";
-import compose from 'recompose/compose';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { logout } from '../../actions/auth';
-import NavBar from '../common/NavBar';
+import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
+import compose from 'recompose/compose';
+
+import { logout } from '../../actions/auth.js';
+import { styles } from '../../styles/style.js';
+import NavBar from '../common/NavBar.js';
 
 
 export class Marks extends Component {
   static propTypes = {
+    logout: PropTypes.func.isRequired,
     isAuthenticated: PropTypes.bool,
     user: PropTypes.any,
-    logout: PropTypes.func.isRequired,
   };
 
   render() {
@@ -25,7 +26,7 @@ export class Marks extends Component {
     if (this.props.user.groups[0] === 1) {
       return (
         <Redirect to="/"/>
-      )
+      );
     }
     return (
       <div className={classes.root}>
@@ -48,5 +49,5 @@ const mapStateToProps = (state) => ({
 
 export default compose(
   connect(mapStateToProps, { logout }),
-  withStyles(styles)
+  withStyles(styles),
 )(Marks);

@@ -1,16 +1,17 @@
-import React, { Component } from 'react';
-import Badge from '@material-ui/core/Badge';
-import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import clsx from 'clsx';
-import { Link } from 'react-router-dom';
-import { withStyles } from '@material-ui/core/styles';
-import { styles } from '../../styles/style.js';
+import Badge from '@material-ui/core/Badge';
 import IconButton from '@material-ui/core/IconButton';
+import { withStyles } from '@material-ui/core/styles';
+import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
+import clsx from 'clsx';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+
+import { styles } from '../../styles/style.js';
 
 class NavBar extends Component {
   render() {

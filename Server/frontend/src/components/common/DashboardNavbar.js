@@ -1,18 +1,19 @@
-import React, { Component } from 'react';
-import Badge from '@material-ui/core/Badge';
-import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
-import NotificationsIcon from '@material-ui/icons/Notifications';
 import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import clsx from 'clsx';
-import { withStyles } from '@material-ui/core/styles';
-import { styles } from '../../styles/style.js';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import MenuIcon from '@material-ui/icons/Menu';
+import Badge from '@material-ui/core/Badge';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
+import IconButton from '@material-ui/core/IconButton';
+import { withStyles } from '@material-ui/core/styles';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import MenuIcon from '@material-ui/icons/Menu';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
+import clsx from 'clsx';
+import React, { Component } from 'react';
+
+import { styles } from '../../styles/style.js';
 
 class DashboardNavbar extends Component {
   render() {

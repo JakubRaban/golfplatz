@@ -1,17 +1,19 @@
-import React, { Component } from 'react';
-import { Link, Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import { login } from '../../actions/auth';
-import TextField, { Input } from '@material/react-text-field';
 import '@material/react-text-field/dist/text-field.css';
-import '../../../style/login.css'
+import '../../../style/login.css';
 import '@material/react-button/dist/button.css';
-import Button from '@material/react-button';
 import 'typeface-roboto';
-import Typography from "@material-ui/core/Typography";
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import Typography from '@material-ui/core/Typography';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import Button from '@material/react-button';
+import TextField, { Input } from '@material/react-text-field';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Link, Redirect } from 'react-router-dom';
+
+import { login } from '../../actions/auth.js';
 
 
 export class Login extends Component {
@@ -71,12 +73,12 @@ export class Login extends Component {
 
             <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
               <Typography color="textPrimary">Rejestracja studenta: </Typography>
-              <Link to="/register-student">Zarejestruj się!</Link>             
+              <Link to="/register-student">Zarejestruj się!</Link>
             </Breadcrumbs>
 
             <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
               <Typography color="textPrimary">Rejestracja prowadzącego:</Typography>
-              <Link to="/register-tutor">Zarejestruj się!</Link>             
+              <Link to="/register-tutor">Zarejestruj się!</Link>
             </Breadcrumbs>
 
           </form>

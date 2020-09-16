@@ -1,17 +1,18 @@
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import { addCourse } from '../../actions/course';
-import AddCourseInitialInfo from "./AddCourseInitialInfo";
-import AddGroupsAndPlot from "./AddGroupsAndPlot";
-import AddCourseConfirm from "./AddCourseConfirm";
-import { Link, Redirect } from 'react-router-dom';
-import { withStyles } from '@material-ui/core/styles';
-import {styles} from "../../styles/style.js";
+import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
-import { logout } from '../../actions/auth';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import NavBar from '../common/NavBar';
+
+import { logout } from '../../actions/auth.js';
+import { addCourse } from '../../actions/course.js';
+import { styles } from '../../styles/style.js';
+import NavBar from '../common/NavBar.js';
+import AddCourseConfirm from './AddCourseConfirm.js';
+import AddCourseInitialInfo from './AddCourseInitialInfo.js';
+import AddGroupsAndPlot from './AddGroupsAndPlot.js';
 
 
 export class AddCourse extends Component {
@@ -32,18 +33,18 @@ export class AddCourse extends Component {
   nextStep = () => {
     const { step } = this.state;
     this.setState({
-      step: step + 1
+      step: step + 1,
     });
   };
 
   prevStep = () => {
     const { step } = this.state;
     this.setState({
-      step: step - 1
+      step: step - 1,
     });
   };
 
-  handleChange = input => e => {
+  handleChange = (input) => (e) => {
     this.setState({ [input]: e.target.value });
   };
 
@@ -94,6 +95,7 @@ export class AddCourse extends Component {
           />
         );
     }
+    return null;
   }
 
   render() {
@@ -105,17 +107,17 @@ export class AddCourse extends Component {
     if (this.state.redirect) {
       return (
         <Redirect to="/courses"/>
-      )
+      );
     }
     if (!this.props.isAuthenticated) {
       return (
         <Redirect to="/login"/>
-      )
+      );
     }
     if (this.props.user.groups[0] === 1) {
       return (
         <Redirect to="/"/>
-      )
+      );
     }
     return (
       <div className={classes.root}>
@@ -137,5 +139,5 @@ const mapStateToProps = (state) => ({
 
 export default compose(
   connect(mapStateToProps, { addCourse, logout }),
-  withStyles(styles)
+  withStyles(styles),
 )(AddCourse);

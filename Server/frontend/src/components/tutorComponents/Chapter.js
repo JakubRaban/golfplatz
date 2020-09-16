@@ -1,23 +1,27 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Redirect, Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { getChapter, addAdventures } from "../../actions/course";
-import { Form, Text, NestedForm } from "react-form";
-import Popup from "reactjs-popup";
-import { withStyles } from '@material-ui/core/styles';
-import {styles} from "../../styles/style.js";
-import compose from 'recompose/compose';
-import { logout } from '../../actions/auth';
+/* eslint-disable no-undef */
+/* eslint-disable react/no-direct-mutation-state */
+import '../../styles/course-forms.css';
+
 import CssBaseline from '@material-ui/core/CssBaseline';
-import "../../styles/course-forms.css";
-import NavBar from '../common/NavBar';
+import { withStyles } from '@material-ui/core/styles';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { Form, NestedForm, Text } from 'react-form';
+import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
+import Popup from 'reactjs-popup';
+import compose from 'recompose/compose';
+
+import { logout } from '../../actions/auth.js';
+import { addAdventures, getChapter } from '../../actions/course.js';
+import { styles } from '../../styles/style.js';
+import NavBar from '../common/NavBar.js';
 
 
-const Answers = ({ i }) => (
-  <NestedForm field={["answers", i]} key={`nested-answers-${i}`}>
+const Answers = ({ i }) =>
+  <NestedForm field={['answers', i]} key={`nested-answers-${i}`}>
     <Form>
-      {formApi => (
+      {(formApi) =>
         <div>
           <h5>Możliwe warianty odpowiedzi:</h5>
           <div className="row">
@@ -29,15 +33,13 @@ const Answers = ({ i }) => (
             </div>
           </div>
         </div>
-      )}
+      }
     </Form>
-  </NestedForm>
-);
-
-const Questions = ({ i }) => (
-  <NestedForm field={["questions", i]} key={`nested-questions-${i}`}>
+  </NestedForm>;
+const Questions = ({ i }) =>
+  <NestedForm field={['questions', i]} key={`nested-questions-${i}`}>
     <Form>
-      {formApi => (
+      {(formApi) =>
         <div>
           <h5>Pytania</h5>
           <div className="row">
@@ -61,7 +63,7 @@ const Questions = ({ i }) => (
               <label className="label-class" htmlFor={`nested-questions-incorrect-${i}`}>Ilość punktów za niepoprawną odpowiedź:</label>
             </div>
             <div className="col-75">
-              <Text className="input-class" field="pointsPerIncorrectAnswer" id={`nested-questions-cat-${i}`} />   
+              <Text className="input-class" field="pointsPerIncorrectAnswer" id={`nested-questions-cat-${i}`} />
             </div>
           </div>
           <div className="row">
@@ -69,7 +71,7 @@ const Questions = ({ i }) => (
               <label className="label-class" htmlFor={`nested-questions-message-correct-${i}`}>Wiadomość po udzieleniu poprawnej odpowiedzi:</label>
             </div>
             <div className="col-75">
-              <Text className="input-class" field="messageAfterCorrectAnswer" id={`nested-questions-message-correct-${i}`} />  
+              <Text className="input-class" field="messageAfterCorrectAnswer" id={`nested-questions-message-correct-${i}`} />
             </div>
           </div>
           <div className="row">
@@ -77,19 +79,17 @@ const Questions = ({ i }) => (
               <label className="label-class" htmlFor={`nested-questions-message-incorrect-${i}`}>Wiadomość po udzieleniu niepoprawnej odpowiedzi:</label>
             </div>
             <div className="col-75">
-              <Text className="input-class" field="messageAfterInCorrectAnswer" id={`nested-questions-message-incorrect-${i}`} />  
+              <Text className="input-class" field="messageAfterInCorrectAnswer" id={`nested-questions-message-incorrect-${i}`} />
             </div>
           </div>
         </div>
-      )}
+      }
     </Form>
-  </NestedForm>
-);
-
-const TimerRule = ({ i }) => (
-  <NestedForm field={["timer-rules", i]} key={`nested-timer-rules-${i}`}>
+  </NestedForm>;
+const TimerRule = ({ i }) =>
+  <NestedForm field={['timer-rules', i]} key={`nested-timer-rules-${i}`}>
     <Form>
-      {formApi => (
+      {(formApi) =>
         <div>
           <h5>Reguły czasowe</h5>
           <div className="row">
@@ -115,26 +115,25 @@ const TimerRule = ({ i }) => (
             <div className="col-75">
               <Text className="input-class" field="leastPointsAwardedPercent" id={`nested-timer-pts-awarded-${i}`} />
             </div>
-          </div>          
+          </div>
         </div>
-      )}
+      }
     </Form>
-  </NestedForm>
-);
+  </NestedForm>;
+export class Chapter extends Component {
+  surpriseExercise = { earliestPossibleSendTime: '', latestPossibleSendTime: '', sendingMethod: 'PHONE' };
 
-
-export class Chapter extends Component {  
   state = {
-    internalId: "",
-    name: "",
-    taskDescription: "",
-    pointSource: { category: "QUIZ", questions: [], surpriseExercise:[] },
+    internalId: '',
+    name: '',
+    taskDescription: '',
+    pointSource: { category: 'QUIZ', questions: [], surpriseExercise: [] },
     isInitial: false,
     hasTimeLimit: false,
     timerRules: [],
     nextAdventures: [],
     popUpOpen: false,
-  };  
+  };
 
   static propTypes = {
     isAuthenticated: PropTypes.bool,
@@ -142,33 +141,35 @@ export class Chapter extends Component {
     chapter: PropTypes.any,
   };
 
-  surpriseExercise = {earliestPossibleSendTime: "", latestPossibleSendTime: "", sendingMethod: "PHONE"};
+  componentDidMount() {
+    this.props.getChapter(this.props.match.params.id);
+  }
 
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
-  onCategoryChange = (e)  => {
-    if (e.target.value === "SURPRISE") {
-      this.setState({popUpOpen: true});
+  onCategoryChange = (e) => {
+    if (e.target.value === 'SURPRISE') {
+      this.setState({ popUpOpen: true });
     } else {
       this.state.pointSource.surpriseExercise = [];
     }
     this.state.pointSource.category = e.target.value;
   };
 
-  onQuestionChange = i => (e)  => {
+  onQuestionChange = (i) => (e) => {
     this.state.pointSource.questions[i].questionType = e.target.value;
   };
 
-  onTimerChange = i => (e)  => {
+  onTimerChange = (i) => (e) => {
     this.state.timerRules[i].decreasingMethod = e.target.value;
   };
 
-  onCorrectChange = (i, j) => (e)  => {
-    this.state.pointSource.questions[i].answers[j].isCorrect = e.target.value === on ? true : false;
+  onCorrectChange = (i, j) => (e) => {
+    this.state.pointSource.questions[i].answers[j].isCorrect = e.target.value === on;
   };
 
-  onRegexChange = (i, j) => (e)  => {
-    this.state.pointSource.questions[i].answers[j].isRegex = e.target.value === on ? true : false;
+  onRegexChange = (i, j) => (e) => {
+    this.state.pointSource.questions[i].answers[j].isRegex = e.target.value === on;
   };
 
   onEarliestChange = (e) => {
@@ -183,13 +184,9 @@ export class Chapter extends Component {
     this.surpriseExercise.sendingMethod = e.target.value;
   }
 
-  componentDidMount() {
-    this.props.getChapter(this.props.match.params.id);
-  }
-
-  updateSurpriseExercise(){
+  updateSurpriseExercise() {
     this.state.pointSource.surpriseExercise = this.surpriseExercise;
-    this.setState({popUpOpen: false});
+    this.setState({ popUpOpen: false });
   }
 
   onSubmit = (e) => {
@@ -198,15 +195,15 @@ export class Chapter extends Component {
     adventure.push(this.state);
     this.props.addAdventures(adventure, this.props.chapter.id);
     this.setState({
-      internalId: "",
-      name: "",
-      taskDescription: "",
-      pointSource: { category: "QUIZ", questions: [], surpriseExercise:[] },
+      internalId: '',
+      name: '',
+      taskDescription: '',
+      pointSource: { category: 'QUIZ', questions: [], surpriseExercise: [] },
       isInitial: false,
       hasTimeLimit: false,
       timerRules: [],
       nextAdventures: [],
-    });  
+    });
   };
 
   render() {
@@ -219,61 +216,61 @@ export class Chapter extends Component {
     if (this.props.user.groups[0] === 1) {
       return (
         <Redirect to="/"/>
-      )
+      );
     }
     return (
       <div className={classes.root}>
-      <CssBaseline />
-      <NavBar logout={this.props.logout} title={'Szczegóły rozdziału'} returnLink={`/courses/${this.props.course.id}`} />
-      <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
-        <div style={{margin: "10px", display: 'block'}}>
-          <h3>Oglądasz szczegóły rozdziału "{this.props.chapter.name}"</h3>
-          <h4>Tu będą przygody</h4>
-          <h4>Dodaj przygody! - tu będzie button</h4>
+        <CssBaseline />
+        <NavBar logout={this.props.logout} title={'Szczegóły rozdziału'} returnLink={`/courses/${this.props.course.id}`} />
+        <main className={classes.content}>
+          <div className={classes.appBarSpacer} />
+          <div style={{ margin: '10px', display: 'block' }}>
+            <h3>Oglądasz szczegóły rozdziału "{this.props.chapter.name}"</h3>
+            <h4>Tu będą przygody</h4>
+            <h4>Dodaj przygody! - tu będzie button</h4>
 
 
-          <form onSubmit={this.onSubmit}>
-            <h3>Przygoda</h3>
-            <div className="row">
-              <div className="col-25">
-                <label className="label-class">Nazwa:</label>
+            <form onSubmit={this.onSubmit}>
+              <h3>Przygoda</h3>
+              <div className="row">
+                <div className="col-25">
+                  <label className="label-class">Nazwa:</label>
+                </div>
+                <div className="col-75">
+                  <input type="text" name="name" onChange={this.onChange} value={name}/>
+                </div>
               </div>
-              <div className="col-75">
-                <input type="text" name="name" onChange={this.onChange} value={name}/>
+              <div className="row">
+                <div className="col-25">
+                  <label className="label-class">Numer przygody w rozdziale:</label>
+                </div>
+                <div className="col-75">
+                  <input type="number" name="internalId" onChange={this.onChange} value={internalId}/>
+                </div>
               </div>
-            </div>
-            <div className="row">
-              <div className="col-25">
-                <label className="label-class">Numer przygody w rozdziale:</label>
+              <div className="row">
+                <div className="col-25">
+                  <label className="label-class">Opis:</label>
+                </div>
+                <div className="col-75">
+                  <input type="text" name="taskDescription" onChange={this.onChange} value={taskDescription}/>
+                </div>
               </div>
-              <div className="col-75">
-                <input type="number" name="internalId" onChange={this.onChange} value={internalId}/>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-25">
-                <label className="label-class">Opis:</label>
-              </div>
-              <div className="col-75">
-                <input type="text" name="taskDescription" onChange={this.onChange} value={taskDescription}/>
-              </div>
-            </div>
-            <div className="row">
-              <div className="col-25">
-                <label className="label-class">Kategoria:</label>
-              </div>
-              <div className="col-75">
-                <select name="category" onChange={this.onCategoryChange}>
-                  <option value="QUIZ">Quiz</option>
-                  <option value="SURPRISE">Zadanie niespodzianka</option>
-                  <option value="GENERIC">Zadanie na zajęcia</option>
-                  <option value="ACTIVENESS">Aktywność</option>
-                  <option value="TEST">Kolokwium</option>
-                  <option value="HOMEWORK">Zadanie domowe</option>
-                </select>
-                <Popup open={this.state.popUpOpen} position="right center">
-                  {close => (  
+              <div className="row">
+                <div className="col-25">
+                  <label className="label-class">Kategoria:</label>
+                </div>
+                <div className="col-75">
+                  <select name="category" onChange={this.onCategoryChange}>
+                    <option value="QUIZ">Quiz</option>
+                    <option value="SURPRISE">Zadanie niespodzianka</option>
+                    <option value="GENERIC">Zadanie na zajęcia</option>
+                    <option value="ACTIVENESS">Aktywność</option>
+                    <option value="TEST">Kolokwium</option>
+                    <option value="HOMEWORK">Zadanie domowe</option>
+                  </select>
+                  <Popup open={this.state.popUpOpen} position="right center">
+                    {(close) =>
                       <div>
                         <form>
                           <h6>Określ zakres czasowy i sposób wysłania wiadomości</h6>
@@ -292,33 +289,33 @@ export class Chapter extends Component {
                           close();
                         }}>Dalej</button>
                       </div>
-                  )}
-                </Popup> 
+                    }
+                  </Popup>
+                </div>
               </div>
-            </div>
-            <div className="row">
-              <div className="col-25">
-                <label className="label-class">Pierwsza przygoda w rozdziale:</label>
+              <div className="row">
+                <div className="col-25">
+                  <label className="label-class">Pierwsza przygoda w rozdziale:</label>
+                </div>
+                <div className="col-75">
+                  <input type="checkbox" name="isInitial" onChange={this.onChange} />
+                </div>
               </div>
-              <div className="col-75">
-                <input type="checkbox" name="isInitial" onChange={this.onChange}></input>
+              <div className="row">
+                <div className="col-25">
+                  <label className="label-class">Ma limit czasowy:</label>
+                </div>
+                <div className="col-75">
+                  <input type="checkbox" name="hasTimeLimit" onChange={this.onChange} />
+                </div>
               </div>
-            </div>
-            <div className="row">
-              <div className="col-25">
-                <label className="label-class">Ma limit czasowy:</label>
-              </div>
-              <div className="col-75">
-                <input type="checkbox" name="hasTimeLimit" onChange={this.onChange}></input>
-              </div>
-            </div>
-            <div>               
-              <Form onSubmit={this.onSubmit}>
-                {formApi => (
-                  <div>
-                    <form onSubmit={formApi.submitForm} id="question-form">
-                      {formApi.values.questions &&
-                        formApi.values.questions.map((f, i) => (
+              <div>
+                <Form onSubmit={this.onSubmit}>
+                  {(formApi) =>
+                    <div>
+                      <form onSubmit={formApi.submitForm} id="question-form">
+                        {formApi.values.questions &&
+                        formApi.values.questions.map((f, i) =>
                           <div key={i}>
                             <Questions i={i} />
                             <div className="row">
@@ -333,19 +330,19 @@ export class Chapter extends Component {
                                 </select>
                               </div>
                             </div>
-                          <Form onSubmit={this.onSubmit}>
-                            {formApi => (
-                              <form onSubmit={formApi.submitForm} id="answers">
-                                {formApi.values.answers &&
-                                  formApi.values.answers.map((f, j) => (
-                                    <div key={j} style={{display: 'inline-block', verticalAlign: 'top'}}>
+                            <Form onSubmit={this.onSubmit}>
+                              {(innerFormApi) =>
+                                <form onSubmit={innerFormApi.submitForm} id="answers">
+                                  {innerFormApi.values.answers &&
+                                  innerFormApi.values.answers.map((f2, j) =>
+                                    <div key={j} style={{ display: 'inline-block', verticalAlign: 'top' }}>
                                       <Answers i={j} />
                                       <div className="row">
                                         <div className="col-25">
                                           <label className="label-class">Poprawna:</label>
                                         </div>
                                         <div className="col-75">
-                                          <input type="checkbox" name="isCorrect" onChange={this.onCorrectChange(i,j)}></input>
+                                          <input type="checkbox" name="isCorrect" onChange={this.onCorrectChange(i, j)} />
                                         </div>
                                       </div>
                                       <div className="row">
@@ -353,41 +350,41 @@ export class Chapter extends Component {
                                           <label className="label-class">Sprawdzana wyrażeniem regularnym:</label>
                                         </div>
                                         <div className="col-75">
-                                          <input type="checkbox" name="isRegex" onChange={this.onRegexChange(i,j)}></input>
+                                          <input type="checkbox" name="isRegex" onChange={this.onRegexChange(i, j)} />
                                         </div>
                                       </div>
                                     </div>
-                                  ), this.state.pointSource.questions[i].answers = formApi.values.answers)}
-                                <button
-                                  onClick={() =>
-                                    formApi.addValue("answers", {
-                                      text: "",
-                                      isCorrect: false,
-                                      isRegex: false,
-                                    })}
-                                  type="button">Dodaj możliwe odpowiedzi</button>
-                              </form>
-                            )}
-                          </Form>   
-                        </div>
-                      ), this.state.pointSource.questions = formApi.values.questions)}
-                    <button
-                      onClick={() =>
-                        formApi.addValue("questions", {
-                          text: "",
-                          pointsPerCorrectAnswer: 1.0,
-                          pointsPerIncorrectAnswer: 0.0,
-                          messageAfterCorrectAnswer: "",
-                          messageAfterIncorrectAnswer: "",
-                          questionType: "OPEN",
-                          answers: [],
-                        })}
-                      type="button">Dodaj kolejne pytanie
-                    </button>
-                  </form>
-                  <form onSubmit={formApi.submitForm} id="timer-rules">
-                  {formApi.values.timerRules &&
-                    formApi.values.timerRules.map((f, i) => (
+                                  , this.state.pointSource.questions[i].answers = formApi.values.answers)}
+                                  <button
+                                    onClick={() =>
+                                      formApi.addValue('answers', {
+                                        text: '',
+                                        isCorrect: false,
+                                        isRegex: false,
+                                      })}
+                                    type="button">Dodaj możliwe odpowiedzi</button>
+                                </form>
+                              }
+                            </Form>
+                          </div>
+                        , this.state.pointSource.questions = formApi.values.questions)}
+                        <button
+                          onClick={() =>
+                            formApi.addValue('questions', {
+                              text: '',
+                              pointsPerCorrectAnswer: 1.0,
+                              pointsPerIncorrectAnswer: 0.0,
+                              messageAfterCorrectAnswer: '',
+                              messageAfterIncorrectAnswer: '',
+                              questionType: 'OPEN',
+                              answers: [],
+                            })}
+                          type="button">Dodaj kolejne pytanie
+                        </button>
+                      </form>
+                      <form onSubmit={formApi.submitForm} id="timer-rules">
+                        {formApi.values.timerRules &&
+                    formApi.values.timerRules.map((f, i) =>
                       <div key={i}>
                         <TimerRule i={i} />
                         <div className="row">
@@ -398,33 +395,33 @@ export class Chapter extends Component {
                             <select name="nested-timer-method" onChange={this.onTimerChange(i)}>
                               <option value="NONE">Brak</option>
                               <option value="LIN">Liniowo</option>
-                            </select>    
+                            </select>
                           </div>
                         </div>
                       </div>
-                      
-                    ), this.state.timerRules = formApi.values.timerRules)}
-                  <button
-                    onClick={() =>
-                      formApi.addValue("timerRules", {
-                        leastPointsAwardedPercent: "",
-                        ruleEndTime: "",
-                        decreasingMethod: "NONE",
-                      })}
-                    type="button">Dodaj reguły czasowe</button>
 
-                  </form>
-                </div>
-              )}
-            </Form>
-            </div>
-            <button type="submit">
+                    , this.state.timerRules = formApi.values.timerRules)}
+                        <button
+                          onClick={() =>
+                            formApi.addValue('timerRules', {
+                              leastPointsAwardedPercent: '',
+                              ruleEndTime: '',
+                              decreasingMethod: 'NONE',
+                            })}
+                          type="button">Dodaj reguły czasowe</button>
+
+                      </form>
+                    </div>
+                  }
+                </Form>
+              </div>
+              <button type="submit">
               Dodaj
-            </button> 
-          </form>
-        </div>
-      </main>
-    </div>                    
+              </button>
+            </form>
+          </div>
+        </main>
+      </div>
     );
   }
 }
@@ -437,6 +434,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default compose(
-  connect(mapStateToProps, {getChapter, addAdventures, logout}),
-  withStyles(styles)
+  connect(mapStateToProps, { getChapter, addAdventures, logout }),
+  withStyles(styles),
 )(Chapter);

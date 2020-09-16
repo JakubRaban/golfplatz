@@ -9,8 +9,8 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader"
-        }
+          loader: 'babel-loader',
+        },
       },
       {
         test: /\.(scss|sass)$/,
@@ -24,7 +24,7 @@ module.exports = {
               sassOptions: {
                 sourceMap: true,
                 includePaths: glob.sync('path/to/node_modules').map((d) => path.join(__dirname, d)),
-              },            
+              },
             },
           },
         ],
@@ -40,11 +40,11 @@ module.exports = {
             loader: 'file-loader',
             options: {
               name: '[name].[ext]',
-              outputPath: 'fonts/'
-            }
-          }
-        ]
+              outputPath: 'fonts/',
+            },
+          },
+        ],
       },
-    ]
-  }
+    ],
+  },
 };
