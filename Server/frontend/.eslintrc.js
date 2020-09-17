@@ -25,6 +25,7 @@ module.exports = {
     'import',
   ],
   'rules': {
+    'linebreak-style': 0,
     'max-len': [2, 180, 4, { ignoreUrls: true }],
     'object-curly-spacing': [2, 'always', { objectsInObjects: true, arraysInObjects: true }],
     'require-jsdoc': 0,
