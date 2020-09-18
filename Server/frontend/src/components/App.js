@@ -25,6 +25,7 @@ import CourseDetails from './tutorComponents/CourseDetails.js';
 import GetCourses from './tutorComponents/GetCourses.js';
 import Marks from './tutorComponents/Marks.js';
 import TutorDashboard from './tutorComponents/TutorDashboard.js';
+import Adventure from './tutorComponents/createAdventure/Adventure.js';
 
 const alertOptions = {
   timeout: 3000,
@@ -60,6 +61,7 @@ class App extends React.Component {
                 <Route exact path="/student-marks" component = {StudentMarks}/>
                 <Route exact path="/open-chapter/:id" component = {ChapterPassing}/>
                 <Route exact path="/graph" component = {Graph} />
+                <Route exact path="/adventure" component = {Adventure}/>
               </Switch>
             </Router>
           </AlertProvider>
