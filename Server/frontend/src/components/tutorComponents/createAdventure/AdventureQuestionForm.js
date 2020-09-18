@@ -21,7 +21,7 @@ class AdventureQuestionForm extends React.Component {
   render() {
     return (
       <>
-        <div>Pytanie {this.props.index}</div>
+        <div>Pytanie {this.props.index + 1}</div>
         <form>
           <TextField id={'standard-basic'} label={'Treść pytania'} name={'text'} value={this.state.text} onChange={this.handleChange}/>
           <FormControlLabel control={<Switch checked={this.state.isAutoChecked} name={'isAutoChecked'} onChange={this.handleChange}/>} label={'Sprawdzane automatycznie'} />
