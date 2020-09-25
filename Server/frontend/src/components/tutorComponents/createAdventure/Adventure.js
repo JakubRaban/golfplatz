@@ -12,6 +12,12 @@ import AdventureBasicDataForm from './AdventureBasicDataForm.js';
 import AdventureQuestionsFormList from './AdventureQuestionsFormList.js';
 
 class Adventure extends React.Component {
+  emptyAnswer = {
+    text: '',
+    isCorrect: false,
+    isRegex: false,
+  }
+
   emptyQuestion = {
     text: '',
     questionType: 'CLOSED',
@@ -21,7 +27,7 @@ class Adventure extends React.Component {
     pointsPerIncorrectAnswer: '0',
     messageAfterCorrectAnswer: 'Prawidłowa odpowiedź',
     messageAfterIncorrectAnswer: 'Nieprawidłowa odpowiedź',
-    answers: [],
+    answers: [{ ...this.emptyAnswer }],
   }
 
   constructor(props) {
@@ -29,7 +35,8 @@ class Adventure extends React.Component {
     this.state = {
       name: '',
       description: '',
-      questions: [],
+      category: 'QUIZ',
+      questions: [{ ...this.emptyQuestion }],
       timeLimit: 0,
       timerRules: [],
     };
@@ -42,13 +49,25 @@ class Adventure extends React.Component {
   addNewQuestion = () => {
     const { questions } = this.state;
     questions.push({ ...this.emptyQuestion });
-    this.setState({ questions }, () => console.log(this.state.questions));
+    this.setState({ questions });
   }
 
-  updateQuestion = (index, question) => {
+  updateQuestion = (index, questionAttribute) => {
     const { questions } = this.state;
-    questions[index] = question;
-    this.setState({ questions }, () => console.log(this.state.questions));
+    Object.assign(questions[index], questionAttribute);
+    this.setState({ questions });
+  }
+
+  addNewAnswer = (questionIndex) => {
+    const { questions } = this.state;
+    questions[questionIndex].answers.push({ ...this.emptyAnswer });
+    this.setState({ questions });
+  }
+
+  updateAnswer = (questionIndex, answerIndex, answerAttribute) => {
+    const { questions } = this.state;
+    Object.assign(questions[questionIndex].answers[answerIndex], answerAttribute);
+    this.setState({ questions });
   }
 
   render() {
@@ -69,13 +88,15 @@ class Adventure extends React.Component {
         <NavBar logout={this.props.logout} title={'Edytuj przygodę'} /* returnLink={`/courses/${this.props.course.id}`} */ />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
-          <AdventureBasicDataForm updateForm={this.updateBasicData}/>
+          <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData}/>
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
               <Typography className={classes.heading}>Pytania</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <AdventureQuestionsFormList emptyQuestion={this.emptyQuestion} addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion}/>
+              <AdventureQuestionsFormList questions={this.state.questions}
+                addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion}
+                addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer}/>
             </AccordionDetails>
           </Accordion>
           <Accordion>
