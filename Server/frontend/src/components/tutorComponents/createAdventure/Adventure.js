@@ -58,6 +58,12 @@ class Adventure extends React.Component {
     this.setState({ questions });
   }
 
+  deleteQuestion = (index) => {
+    const { questions } = this.state;
+    questions.splice(index, 1);
+    this.setState({ questions });
+  }
+
   addNewAnswer = (questionIndex) => {
     const { questions } = this.state;
     questions[questionIndex].answers.push({ ...this.emptyAnswer });
@@ -67,6 +73,12 @@ class Adventure extends React.Component {
   updateAnswer = (questionIndex, answerIndex, answerAttribute) => {
     const { questions } = this.state;
     Object.assign(questions[questionIndex].answers[answerIndex], answerAttribute);
+    this.setState({ questions });
+  }
+
+  deleteAnswer = (questionIndex, answerIndex) => {
+    const { questions } = this.state;
+    questions[questionIndex].answers.splice(answerIndex, 1);
     this.setState({ questions });
   }
 
@@ -95,8 +107,8 @@ class Adventure extends React.Component {
             </AccordionSummary>
             <AccordionDetails>
               <AdventureQuestionsFormList questions={this.state.questions}
-                addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion}
-                addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer}/>
+                addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion} deleteQuestion={this.deleteQuestion}
+                addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer} deleteAnswer={this.deleteAnswer}/>
             </AccordionDetails>
           </Accordion>
           <Accordion>

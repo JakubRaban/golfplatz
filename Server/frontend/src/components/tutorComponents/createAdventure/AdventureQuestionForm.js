@@ -2,7 +2,7 @@
 import { Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Switch, TextField } from '@material-ui/core';
 import React from 'react';
 
-import AnswerList from './AnswerList';
+import AnswerList from './AnswerList.js';
 
 class AdventureQuestionForm extends React.Component {
   handleChange = (e) => {
@@ -11,7 +11,7 @@ class AdventureQuestionForm extends React.Component {
   }
 
   handleDelete = () => {
-    console.log('TODO');
+    this.props.deleteQuestion(this.props.index);
   }
 
   render() {
@@ -36,7 +36,7 @@ class AdventureQuestionForm extends React.Component {
               <FormControlLabel control={<Radio />} label={'Wielolinijkowa'} value={'TEXTAREA'} />
             </RadioGroup>
           </FormControl>
-          <AnswerList question={question} questionIndex={this.props.index} addAnswer={this.props.addAnswer} updateAnswer={this.props.updateAnswer} />
+          <AnswerList question={question} questionIndex={this.props.index} addAnswer={this.props.addAnswer} updateAnswer={this.props.updateAnswer} deleteAnswer={this.props.deleteAnswer}/>
           <TextField id={'standard-basic'} label={'Punkty za popr. odp.'} name={'pointsPerCorrectAnswer'}
             value={question.pointsPerCorrectAnswer} onChange={this.handleChange}/>
           <TextField id={'standard-basic'} label={'Komunikat po popr. odp.'} name={'messageAfterCorrectAnswer'}

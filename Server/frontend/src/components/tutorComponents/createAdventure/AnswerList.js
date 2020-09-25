@@ -1,6 +1,8 @@
-import { Button } from '@material-ui/core';
+import { Button, Table, TableBody, TableCell, TableHead, TableRow, withStyles } from '@material-ui/core';
 import React from 'react';
+import compose from 'recompose/compose.js';
 
+import { styles } from '../../../styles/style.js';
 import Answer from './Answer.js';
 
 class AnswerList extends React.Component {
@@ -10,18 +12,30 @@ class AnswerList extends React.Component {
 
   render() {
     const { answers, questionType } = this.props.question;
+    const { classes } = this.props;
     return (
       <>
         <div>Odpowiedzi:</div>
-        <div>
-          {answers.map((answer, index) =>
-            <Answer key={index} answer={answer} answerIndex={index} updateAnswer={this.props.updateAnswer} questionType={questionType} questionIndex={this.props.questionIndex}/>,
-          )}
-        </div>
-        <Button onClick={this.handleAddAnswer}>Dodaj kolejną odpowiedź</Button>
+        <Table className={classes.table} size={'small'}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Treść odpowiedzi</TableCell>
+              {questionType === 'CLOSED' && <TableCell>Poprawna?</TableCell>}
+              <TableCell>Jest regexem?</TableCell>
+              <TableCell>Usuń</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {answers.map((answer, index) =>
+              <Answer key={index} answer={answer} answerIndex={index} questionType={questionType}
+                questionIndex={this.props.questionIndex} updateAnswer={this.props.updateAnswer} deleteAnswer={this.props.deleteAnswer}/>,
+            )}
+          </TableBody>
+        </Table>
+        <Button onClick={this.handleAddAnswer}>Dodaj koljeną odpowiedź</Button>
       </>
     );
   }
 }
 
-export default AnswerList;
+export default compose(withStyles(styles))(AnswerList);
