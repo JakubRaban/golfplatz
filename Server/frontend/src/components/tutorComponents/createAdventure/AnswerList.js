@@ -32,7 +32,7 @@ class AnswerList extends React.Component {
             )}
           </TableBody>
         </Table>
-        <Button onClick={this.handleAddAnswer}>Dodaj koljeną odpowiedź</Button>
+        <Button onClick={this.handleAddAnswer}>Dodaj kolejną odpowiedź</Button>
       </>
     );
   }

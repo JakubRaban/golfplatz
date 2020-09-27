@@ -10,6 +10,7 @@ import { styles } from '../../../styles/style.js';
 import NavBar from '../../common/NavBar.js';
 import AdventureBasicDataForm from './AdventureBasicDataForm.js';
 import AdventureQuestionsFormList from './AdventureQuestionsFormList.js';
+import TimeLimitForm from './TimeLimitForm.js';
 
 class Adventure extends React.Component {
   emptyAnswer = {
@@ -27,7 +28,6 @@ class Adventure extends React.Component {
     pointsPerIncorrectAnswer: '0',
     messageAfterCorrectAnswer: 'Prawidłowa odpowiedź',
     messageAfterIncorrectAnswer: 'Nieprawidłowa odpowiedź',
-    answers: [{ ...this.emptyAnswer }],
   }
 
   constructor(props) {
@@ -37,9 +37,12 @@ class Adventure extends React.Component {
       description: '',
       category: 'QUIZ',
       questions: [{ ...this.emptyQuestion }],
+      hasTimeLimit: false,
       timeLimit: 0,
       timerRules: [],
     };
+    this.state.questions[0].answers = [];
+    this.state.questions[0].answers.push({ ...this.emptyAnswer });
   }
 
   updateBasicData = (data) => {
@@ -48,7 +51,10 @@ class Adventure extends React.Component {
 
   addNewQuestion = () => {
     const { questions } = this.state;
-    questions.push({ ...this.emptyQuestion });
+    const newQuestion = { ...this.emptyQuestion };
+    newQuestion.answers = [];
+    newQuestion.answers.push({ ...this.emptyAnswer });
+    questions.push(newQuestion);
     this.setState({ questions });
   }
 
@@ -73,13 +79,21 @@ class Adventure extends React.Component {
   updateAnswer = (questionIndex, answerIndex, answerAttribute) => {
     const { questions } = this.state;
     Object.assign(questions[questionIndex].answers[answerIndex], answerAttribute);
-    this.setState({ questions });
+    this.setState({ questions }, () => console.log(this.state.questions));
   }
 
   deleteAnswer = (questionIndex, answerIndex) => {
     const { questions } = this.state;
     questions[questionIndex].answers.splice(answerIndex, 1);
     this.setState({ questions });
+  }
+
+  setHasTimeLimit = (hasTimeLimit) => {
+    this.setState({ hasTimeLimit });
+  }
+
+  setTimeLimit = (timeLimit) => {
+    this.setState({ timeLimit });
   }
 
   render() {
@@ -116,7 +130,7 @@ class Adventure extends React.Component {
               <Typography className={classes.heading}>Ograniczenia czasowe</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              {/* <TimeLimitForm />*/}
+              <TimeLimitForm hasTimeLimit={this.state.hasTimeLimit} setHasTimeLimit={this.setHasTimeLimit} timeLimit={this.state.timeLimit} setTimeLimit={this.setTimeLimit}/>
               {/* <TimerRulesFormList />*/}
             </AccordionDetails>
           </Accordion>
