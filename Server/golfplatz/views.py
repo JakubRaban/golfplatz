@@ -184,7 +184,7 @@ class ChapterStartView(APIView):
         return Response({
             'response_type': 'adventure',
             'chapter_name': chapter.name,
-            'adventure': AdventureSerializer(chapter.get_initial_adventure()).data
+            'adventure': AdventureSerializer(chapter.initial_adventure).data
         })
 
 

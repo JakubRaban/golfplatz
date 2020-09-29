@@ -116,7 +116,8 @@ class Chapter(models.Model):
             paths.extend(Path.objects.filter(from_adventure=adventure))
         return paths
 
-    def get_initial_adventure(self):
+    @property
+    def initial_adventure(self):
         return self.adventures.get(is_initial=True)
 
     def __str__(self):
@@ -167,6 +168,10 @@ class Adventure(models.Model):
     @property
     def next_adventures(self):
         return [path.to_adventure for path in self.paths_from_here]
+
+    @property
+    def max_points_possible(self):
+        return sum([question.max_points_possible for question in self.point_source.questions])
 
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \
