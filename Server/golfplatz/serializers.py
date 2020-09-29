@@ -128,20 +128,14 @@ class AdventureSerializer(serializers.ModelSerializer):
 
 
 class CreateAdventuresSerializer(serializers.ModelSerializer):
-    internal_id = serializers.IntegerField()
     point_source = PointSourceSerializer()
     timer_rules = TimerRuleSerializer(many=True, allow_null=True)
-    next_adventures = serializers.ListField(
-        child=serializers.IntegerField(), allow_empty=True, allow_null=True
-    )
 
     class Meta:
         model = Adventure
-        exclude = ['chapter']
+        exclude = ['chapter', 'is_initial']
 
     def create(self, validated_data):
-        validated_data.pop('internal_id')
-        validated_data.pop('next_adventures', [])
         point_source_data = validated_data.pop('point_source')
         timer_rules_data = validated_data.pop('timer_rules', [])
         adventure = Adventure.objects.create(**validated_data)
