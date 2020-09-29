@@ -92,6 +92,7 @@ class Chapter(models.Model):
     plot_part = models.ForeignKey('PlotPart', on_delete=models.CASCADE, related_name='chapters')
     points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3, default=0)
     position_in_plot_part = models.PositiveSmallIntegerField()
+    creating_completed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['position_in_plot_part']
