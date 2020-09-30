@@ -42,7 +42,7 @@ class Adventure extends React.Component {
     this.state = {
       name: '',
       description: '',
-      category: 'QUIZ',
+      category: 'NOT SELECTED',
       questions: [{ ...this.emptyQuestion }],
       hasTimeLimit: false,
       timeLimit: 0,

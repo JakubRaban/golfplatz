@@ -16,6 +16,7 @@ class AdventureBasicDataForm extends React.Component {
         <FormControl>
           <InputLabel id={'category-label'}>Kategoria przygody</InputLabel>
           <Select labelId={'category-label'} name={'category'} value={this.props.adventure.category} onChange={this.handleChange}>
+            <MenuItem value={'NOT SELECTED'}>(wybierz)</MenuItem>
             <MenuItem value={'QUIZ'}>Kartkówka</MenuItem>
             <MenuItem value={'GENERIC'}>Zadanie na zajęciach</MenuItem>
             <MenuItem value={'ACTIVENESS'}>Aktywność</MenuItem>

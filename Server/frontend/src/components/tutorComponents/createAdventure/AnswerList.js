@@ -11,7 +11,7 @@ class AnswerList extends React.Component {
   }
 
   render() {
-    const { answers, questionType } = this.props.question;
+    const { answers, questionType, inputType } = this.props.question;
     const { classes } = this.props;
     return (
       <>
@@ -27,7 +27,7 @@ class AnswerList extends React.Component {
           </TableHead>
           <TableBody>
             {answers.map((answer, index) =>
-              <Answer key={index} answer={answer} answerIndex={index} questionType={questionType}
+              <Answer key={index} answer={answer} answerIndex={index} questionType={questionType} inputType={inputType}
                 questionIndex={this.props.questionIndex} updateAnswer={this.props.updateAnswer} deleteAnswer={this.props.deleteAnswer}/>,
             )}
           </TableBody>

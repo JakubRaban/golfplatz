@@ -19,10 +19,11 @@ class Answer extends React.Component {
   render() {
     const { answer } = this.props;
     const isOpenQuestion = this.props.questionType === 'OPEN';
+    const isMultiline = this.props.inputType === 'TEXTAREA';
     return (
       <TableRow>
         <TableCell>
-          <TextField value={answer.text} onChange={this.handleChange} name={'text'}
+          <TextField value={answer.text} onChange={this.handleChange} name={'text'} multiline={isMultiline} rows={isMultiline ? 4 : 1}
             label={`${isOpenQuestion ? 'Prawidłowa odpowiedź' : 'Wariant odpowiedzi'} ${this.props.answerIndex + 1}`}/>
         </TableCell>
         {!isOpenQuestion &&
