@@ -11,6 +11,7 @@ import NavBar from '../../common/NavBar.js';
 import AdventureBasicDataForm from './AdventureBasicDataForm.js';
 import AdventureQuestionsFormList from './AdventureQuestionsFormList.js';
 import TimeLimitForm from './TimeLimitForm.js';
+import TimerRulesFormList from './TimerRulesFormList.js';
 
 class Adventure extends React.Component {
   emptyAnswer = {
@@ -30,6 +31,12 @@ class Adventure extends React.Component {
     messageAfterIncorrectAnswer: 'Nieprawidłowa odpowiedź',
   }
 
+  emptyTimerRule = {
+    leastPointsAwardedPercent: '',
+    ruleEndTime: '',
+    decreasingMethod: 'NONE',
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -39,7 +46,8 @@ class Adventure extends React.Component {
       questions: [{ ...this.emptyQuestion }],
       hasTimeLimit: false,
       timeLimit: 0,
-      timerRules: [],
+      timerRulesEnabled: false,
+      timerRules: [{ ...this.emptyTimerRule }],
     };
     this.state.questions[0].answers = [];
     this.state.questions[0].answers.push({ ...this.emptyAnswer });
@@ -96,11 +104,33 @@ class Adventure extends React.Component {
     this.setState({ timeLimit });
   }
 
+  enableTimerRules = (timerRulesEnabled) => {
+    this.setState({ timerRulesEnabled });
+  }
+
+  addTimerRule = () => {
+    const { timerRules } = this.state;
+    timerRules.push({ ...this.emptyTimerRule });
+    this.setState({ timerRules });
+  }
+
+  updateTimerRule = (ruleIndex, ruleAttribute) => {
+    const { timerRules } = this.state;
+    Object.assign(timerRules[ruleIndex], ruleAttribute);
+    this.setState({ timerRules });
+  }
+
+  deleteTimerRule = (ruleIndex) => {
+    const { timerRules } = this.state;
+    timerRules.splice(ruleIndex, 1);
+    this.setState({ timerRules });
+  }
+
   render() {
     const { classes } = this.props;
 
     if (!this.props.isAuthenticated) {
-      return <Redirect to="/login" />;
+      return <Redirect to="/login"/>;
     }
     if (this.props.user.groups[0] === 1) {
       return (
@@ -110,10 +140,11 @@ class Adventure extends React.Component {
 
     return (
       <div className={classes.root}>
-        <CssBaseline />
-        <NavBar logout={this.props.logout} title={'Edytuj przygodę'} /* returnLink={`/courses/${this.props.course.id}`} */ />
+        <CssBaseline/>
+        <NavBar logout={this.props.logout}
+          title={'Edytuj przygodę'} /* returnLink={`/courses/${this.props.course.id}`} */ />
         <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
+          <div className={classes.appBarSpacer}/>
           <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData}/>
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
@@ -121,17 +152,29 @@ class Adventure extends React.Component {
             </AccordionSummary>
             <AccordionDetails>
               <AdventureQuestionsFormList questions={this.state.questions}
-                addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion} deleteQuestion={this.deleteQuestion}
-                addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer} deleteAnswer={this.deleteAnswer}/>
+                addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion}
+                deleteQuestion={this.deleteQuestion}
+                addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer}
+                deleteAnswer={this.deleteAnswer}/>
             </AccordionDetails>
           </Accordion>
           <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
               <Typography className={classes.heading}>Ograniczenia czasowe</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <TimeLimitForm hasTimeLimit={this.state.hasTimeLimit} setHasTimeLimit={this.setHasTimeLimit} timeLimit={this.state.timeLimit} setTimeLimit={this.setTimeLimit}/>
-              {/* <TimerRulesFormList />*/}
+              <div>
+                <div>
+                  <TimeLimitForm hasTimeLimit={this.state.hasTimeLimit} setHasTimeLimit={this.setHasTimeLimit}
+                    timeLimit={this.state.timeLimit} setTimeLimit={this.setTimeLimit}/>
+                </div>
+                <div>
+                  <TimerRulesFormList timerRules={this.state.timerRules} enableTimerRules={this.enableTimerRules}
+                    timerRulesEnabled={this.state.timerRulesEnabled}
+                    addTimerRule={this.addTimerRule} updateTimerRule={this.updateTimerRule}
+                    deleteTimerRule={this.deleteTimerRule}/>
+                </div>
+              </div>
             </AccordionDetails>
           </Accordion>
         </main>
