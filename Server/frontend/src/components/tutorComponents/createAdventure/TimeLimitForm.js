@@ -17,7 +17,7 @@ class TimeLimitForm extends React.Component {
         <FormControlLabel control={<Switch checked={this.props.hasTimeLimit} onChange={this.handleHasTimeLimitChange}/>}
           label={`Ustal maksymalny czas na ukończenie przygody ${this.props.hasTimeLimit ? 'na: ' : ''}`}/>
         {this.props.hasTimeLimit &&
-          <TextField id={'standard-basic'} label={'Czas w sekundach'} value={this.props.timeLimit} onChange={this.handleTimeLimitChange}/>
+          <TextField label={'Czas w sekundach'} value={this.props.timeLimit} onChange={this.handleTimeLimitChange}/>
         }
       </>
     );

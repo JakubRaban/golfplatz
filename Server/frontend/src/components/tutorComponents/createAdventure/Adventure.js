@@ -1,4 +1,4 @@
-import { Accordion, AccordionDetails, AccordionSummary, CssBaseline, Typography, withStyles } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Button, CssBaseline, Typography, withStyles } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -53,6 +53,10 @@ class Adventure extends React.Component {
     this.state.questions[0].answers.push({ ...this.emptyAnswer });
   }
 
+  submitForm = () => {
+    console.log(this.state);
+  }
+
   updateBasicData = (data) => {
     this.setState({ ...data });
   }
@@ -87,7 +91,7 @@ class Adventure extends React.Component {
   updateAnswer = (questionIndex, answerIndex, answerAttribute) => {
     const { questions } = this.state;
     Object.assign(questions[questionIndex].answers[answerIndex], answerAttribute);
-    this.setState({ questions }, () => console.log(this.state.questions));
+    this.setState({ questions });
   }
 
   deleteAnswer = (questionIndex, answerIndex) => {
@@ -177,6 +181,7 @@ class Adventure extends React.Component {
               </div>
             </AccordionDetails>
           </Accordion>
+          <Button color={'primary'} onClick={this.submitForm}>Zatwierdź i zapisz</Button>
         </main>
       </div>
     );

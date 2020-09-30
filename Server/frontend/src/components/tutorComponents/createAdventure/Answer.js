@@ -22,7 +22,7 @@ class Answer extends React.Component {
     return (
       <TableRow>
         <TableCell>
-          <TextField id={'standard-basic'} value={answer.text} onChange={this.handleChange} name={'text'}
+          <TextField value={answer.text} onChange={this.handleChange} name={'text'}
             label={`${isOpenQuestion ? 'Prawidłowa odpowiedź' : 'Wariant odpowiedzi'} ${this.props.answerIndex + 1}`}/>
         </TableCell>
         {!isOpenQuestion &&
