@@ -6,7 +6,7 @@ import AnswerList from './AnswerList.js';
 
 class AdventureQuestionForm extends React.Component {
   handleChange = (e) => {
-    if (e.target.name === 'isAutoChecked') this.props.updateQuestion(this.props.index, { isAutoChecked: e.target.checked, questionType: 'OPEN' });
+    if (e.target.name === 'isAutoChecked') this.props.updateQuestion(this.props.index, { isAutoChecked: e.target.checked, questionType: 'OPEN', answers: [] });
     else this.props.updateQuestion(this.props.index, { [e.target.name]: e.target.value });
   }
 

@@ -11,8 +11,8 @@ class AdventureBasicDataForm extends React.Component {
     return (
       <FormGroup>
         <TextField label={'Nazwa przygody'} name={'name'} value={this.props.adventure.name} onChange={this.handleChange} />
-        <TextField label={'Opis przygody'} multiline rows={4} name={'description'}
-          value={this.props.adventure.description} onChange={this.handleChange} />
+        <TextField label={'Opis przygody'} multiline rows={4} name={'taskDescription'}
+          value={this.props.adventure.taskDescription} onChange={this.handleChange} />
         <FormControl>
           <InputLabel id={'category-label'}>Kategoria przygody</InputLabel>
           <Select labelId={'category-label'} name={'category'} value={this.props.adventure.category} onChange={this.handleChange}>

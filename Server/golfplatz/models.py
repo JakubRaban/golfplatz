@@ -129,7 +129,7 @@ class Adventure(models.Model):
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='adventures')
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
-    has_time_limit = models.BooleanField(default=False)
+    time_limit = models.PositiveIntegerField(default=0)
     done_by_students = models.ManyToManyField('Participant', through='AccomplishedAdventure')
 
     class Meta:
@@ -153,7 +153,7 @@ class Adventure(models.Model):
                                                      (timer_rule.rule_end_time, timer_rule.least_points_awarded_percent))
                 return int(a * time_in_seconds + b)
         else:
-            return timer_rules[-1].least_points_awarded_percent if not self.has_time_limit else 0
+            return timer_rules[-1].least_points_awarded_percent if self.time_limit > 0 else 0
 
     @staticmethod
     def line_through_points(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple:

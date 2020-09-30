@@ -7,8 +7,7 @@ class TimeLimitForm extends React.Component {
   }
 
   handleTimeLimitChange = (e) => {
-    const parsedNumber = parseInt(e.target.value, 10);
-    this.props.setTimeLimit(isNaN(parsedNumber) ? 0 : parsedNumber);
+    this.props.setTimeLimit(e.target.value);
   }
 
   render() {

@@ -12,6 +12,7 @@ import AdventureBasicDataForm from './AdventureBasicDataForm.js';
 import AdventureQuestionsFormList from './AdventureQuestionsFormList.js';
 import TimeLimitForm from './TimeLimitForm.js';
 import TimerRulesFormList from './TimerRulesFormList.js';
+import { toServerForm } from '../../../clientServerTranscoders/adventureTranscoder.js';
 
 class Adventure extends React.Component {
   emptyAnswer = {
@@ -41,7 +42,7 @@ class Adventure extends React.Component {
     super(props);
     this.state = {
       name: '',
-      description: '',
+      taskDescription: '',
       category: 'NOT SELECTED',
       questions: [{ ...this.emptyQuestion }],
       hasTimeLimit: false,
@@ -54,7 +55,7 @@ class Adventure extends React.Component {
   }
 
   submitForm = () => {
-    console.log(this.state);
+    console.log(toServerForm(this.state));
   }
 
   updateBasicData = (data) => {

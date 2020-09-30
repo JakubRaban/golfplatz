@@ -41,9 +41,9 @@ class TimerRuleForm extends React.Component {
           }
         </TableCell>
         <TableCell>
-          <Button size={'small'} variant={'contained'} color={'secondary'} onClick={this.handleDelete}>
+          {prevRule && <Button size={'small'} variant={'contained'} color={'secondary'} onClick={this.handleDelete}>
             <DeleteIcon/>
-          </Button>
+          </Button>}
         </TableCell>
       </TableRow>
     );
