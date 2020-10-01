@@ -1,4 +1,12 @@
-import { Accordion, AccordionDetails, AccordionSummary, Button, CssBaseline, Typography, withStyles } from '@material-ui/core';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Button,
+  CssBaseline,
+  Typography,
+  withStyles,
+} from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -6,13 +14,13 @@ import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
 import { logout } from '../../../actions/auth.js';
+import { toServerForm } from '../../../clientServerTranscoders/adventureTranscoder.js';
 import { styles } from '../../../styles/style.js';
 import NavBar from '../../common/NavBar.js';
 import AdventureBasicDataForm from './AdventureBasicDataForm.js';
 import AdventureQuestionsFormList from './AdventureQuestionsFormList.js';
 import TimeLimitForm from './TimeLimitForm.js';
 import TimerRulesFormList from './TimerRulesFormList.js';
-import { toServerForm } from '../../../clientServerTranscoders/adventureTranscoder.js';
 
 class Adventure extends React.Component {
   emptyAnswer = {
@@ -40,18 +48,22 @@ class Adventure extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      name: '',
-      taskDescription: '',
-      category: 'NOT SELECTED',
-      questions: [{ ...this.emptyQuestion }],
-      hasTimeLimit: false,
-      timeLimit: 0,
-      timerRulesEnabled: false,
-      timerRules: [{ ...this.emptyTimerRule }],
-    };
-    this.state.questions[0].answers = [];
-    this.state.questions[0].answers.push({ ...this.emptyAnswer });
+    if (this.props.adventure) {
+      this.state = { ...this.props.adventure };
+    } else {
+      this.state = {
+        name: '',
+        taskDescription: '',
+        category: 'NOT SELECTED',
+        questions: [{ ...this.emptyQuestion }],
+        hasTimeLimit: false,
+        timeLimit: 0,
+        timerRulesEnabled: false,
+        timerRules: [{ ...this.emptyTimerRule }],
+      };
+      this.state.questions[0].answers = [];
+      this.state.questions[0].answers.push({ ...this.emptyAnswer });
+    }
   }
 
   submitForm = () => {

@@ -31,9 +31,9 @@ class Answer extends React.Component {
             <Checkbox checked={answer.isCorrect} onChange={this.handleChange} name={'isCorrect'}/>
           </TableCell>
         }
-        <TableCell>
+        {isOpenQuestion && <TableCell>
           <Checkbox checked={answer.isRegex} onChange={this.handleChange} name={'isRegex'} />
-        </TableCell>
+        </TableCell>}
         <TableCell>
           <Button size={'small'} variant={'contained'} color={'secondary'} onClick={this.handleDelete}>
             <DeleteIcon />

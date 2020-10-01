@@ -11,3 +11,13 @@ export const toServerForm = (adventure) => {
   }
   return result;
 };
+
+export const fromServerForm = (adventure) => {
+  const result = { name: adventure.name, taskDescription: adventure.taskDescription, timeLimit: adventure.timeLimit };
+  result.hasTimeLimit = adventure.timeLimit > 0;
+  result.timerRules = adventure.timerRules;
+  result.timerRulesEnabled = adventure.timerRules.length > 0;
+  result.category = adventure.pointSource.category;
+  result.questions = adventure.pointSource.questions;
+  return result;
+};

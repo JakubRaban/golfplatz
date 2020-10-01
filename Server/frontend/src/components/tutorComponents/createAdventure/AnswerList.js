@@ -21,7 +21,7 @@ class AnswerList extends React.Component {
             <TableRow>
               <TableCell>Treść odpowiedzi</TableCell>
               {questionType === 'CLOSED' && <TableCell>Poprawna?</TableCell>}
-              <TableCell>Jest regexem?</TableCell>
+              {questionType === 'OPEN' && <TableCell>Jest regexem?</TableCell>}
               <TableCell>Usuń</TableCell>
             </TableRow>
           </TableHead>
