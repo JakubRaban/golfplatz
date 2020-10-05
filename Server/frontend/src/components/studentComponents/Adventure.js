@@ -41,7 +41,7 @@ export class Adventure extends Component {
         </Typography>
         {!this.props.submitted ?
           <React.Fragment>
-            {/* {this.props.adventurePart.adventure.hasTimeLimit && <Timer time={this.props.timeLimit}/>} */}
+            {/* {this.props.adventurePart.adventure.timeLimit > 0 && <Timer time={this.props.timeLimit}/>} */}
             {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
               <React.Fragment key={i}>
                 <Typography variant="subtitle2" gutterBottom>

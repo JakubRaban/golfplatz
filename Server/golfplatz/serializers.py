@@ -111,6 +111,19 @@ class TimerRuleSerializer(serializers.ModelSerializer):
         model = TimerRule
         exclude = ['adventure']
 
+    @staticmethod
+    def validate_integers(value):
+        try:
+            return int(value)
+        except ValueError:
+            raise serializers.ValidationError("This field should be an integer or a string representing an integer")
+
+    def validate_least_points_awarded_percent(self, value):
+        return self.validate_integers(value)
+
+    def validate_rule_end_time(self, value):
+        return self.validate_integers(value)
+
 
 class PathSerializer(serializers.ModelSerializer):
     class Meta:
@@ -128,20 +141,20 @@ class AdventureSerializer(serializers.ModelSerializer):
 
 
 class CreateAdventuresSerializer(serializers.ModelSerializer):
-    internal_id = serializers.IntegerField()
     point_source = PointSourceSerializer()
     timer_rules = TimerRuleSerializer(many=True, allow_null=True)
-    next_adventures = serializers.ListField(
-        child=serializers.IntegerField(), allow_empty=True, allow_null=True
-    )
 
     class Meta:
         model = Adventure
-        exclude = ['chapter']
+        exclude = ['chapter', 'is_initial']
+
+    def validate_time_limit(self, value):
+        try:
+            return int(value)
+        except ValueError:
+            raise serializers.ValidationError("This field should be an integer or a string representing an integer")
 
     def create(self, validated_data):
-        validated_data.pop('internal_id')
-        validated_data.pop('next_adventures', [])
         point_source_data = validated_data.pop('point_source')
         timer_rules_data = validated_data.pop('timer_rules', [])
         adventure = Adventure.objects.create(**validated_data)

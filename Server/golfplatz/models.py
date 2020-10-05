@@ -92,6 +92,7 @@ class Chapter(models.Model):
     plot_part = models.ForeignKey('PlotPart', on_delete=models.CASCADE, related_name='chapters')
     points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3, default=0)
     position_in_plot_part = models.PositiveSmallIntegerField()
+    creating_completed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['position_in_plot_part']
@@ -115,7 +116,8 @@ class Chapter(models.Model):
             paths.extend(Path.objects.filter(from_adventure=adventure))
         return paths
 
-    def get_initial_adventure(self):
+    @property
+    def initial_adventure(self):
         return self.adventures.get(is_initial=True)
 
     def __str__(self):
@@ -127,7 +129,7 @@ class Adventure(models.Model):
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='adventures')
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
-    has_time_limit = models.BooleanField(default=False)
+    time_limit = models.PositiveIntegerField(default=0)
     done_by_students = models.ManyToManyField('Participant', through='AccomplishedAdventure')
 
     class Meta:
@@ -151,7 +153,7 @@ class Adventure(models.Model):
                                                      (timer_rule.rule_end_time, timer_rule.least_points_awarded_percent))
                 return int(a * time_in_seconds + b)
         else:
-            return timer_rules[-1].least_points_awarded_percent if not self.has_time_limit else 0
+            return timer_rules[-1].least_points_awarded_percent if self.time_limit > 0 else 0
 
     @staticmethod
     def line_through_points(p1: Tuple[int, int], p2: Tuple[int, int]) -> Tuple:
@@ -166,6 +168,10 @@ class Adventure(models.Model):
     @property
     def next_adventures(self):
         return [path.to_adventure for path in self.paths_from_here]
+
+    @property
+    def max_points_possible(self):
+        return sum([question.max_points_possible for question in self.point_source.questions])
 
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \

@@ -13,12 +13,13 @@ import { ADD_ADVENTURES,
   START_CHAPTER,
 }
   from '../actions/types.js';
+import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
 import { tokenConfig } from './auth.js';
 import { createMessage, returnErrors } from './messages.js';
 
 
-export const addAdventures = (adventures, chapterId) => (dispatch, getState) => {
-  axios.post(`/api/chapters/${chapterId}/adventures/`, adventures, tokenConfig(getState)).then((res) => {
+export const addAdventures = (adventure, chapterId) => (dispatch, getState) => {
+  axios.post(`/api/chapters/${chapterId}/adventures/`, toServerForm(adventure), tokenConfig(getState)).then((res) => {
     dispatch({
       type: ADD_ADVENTURES,
       payload: res.data,

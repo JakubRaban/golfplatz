@@ -66,7 +66,7 @@ export class ChapterPassing extends Component {
         });
 
         this.startTime = new Date();
-        if (this.props.adventurePart.adventure.hasTimeLimit) {
+        if (this.props.adventurePart.adventure.timeLimit > 0) {
           this.timer = setInterval(() => this.tick(), 1000);
         }
       } else if (this.props.adventurePart.responseType === 'choice') {
