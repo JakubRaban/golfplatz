@@ -10,7 +10,6 @@ import store, { persistor } from '../store.js';
 import Login from './authentication/Login.js';
 import RegisterStudent from './authentication/RegisterStudent.js';
 import RegisterTutor from './authentication/RegisterTutor.js';
-import Graph from './Graph.js';
 import Alerts from './layout/Alerts.js';
 import PrivateRoute from './PrivateRoute.js';
 import Achievements from './studentComponents/Achievements.js';
@@ -19,6 +18,7 @@ import GameCard from './studentComponents/GameCard.js';
 import Ranking from './studentComponents/Ranking.js';
 import StudentDashboard from './studentComponents/StudentDashboard.js';
 import StudentMarks from './studentComponents/StudentMarks.js';
+import TurboAdventure from './TurboAdventure.js';
 import AddCourse from './tutorComponents/AddCourse.js';
 import Chapter from './tutorComponents/Chapter.js';
 import CourseDetails from './tutorComponents/CourseDetails.js';
@@ -52,6 +52,9 @@ class App extends React.Component {
                 <Route exact path="/courses" component={GetCourses}/>
                 <Route exact path="/courses/:id" component={CourseDetails}/>
                 <Route exact path="/chapters/:id" component={Chapter}/>
+                <Route exact path="/chapters/:id/adventures" component = {TurboAdventure} />
+                <Route exact path="/adventure/add" component = {Adventure}/>
+                <Route exact path="/adventure/:id" render={(props) => <Adventure {...props}/>}/>
                 <Route exact path="/register-student" component={RegisterStudent}/>
                 <Route exact path="/register-tutor" component={RegisterTutor}/>
                 <Route exact path="/marks" component={Marks}/>
@@ -60,8 +63,6 @@ class App extends React.Component {
                 <Route exact path="/achievements" component = {Achievements}/>
                 <Route exact path="/student-marks" component = {StudentMarks}/>
                 <Route exact path="/open-chapter/:id" component = {ChapterPassing}/>
-                <Route exact path="/graph" component = {Graph} />
-                <Route exact path="/adventure" component = {Adventure}/>
               </Switch>
             </Router>
           </AlertProvider>

@@ -8,8 +8,7 @@ import contextMenuConfig from './common/graphConfig/ContextMenu.js';
 import edgesConfig from './common/graphConfig/Edges.js';
 
 class Graph extends React.Component {
-  // eslint-disable-next-line max-len
-  state = { adventures: [{ id: 1, label: 'xd' }, { id: 2, label: 'Palpatine' }, { id: 3, label: 'Chrzanowskie noce' }, { id: 4, label: 'Wiśniówka' }, { id: 5, label: 'Moda na sukces' }], elements: [], layout: { name: 'grid' } };
+  state = { elements: [], layout: { name: 'grid' } };
   cy = null;
   edgeHandler = null;
   contextMenu = null;
@@ -24,11 +23,11 @@ class Graph extends React.Component {
   }
 
   getAllNodes() {
-    return this.state.adventures.map((adventure) => {
+    return this.props.adventures.map((adventure) => {
       return {
         data: {
           id: adventure.id,
-          label: adventure.label,
+          label: adventure.name,
         },
       };
     });
