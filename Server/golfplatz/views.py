@@ -140,7 +140,8 @@ class AdventureView(APIView):
 
     def post(self, request, chapter_id):
         serializer = CreateAdventuresSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            print(serializer.errors)
         chapter = Chapter.objects.get(pk=chapter_id)
         new_adventure = serializer.save(chapter=chapter)
         return Response(AdventureSerializer(new_adventure).data)

@@ -30,7 +30,9 @@ export class AdventuresList extends Component {
         <Redirect to={
           {
             pathname: url,
-            state: { adventure: fromServerForm(this.props.adventures.find((adventure) => adventure.id === this.state.chosenAdventureId)) },
+            state: {
+              adventure: fromServerForm(this.props.adventures.find((adventure) => adventure.id === this.state.chosenAdventureId)),
+            },
           }
         }/>
       );

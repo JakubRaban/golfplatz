@@ -92,9 +92,9 @@ class PointSourceSerializer(serializers.ModelSerializer):
         exclude = ['adventure']
 
     @staticmethod
-    def points_validation(value):
+    def points_validation(value: str):
         try:
-            value = float(value)
+            value = float(value.replace(',', '.'))
         except ValueError:
             raise serializers.ValidationError("This field should be a number or a string representing a number")
         return value

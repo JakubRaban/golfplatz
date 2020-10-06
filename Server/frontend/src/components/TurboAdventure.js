@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 
 import { logout } from '../actions/auth.js';
-import { getAdventures } from '../actions/course.js';
+import { getChapter, getAdventures } from '../actions/course.js';
 import { styles } from '../styles/style.js';
 import AdventuresList from './AdventuresList.js';
 import Graph from './Graph.js';
@@ -21,10 +21,13 @@ export class TurboAdventure extends Component {
 
   static propTypes = {
     adventures: PropTypes.any.isRequired,
+    chapter: PropTypes.any.isRequired,
   };
 
   componentDidMount() {
-    this.props.getAdventures(this.props.match.params.id);
+    const chapterId = this.props.match.params.id;
+    this.props.getChapter(chapterId);
+    this.props.getAdventures(chapterId);
   }
 
   componentDidUpdate(prevProps) {
@@ -60,12 +63,13 @@ export class TurboAdventure extends Component {
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
+  chapter: state.course.chapterDetailed,
   adventures: state.course.adventures,
   paths: state.course.paths,
 });
 
 export default compose(
-  connect(mapStateToProps, { getAdventures, logout }),
+  connect(mapStateToProps, { getChapter, getAdventures, logout }),
   withStyles(styles),
 )(TurboAdventure);
 

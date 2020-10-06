@@ -50,6 +50,7 @@ class Adventure extends React.Component {
 
   constructor(props) {
     super(props);
+    // const adventure = this.props.adventures.find((adventure) => adventure.id === this.props.match?.params?.id)
     if (this.props.location?.state?.adventure) {
       this.state = { ...this.props.location.state.adventure };
       this.state.isNew = false;
@@ -74,7 +75,7 @@ class Adventure extends React.Component {
 
   submitForm = async () => {
     this.setState({ isAddingAdventure: true })
-    await this.props.addAdventure(this.state, 1);
+    await this.props.addAdventure(this.state, this.props.chapter.id);
     this.setState({ isAdded: true });
   }
 
@@ -163,14 +164,14 @@ class Adventure extends React.Component {
       );
     }
     if (this.state.isAdded) {
-      return <Redirect to={'/'} />
+      return <Redirect to={`/chapters/${this.props.chapter.id}`} />
     }
 
     return (
       <div className={classes.root}>
         <CssBaseline/>
         <NavBar logout={this.props.logout}
-          title={this.state.isNew ? 'Stwórz nową przygodę' : 'Edytuj przygodę'} /* returnLink={`/courses/${this.props.course.id}`} */ />
+          title={this.state.isNew ? 'Stwórz nową przygodę' : 'Edytuj przygodę'} returnLink={`/chapters/${this.props.chapter.id}`} />
         <main className={classes.content}>
           <div className={classes.appBarSpacer}/>
           <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData}/>
@@ -216,6 +217,8 @@ class Adventure extends React.Component {
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
+  chapter: state.course.chapterDetailed,
+  adventures: state.course.adventures
 });
 
 export default compose(
