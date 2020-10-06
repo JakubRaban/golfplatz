@@ -21,10 +21,10 @@ import StudentMarks from './studentComponents/StudentMarks.js';
 import TurboAdventure from './TurboAdventure.js';
 import AddCourse from './tutorComponents/AddCourse.js';
 import CourseDetails from './tutorComponents/CourseDetails.js';
+import Adventure from './tutorComponents/createAdventure/Adventure.js';
 import GetCourses from './tutorComponents/GetCourses.js';
 import Marks from './tutorComponents/Marks.js';
 import TutorDashboard from './tutorComponents/TutorDashboard.js';
-import Adventure from './tutorComponents/createAdventure/Adventure.js';
 
 const alertOptions = {
   timeout: 3000,
