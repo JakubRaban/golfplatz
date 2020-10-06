@@ -48,8 +48,8 @@ class Adventure extends React.Component {
 
   constructor(props) {
     super(props);
-    if (this.props.adventure) {
-      this.state = { ...this.props.adventure };
+    if (this.props.location?.state?.adventure) {
+      this.state = { ...this.props.location.state.adventure };
     } else {
       this.state = {
         name: '',

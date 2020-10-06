@@ -6,6 +6,7 @@ import { ADD_ADVENTURES,
   ADD_COURSE,
   ADD_COURSE_GROUPS,
   ADD_PLOT_PARTS,
+  GET_ADVENTURES,
   GET_CHAPTER,
   GET_COURSE,
   GET_COURSES,
@@ -87,6 +88,15 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, 
       dispatch(returnErrors(err.response.data, err.response.status));
     });
 }
+
+export const getAdventures = (id) => (dispatch, getState) => {
+  axios.get(`/api/chapters/${id}/adventures/`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_ADVENTURES,
+      payload: res.data,
+    });
+  });
+};
 
 export const getCourses = () => (dispatch, getState) => {
   axios.get('/api/courses/', tokenConfig(getState)).then((res) => {

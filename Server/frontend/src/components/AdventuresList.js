@@ -3,6 +3,7 @@ import MaterialTable from 'material-table';
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 
+import { fromServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
 import { styles } from '../styles/style.js';
 
 export class AdventuresList extends Component {
@@ -26,7 +27,12 @@ export class AdventuresList extends Component {
     if (this.state.chosenAdventureId !== -1) {
       const url = `/adventure/${this.state.chosenAdventureId}`;
       return (
-        <Redirect to={url}/>
+        <Redirect to={
+          {
+            pathname: url,
+            state: { adventure: fromServerForm(this.props.adventures.find((adventure) => adventure.id === this.state.chosenAdventureId)) },
+          }
+        }/>
       );
     }
     return (
@@ -72,7 +78,7 @@ export class AdventuresList extends Component {
             variant='outlined'
             color='primary'
             component={Link}
-            to={'/adventure'}
+            to={'/adventure/add'}
           >Dodaj przygodę
           </Button>
         </main>

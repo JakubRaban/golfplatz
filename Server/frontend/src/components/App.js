@@ -53,8 +53,8 @@ class App extends React.Component {
                 <Route exact path="/courses/:id" component={CourseDetails}/>
                 <Route exact path="/chapters/:id" component={Chapter}/>
                 <Route exact path="/chapters/:id/adventures" component = {TurboAdventure} />
-                <Route exact path="/adventure" component = {Adventure}/>
-                <Route exact path="/adventure/:id" component = {Adventure}/>
+                <Route exact path="/adventure/add" component = {Adventure}/>
+                <Route exact path="/adventure/:id" render={(props) => <Adventure {...props}/>}/>
                 <Route exact path="/register-student" component={RegisterStudent}/>
                 <Route exact path="/register-tutor" component={RegisterTutor}/>
                 <Route exact path="/marks" component={Marks}/>

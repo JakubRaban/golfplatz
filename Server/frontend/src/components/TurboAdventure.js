@@ -1,21 +1,45 @@
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { withStyles } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import compose from 'recompose/compose';
 
+import { logout } from '../actions/auth.js';
+import { getAdventures } from '../actions/course.js';
+import { styles } from '../styles/style.js';
 import AdventuresList from './AdventuresList.js';
 import Graph from './Graph.js';
 
 export class TurboAdventure extends Component {
   state = {
-    adventures: [{ id: 1, name: 'xd' }, { id: 2, name: 'Palpatine' }, { id: 3, name: 'Chrzanowskie noce' }, { id: 4, name: 'Wiśniówka' }, { id: 5, name: 'Moda na sukces' }],
     mode: 'text',
+    loaded: false,
   };
+
+  static propTypes = {
+    adventures: PropTypes.any.isRequired,
+  };
+
+  componentDidMount() {
+    this.props.getAdventures(this.props.match.params.id);
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.adventures !== prevProps.adventures) {
+      this.setState({ loaded: true });
+    }
+  }
 
   handleChange = (e, mode) => {
     this.setState({ mode });
   }
 
   render() {
+    const { classes } = this.props;
+
     return (
       <div>
         <h4>Tworzenie przygód w rozdziale</h4>
@@ -25,12 +49,23 @@ export class TurboAdventure extends Component {
           <Tab label='Tworzenie powiązań' value='graph'/>
         </Tabs>
 
-        {this.state.mode === 'text' ? <AdventuresList adventures={this.state.adventures}/> : <Graph adventures={this.state.adventures}/>}
+        {this.state.loaded && this.state.mode === 'text' ?
+          <AdventuresList adventures={this.props.adventures}/> : <Graph adventures={this.props.adventures}/>}
 
       </div>
     );
   }
 }
 
-export default TurboAdventure;
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+  user: state.auth.user,
+  adventures: state.course.adventures,
+  paths: state.course.paths,
+});
+
+export default compose(
+  connect(mapStateToProps, { getAdventures, logout }),
+  withStyles(styles),
+)(TurboAdventure);
 
