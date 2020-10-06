@@ -131,7 +131,8 @@ class AdventureView(APIView):
         chapter = Chapter.objects.get(pk=chapter_id)
         adventures = Adventure.objects.filter(chapter=chapter)
         adventure_serializer = AdventureSerializer(adventures, many=True)
-        path_serializer = PathSerializer(chapter.get_paths(), many=True)
+        paths = chapter.paths
+        path_serializer = PathSerializer(paths, many=True)
         return Response({
             'adventures': adventure_serializer.data,
             'paths': path_serializer.data
@@ -142,9 +143,7 @@ class AdventureView(APIView):
         serializer.is_valid(raise_exception=True)
         chapter = Chapter.objects.get(pk=chapter_id)
         new_adventure = serializer.save(chapter=chapter)
-        return Response({
-            'adventures': AdventureSerializer(new_adventure).data,
-        })
+        return Response(AdventureSerializer(new_adventure).data)
 
 
 class AdventurePathsView(APIView):

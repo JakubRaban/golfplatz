@@ -109,7 +109,8 @@ class Chapter(models.Model):
             self.position_in_plot_part = last_part_index + 1
         super(Chapter, self).save(*args, **kwargs)
 
-    def get_paths(self):
+    @property
+    def paths(self):
         adventures = self.adventures.all()
         paths = []
         for adventure in adventures:

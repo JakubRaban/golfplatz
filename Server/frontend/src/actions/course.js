@@ -19,7 +19,7 @@ import { tokenConfig } from './auth.js';
 import { createMessage, returnErrors } from './messages.js';
 
 
-export const addAdventures = (adventure, chapterId) => (dispatch, getState) => {
+export const addAdventure = (adventure, chapterId) => (dispatch, getState) => {
   axios.post(`/api/chapters/${chapterId}/adventures/`, toServerForm(adventure), tokenConfig(getState)).then((res) => {
     dispatch({
       type: ADD_ADVENTURES,

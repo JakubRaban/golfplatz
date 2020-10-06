@@ -69,7 +69,7 @@ export default function (state = initialState, action) {
     case ADD_ADVENTURES:
       return {
         ...state,
-        adventures: action.payload,
+        adventures: [...state.adventures, action.payload],
       };
     case START_CHAPTER:
     case ADD_ANSWER:

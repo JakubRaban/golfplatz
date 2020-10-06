@@ -83,8 +83,8 @@ class CourseStructureTest(TestCase):
         self.assertEquals(c3.position_in_plot_part, 1)
 
     def test_chapter_get_paths(self):
-        self.assertEquals(len(self.paths), len(self.chapter1.get_paths()))
-        for path in self.chapter1.get_paths():
+        self.assertEquals(len(self.paths), len(self.chapter1.paths))
+        for path in self.chapter1.paths:
             self.assertIn(path, self.paths)
 
     def test_adventure_get_time_modifier_with_time_limit(self):

@@ -14,6 +14,7 @@ import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
 import { logout } from '../../../actions/auth.js';
+import { addAdventure } from '../../../actions/course.js';
 import { toServerForm } from '../../../clientServerTranscoders/adventureTranscoder.js';
 import { styles } from '../../../styles/style.js';
 import NavBar from '../../common/NavBar.js';
@@ -21,6 +22,7 @@ import AdventureBasicDataForm from './AdventureBasicDataForm.js';
 import AdventureQuestionsFormList from './AdventureQuestionsFormList.js';
 import TimeLimitForm from './TimeLimitForm.js';
 import TimerRulesFormList from './TimerRulesFormList.js';
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 class Adventure extends React.Component {
   emptyAnswer = {
@@ -50,6 +52,7 @@ class Adventure extends React.Component {
     super(props);
     if (this.props.location?.state?.adventure) {
       this.state = { ...this.props.location.state.adventure };
+      this.state.isNew = false;
     } else {
       this.state = {
         name: '',
@@ -61,13 +64,18 @@ class Adventure extends React.Component {
         timerRulesEnabled: false,
         timerRules: [{ ...this.emptyTimerRule }],
       };
+      this.state.isNew = true;
       this.state.questions[0].answers = [];
       this.state.questions[0].answers.push({ ...this.emptyAnswer });
     }
+    this.state.isAddingAdventure = false;
+    this.state.isAdded = false;
   }
 
-  submitForm = () => {
-    console.log(toServerForm(this.state));
+  submitForm = async () => {
+    this.setState({ isAddingAdventure: true })
+    await this.props.addAdventure(this.state, 1);
+    this.setState({ isAdded: true });
   }
 
   updateBasicData = (data) => {
@@ -154,12 +162,15 @@ class Adventure extends React.Component {
         <Redirect to="/"/>
       );
     }
+    if (this.state.isAdded) {
+      return <Redirect to={'/'} />
+    }
 
     return (
       <div className={classes.root}>
         <CssBaseline/>
         <NavBar logout={this.props.logout}
-          title={'Edytuj przygodę'} /* returnLink={`/courses/${this.props.course.id}`} */ />
+          title={this.state.isNew ? 'Stwórz nową przygodę' : 'Edytuj przygodę'} /* returnLink={`/courses/${this.props.course.id}`} */ />
         <main className={classes.content}>
           <div className={classes.appBarSpacer}/>
           <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData}/>
@@ -195,6 +206,7 @@ class Adventure extends React.Component {
             </AccordionDetails>
           </Accordion>
           <Button color={'primary'} onClick={this.submitForm}>Zatwierdź i zapisz</Button>
+          {this.state.isAddingAdventure && <CircularProgress />}
         </main>
       </div>
     );
@@ -207,6 +219,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default compose(
-  connect(mapStateToProps, { logout }),
+  connect(mapStateToProps, { logout, addAdventure }),
   withStyles(styles),
 )(Adventure);
