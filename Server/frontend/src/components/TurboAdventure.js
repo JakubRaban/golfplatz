@@ -54,7 +54,8 @@ export class TurboAdventure extends Component {
             <Tab label='Tworzenie powiązań' value='graph'/>
           </Tabs>
           {this.state.loaded && this.state.mode === 'text' ?
-            <AdventuresList adventures={this.props.adventures}/> : <Graph adventures={this.props.adventures}/>}
+            <AdventuresList adventures={this.props.adventures}/> :
+            <Graph adventures={this.props.adventures} paths={this.props.paths}/>}
         </main>
       </div>
     );

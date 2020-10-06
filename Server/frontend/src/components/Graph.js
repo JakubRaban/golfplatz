@@ -8,18 +8,31 @@ import contextMenuConfig from './common/graphConfig/ContextMenu.js';
 import edgesConfig from './common/graphConfig/Edges.js';
 
 class Graph extends React.Component {
-  state = { elements: [], layout: { name: 'grid' } };
+  state = { elements: [], layout: { name: 'breadthfirst' } };
   cy = null;
   edgeHandler = null;
   contextMenu = null;
 
   componentDidMount() {
-    const elements = this.getAllNodes();
+    const nodes = this.getAllNodes();
+    const edges = this.getAllEdges();
+    const elements = nodes.concat(edges);
     this.setState({ elements }, () => this.cy.layout(this.state.layout).run());
   }
 
   componentWillUnmount() {
     this.cy.destroy();
+  }
+
+  getAllEdges() {
+    return this.props.paths.map((path) => {
+      return {
+        data: {
+          source: path.fromAdventure,
+          target: path.toAdventure,
+        },
+      };
+    });
   }
 
   getAllNodes() {
@@ -73,6 +86,7 @@ class Graph extends React.Component {
           maxZoom={5}
           minZoom={0.1}
           stylesheet={graphStyle}
+          wheelSensitivity={0.1}
         />
         <button onClick={this.postPaths} />
       </>

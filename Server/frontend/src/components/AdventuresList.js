@@ -1,4 +1,4 @@
-import { Button, CssBaseline, withStyles } from '@material-ui/core';
+import { Button, withStyles } from '@material-ui/core';
 import MaterialTable from 'material-table';
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
@@ -23,7 +23,6 @@ export class AdventuresList extends Component {
   }
 
   render() {
-    const { classes } = this.props;
     if (this.state.chosenAdventureId !== -1) {
       const url = `/adventure/${this.state.chosenAdventureId}`;
       return (
