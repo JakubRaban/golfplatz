@@ -27,7 +27,7 @@ class Graph extends React.Component {
       return {
         data: {
           id: adventure.id,
-          label: adventure.label,
+          label: adventure.name,
         },
       };
     });

@@ -52,6 +52,9 @@ class App extends React.Component {
                 <Route exact path="/courses" component={GetCourses}/>
                 <Route exact path="/courses/:id" component={CourseDetails}/>
                 <Route exact path="/chapters/:id" component={Chapter}/>
+                <Route exact path="/chapters/:id/adventures" component = {TurboAdventure} />
+                <Route exact path="/adventure" component = {Adventure}/>
+                <Route exact path="/adventure/:id" component = {Adventure}/>
                 <Route exact path="/register-student" component={RegisterStudent}/>
                 <Route exact path="/register-tutor" component={RegisterTutor}/>
                 <Route exact path="/marks" component={Marks}/>
@@ -60,8 +63,6 @@ class App extends React.Component {
                 <Route exact path="/achievements" component = {Achievements}/>
                 <Route exact path="/student-marks" component = {StudentMarks}/>
                 <Route exact path="/open-chapter/:id" component = {ChapterPassing}/>
-                <Route exact path="/graph" component = {TurboAdventure} />
-                <Route exact path="/adventure" component = {Adventure}/>
               </Switch>
             </Router>
           </AlertProvider>
