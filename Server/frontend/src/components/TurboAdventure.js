@@ -8,9 +8,10 @@ import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 
 import { logout } from '../actions/auth.js';
-import { getChapter, getAdventures } from '../actions/course.js';
+import { getAdventures,getChapter } from '../actions/course.js';
 import { styles } from '../styles/style.js';
 import AdventuresList from './AdventuresList.js';
+import NavBar from './common/NavBar.js';
 import Graph from './Graph.js';
 
 export class TurboAdventure extends Component {
@@ -21,7 +22,6 @@ export class TurboAdventure extends Component {
 
   static propTypes = {
     adventures: PropTypes.any.isRequired,
-    chapter: PropTypes.any.isRequired,
   };
 
   componentDidMount() {
@@ -44,17 +44,23 @@ export class TurboAdventure extends Component {
     const { classes } = this.props;
 
     return (
-      <div>
-        <h4>Tworzenie przygód w rozdziale</h4>
-
-        <Tabs onChange={this.handleChange}>
-          <Tab label='Lista przygód' value='text'/>
-          <Tab label='Tworzenie powiązań' value='graph'/>
-        </Tabs>
-
-        {this.state.loaded && this.state.mode === 'text' ?
-          <AdventuresList adventures={this.props.adventures}/> : <Graph adventures={this.props.adventures}/>}
-
+      <div className={classes.root}>
+        <CssBaseline />
+        <NavBar logout={this.props.logout} title={'Przygody w rozdziale'} returnLink={`/courses/${this.props.course.id}`} />
+        <main className={classes.content}>
+          <div className={classes.appBarSpacer} />
+          {this.state.loaded &&
+            <>
+              <Tabs onChange={this.handleChange}>
+                <Tab label='Lista przygód' value='text'/>
+                <Tab label='Tworzenie powiązań' value='graph'/>
+              </Tabs>
+              {this.state.mode === 'text' ?
+                <AdventuresList adventures={this.props.adventures}/> :
+                <Graph adventures={this.props.adventures} choices={this.props.choices} paths={this.props.paths}/>}
+            </>
+          }
+        </main>
       </div>
     );
   }
@@ -63,9 +69,11 @@ export class TurboAdventure extends Component {
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
+  course: state.course.courseDetailed,
   chapter: state.course.chapterDetailed,
   adventures: state.course.adventures,
   paths: state.course.paths,
+  choices: state.course.choices,
 });
 
 export default compose(

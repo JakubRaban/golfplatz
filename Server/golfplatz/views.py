@@ -134,9 +134,13 @@ class AdventureView(APIView):
         adventure_serializer = AdventureSerializer(adventures, many=True)
         paths = chapter.paths
         path_serializer = PathSerializer(paths, many=True)
+        choices = chapter.choices
+        choices_serializer = NextAdventureChoiceSerializer(choices, many=True)
+
         return Response({
             'adventures': adventure_serializer.data,
-            'paths': path_serializer.data
+            'paths': path_serializer.data,
+            'choices': choices_serializer.data
         })
 
     def post(self, request, chapter_id):

@@ -118,6 +118,18 @@ class Chapter(models.Model):
         return paths
 
     @property
+    def choices(self):
+        adventures = self.adventures.all()
+        choices = []
+        for adventure in adventures:
+            try:
+                choice = NextAdventureChoice.for_adventure(adventure)
+                choices.append(choice)
+            except:
+                pass
+        return choices
+
+    @property
     def initial_adventure(self):
         return self.adventures.get(is_initial=True)
 

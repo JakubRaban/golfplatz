@@ -4,22 +4,36 @@ import React from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 
 import graphStyle from '../styles/graphStyle.js';
+import ChoicesList from './ChoicesList.js';
 import contextMenuConfig from './common/graphConfig/ContextMenu.js';
 import edgesConfig from './common/graphConfig/Edges.js';
 
 class Graph extends React.Component {
-  state = { elements: [], layout: { name: 'grid' } };
+  state = { elements: [], layout: { name: 'breadthfirst' } };
   cy = null;
   edgeHandler = null;
   contextMenu = null;
 
   componentDidMount() {
-    const elements = this.getAllNodes();
+    const nodes = this.getAllNodes();
+    const edges = this.getAllEdges();
+    const elements = nodes.concat(edges);
     this.setState({ elements }, () => this.cy.layout(this.state.layout).run());
   }
 
   componentWillUnmount() {
     this.cy.destroy();
+  }
+
+  getAllEdges() {
+    return this.props.paths.map((path) => {
+      return {
+        data: {
+          source: path.fromAdventure,
+          target: path.toAdventure,
+        },
+      };
+    });
   }
 
   getAllNodes() {
@@ -64,7 +78,7 @@ class Graph extends React.Component {
 
   render() {
     return (
-      <>
+      <div className='graph-view'>
         <CytoscapeComponent
           className='graph-container'
           cy={this.onDiagramCreated}
@@ -73,9 +87,10 @@ class Graph extends React.Component {
           maxZoom={5}
           minZoom={0.1}
           stylesheet={graphStyle}
+          wheelSensitivity={0.1}
         />
-        <button onClick={this.postPaths} />
-      </>
+        <ChoicesList adventures={this.props.adventures} choices={this.props.choices}/>
+      </div>
     );
   }
 }
