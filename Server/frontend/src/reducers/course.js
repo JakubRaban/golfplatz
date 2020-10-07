@@ -65,7 +65,8 @@ export default function (state = initialState, action) {
         ...state,
         adventures: action.payload.adventures,
         paths: action.payload.paths,
-      }
+        choices: action.payload.choices,
+      };
     case ADD_ADVENTURES:
       return {
         ...state,

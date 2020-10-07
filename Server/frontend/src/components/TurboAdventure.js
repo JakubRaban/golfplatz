@@ -69,6 +69,7 @@ const mapStateToProps = (state) => ({
   chapter: state.course.chapterDetailed,
   adventures: state.course.adventures,
   paths: state.course.paths,
+  choices: state.course.choices,
 });
 
 export default compose(
