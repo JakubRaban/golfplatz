@@ -1,4 +1,5 @@
-import { ADD_ADVENTURES,
+import {
+  ADD_ADVENTURES,
   ADD_ANSWER,
   ADD_CHAPTER,
   ADD_COURSE,
@@ -8,7 +9,8 @@ import { ADD_ADVENTURES,
   GET_CHAPTER,
   GET_COURSE,
   GET_COURSES,
-  NEXT_ADVENTURE, START_CHAPTER }
+  NEXT_ADVENTURE, START_CHAPTER, UPDATE_ADVENTURE
+}
   from '../actions/types.js';
 
 const initialState = {
@@ -71,6 +73,11 @@ export default function (state = initialState, action) {
         ...state,
         adventures: [...state.adventures, action.payload],
       };
+    case UPDATE_ADVENTURE:
+      return {
+        ...state,
+        adventures: [...state.adventures.filter((adventure) => adventure.id !== action.payload.id), action.payload]
+      }
     case START_CHAPTER:
     case ADD_ANSWER:
     case NEXT_ADVENTURE:

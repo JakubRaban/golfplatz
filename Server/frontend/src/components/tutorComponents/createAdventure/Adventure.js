@@ -14,7 +14,7 @@ import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
 import { logout } from '../../../actions/auth.js';
-import { addAdventure } from '../../../actions/course.js';
+import { addAdventure, updateAdventure } from '../../../actions/course.js';
 import { toServerForm } from '../../../clientServerTranscoders/adventureTranscoder.js';
 import { styles } from '../../../styles/style.js';
 import NavBar from '../../common/NavBar.js';
@@ -75,7 +75,11 @@ class Adventure extends React.Component {
 
   submitForm = async () => {
     this.setState({ isAddingAdventure: true })
-    await this.props.addAdventure(this.state, this.props.chapter.id);
+    if(this.state.isNew) {
+      await this.props.addAdventure(this.state, this.props.chapter.id);
+    } else {
+      await this.props.updateAdventure(this.state, this.props.location.state.adventure.id);
+    }
     this.setState({ isAdded: true });
   }
 
@@ -222,6 +226,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, addAdventure }),
+  connect(mapStateToProps, { logout, addAdventure, updateAdventure }),
   withStyles(styles),
 )(Adventure);

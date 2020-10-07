@@ -13,7 +13,7 @@ export const toServerForm = (adventure) => {
 };
 
 export const fromServerForm = (adventure) => {
-  const result = { name: adventure.name, taskDescription: adventure.taskDescription, timeLimit: adventure.timeLimit };
+  const result = { id: adventure.id, name: adventure.name, taskDescription: adventure.taskDescription, timeLimit: adventure.timeLimit };
   result.hasTimeLimit = adventure.timeLimit > 0;
   result.timerRules = adventure.timerRules;
   result.timerRulesEnabled = adventure.timerRules.length > 0;

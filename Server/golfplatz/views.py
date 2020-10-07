@@ -1,5 +1,6 @@
 from knox.models import AuthToken
 from rest_framework import generics
+from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -140,11 +141,16 @@ class AdventureView(APIView):
 
     def post(self, request, chapter_id):
         serializer = CreateAdventuresSerializer(data=request.data)
-        if not serializer.is_valid():
-            print(serializer.errors)
+        serializer.is_valid(raise_exception=True)
         chapter = Chapter.objects.get(pk=chapter_id)
         new_adventure = serializer.save(chapter=chapter)
         return Response(AdventureSerializer(new_adventure).data)
+
+
+class UpdateAdventureView(UpdateAPIView):
+    queryset = Adventure.objects.all()
+    serializer_class = CreateAdventuresSerializer
+    permission_classes = [IsTutor]
 
 
 class AdventurePathsView(APIView):

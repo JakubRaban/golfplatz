@@ -155,9 +155,21 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This field should be an integer or a string representing an integer")
 
     def create(self, validated_data):
+        return self.do_create(validated_data)
+
+    def update(self, instance, validated_data):
+        return self.do_create(validated_data, instance.id)
+
+    def do_create(self, validated_data, adventure_id=None):
         point_source_data = validated_data.pop('point_source')
         timer_rules_data = validated_data.pop('timer_rules', [])
-        adventure = Adventure.objects.create(**validated_data)
+        if adventure_id:
+            Adventure.objects.filter(pk=adventure_id).update(**validated_data)
+            adventure = Adventure.objects.get(pk=adventure_id)
+            TimerRule.objects.filter(adventure=adventure).delete()
+            PointSource.objects.filter(adventure=adventure).delete()
+        else:
+            adventure = Adventure.objects.create(**validated_data)
         for timer_rule_data in timer_rules_data:
             TimerRule.objects.create(**timer_rule_data, adventure=adventure)
         self.create_point_source(point_source_data, adventure)

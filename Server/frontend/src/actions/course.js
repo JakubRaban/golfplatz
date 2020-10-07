@@ -17,6 +17,7 @@ import { ADD_ADVENTURES,
 import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
 import { tokenConfig } from './auth.js';
 import { createMessage, returnErrors } from './messages.js';
+import {UPDATE_ADVENTURE} from "./types";
 
 
 export const addAdventure = (adventure, chapterId) => (dispatch, getState) => {
@@ -31,6 +32,18 @@ export const addAdventure = (adventure, chapterId) => (dispatch, getState) => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });
 };
+
+export const updateAdventure = (adventure, id) => (dispatch, getState) => {
+  axios.put(`/api/adventures/${id}/`, toServerForm(adventure), tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: UPDATE_ADVENTURE,
+      payload: res.data,
+    });
+  })
+    .catch((err) => {
+      console.log(err.response.data);
+    })
+}
 
 export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
   axios.post(`/api/plot_parts/${plotPartId}/chapters/`, chapters, tokenConfig(getState)).then((res) => {
