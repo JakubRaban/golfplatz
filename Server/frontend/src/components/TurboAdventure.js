@@ -49,13 +49,17 @@ export class TurboAdventure extends Component {
         <NavBar logout={this.props.logout} title={'Przygody w rozdziale'} returnLink={`/courses/${this.props.course.id}`} />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
-          <Tabs onChange={this.handleChange}>
-            <Tab label='Lista przygód' value='text'/>
-            <Tab label='Tworzenie powiązań' value='graph'/>
-          </Tabs>
-          {this.state.loaded && this.state.mode === 'text' ?
-            <AdventuresList adventures={this.props.adventures}/> :
-            <Graph adventures={this.props.adventures} paths={this.props.paths}/>}
+          {this.state.loaded &&
+            <>
+              <Tabs onChange={this.handleChange}>
+                <Tab label='Lista przygód' value='text'/>
+                <Tab label='Tworzenie powiązań' value='graph'/>
+              </Tabs>
+              {this.state.mode === 'text' ?
+                <AdventuresList adventures={this.props.adventures}/> :
+                <Graph adventures={this.props.adventures} choices={this.props.choices} paths={this.props.paths}/>}
+            </>
+          }
         </main>
       </div>
     );

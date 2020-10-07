@@ -134,7 +134,6 @@ class AdventureView(APIView):
         paths = chapter.paths
         path_serializer = PathSerializer(paths, many=True)
         choices = chapter.choices
-        print(choices)
         choices_serializer = NextAdventureChoiceSerializer(choices, many=True)
 
         return Response({

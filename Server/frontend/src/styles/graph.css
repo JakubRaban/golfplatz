@@ -1,6 +1,21 @@
+.graph-view {
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 112px);
+  min-width: 0;
+}
+
 .graph-container {
-  height: 520px;
-  width: 100%;
+  width: 70%;
   flex: 1 1 0;
   min-width: 0;
+}
+
+.choices-container {
+  background-color: rgb(231, 228, 228);
+  max-width: 30%;
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: auto;
+  padding: 5px;
 }
