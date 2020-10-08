@@ -1,11 +1,18 @@
+import pprint
+
+from django.db import transaction
 from knox.models import AuthToken
 from rest_framework import generics
 from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.views import APIView, exception_handler
 from rest_framework import status
 
+from .graph_utils.chaptertograph import chapter_to_graph
+from .graph_utils.errors import GraphError
+from .graph_utils.initialadventurefinder import designate_initial_adventure
+from .graph_utils.verifier import verify_adventure_graph
 from .models import PathChoiceDescription, NextAdventureChoiceDescription, NextAdventureChoice
 from .permissions import IsTutor, IsStudent
 from .serializers import *
@@ -153,33 +160,31 @@ class UpdateAdventureView(UpdateAPIView):
     permission_classes = [IsTutor]
 
 
-class AdventurePathsView(APIView):
+class ChapterSubmissionView(APIView):
     permission_classes = [IsTutor]
 
-    def post(self, request):
-        serializer = PathSerializer(data=request.data, many=True)
+    @transaction.atomic
+    def post(self, request, chapter_id):
+        chapter = Chapter.objects.get(pk=chapter_id)
+        self.create_paths(request.data['paths'])
+        self.create_descriptions(request.data.get('descriptions', []))
+        adventure_graph = chapter_to_graph(chapter)
+        initial_adventure = designate_initial_adventure(adventure_graph)
+        verify_adventure_graph(adventure_graph, initial_adventure)
+        chapter.complete()
+        return Response(ChapterSerializer(chapter).data)
+
+    @staticmethod
+    def create_paths(paths_data):
+        serializer = PathSerializer(data=paths_data, many=True)
         serializer.is_valid(raise_exception=True)
-        new_paths = []
-        for path_data in serializer.validated_data:
-            new_paths.append(Path.objects.create(from_adventure=path_data['from_adventure'],
-                                                 to_adventure=path_data['to_adventure']))
-        return Response(PathSerializer(new_paths, many=True).data)
+        return serializer.save()
 
-
-class PathChoiceDescriptionView(APIView):
-    permission_classes = [IsTutor]
-
-    def post(self, request):
-        serializer = NextAdventureChoiceSerializer(data=request.data, many=True)
+    @staticmethod
+    def create_descriptions(descriptions_data):
+        serializer = NextAdventureChoiceSerializer(data=descriptions_data, many=True)
         serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
-        for adventure_choice in data:
-            NextAdventureChoiceDescription.objects.create(from_adventure=adventure_choice['from_adventure'],
-                                                          description=adventure_choice['choice_description'])
-            for path_choice in adventure_choice['path_choices']:
-                path = Path.objects.get(from_adventure=adventure_choice['from_adventure'], to_adventure=path_choice['to_adventure'])
-                PathChoiceDescription.objects.create(path=path, description=path_choice['path_description'])
-        return Response()
+        return serializer.save()
 
 
 class ChapterStartView(APIView):

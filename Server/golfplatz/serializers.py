@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from rest_framework import serializers
 
 from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, \
-    Question, Answer, PointSource, SurpriseExercise, Path
+    Question, Answer, PointSource, SurpriseExercise, Path, NextAdventureChoiceDescription, PathChoiceDescription
 
 
 class LoginSerializer(serializers.Serializer):
@@ -38,15 +38,23 @@ class CourseGroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PathChoiceSerializer(serializers.Serializer):
+class PathChoiceDescriptionSerializer(serializers.Serializer):
     to_adventure = serializers.PrimaryKeyRelatedField(queryset=Adventure.objects.all())
-    path_description = serializers.CharField()
+    description = serializers.CharField()
 
 
 class NextAdventureChoiceSerializer(serializers.Serializer):
     from_adventure = serializers.PrimaryKeyRelatedField(queryset=Adventure.objects.all())
-    choice_description = serializers.CharField()
-    path_choices = PathChoiceSerializer(many=True)
+    description = serializers.CharField()
+    path_choices = PathChoiceDescriptionSerializer(many=True)
+
+    def create(self, validated_data):
+        path_choices_data = validated_data.pop('path_choices', [])
+        NextAdventureChoiceDescription.objects.create(**validated_data)
+        for path_choice_data in path_choices_data:
+            path = Path.objects.get(from_adventure=validated_data['from_adventure'],
+                                    to_adventure=path_choice_data['to_adventure'])
+            PathChoiceDescription.objects.create(path=path, description=path_choice_data['description'])
 
 
 class AnswerSerializer(serializers.ModelSerializer):
