@@ -120,14 +120,7 @@ class Chapter(models.Model):
     @property
     def choices(self):
         adventures = self.adventures.all()
-        choices = []
-        for adventure in adventures:
-            try:
-                choice = NextAdventureChoice.for_adventure(adventure)
-                choices.append(choice)
-            except:
-                pass
-        return choices
+        return list(filter(None, [NextAdventureChoice.for_adventure(adventure) for adventure in adventures]))
 
     @property
     def initial_adventure(self):
@@ -343,24 +336,28 @@ class Grade(models.Model):
 class PathChoice:
     def __init__(self, **kwargs):
         self.to_adventure: Adventure = kwargs['to_adventure']
-        self.path_description: str = kwargs['path_description']
+        self.description: str = kwargs['description']
 
 
 class NextAdventureChoice:
     def __init__(self, **kwargs):
         self.from_adventure: Adventure = kwargs['from_adventure']
-        self.choice_description: str = kwargs['choice_description']
+        self.description: str = kwargs['description']
         self.path_choices: List[PathChoice] = kwargs['path_choices']
 
     @staticmethod
     def for_adventure(adventure: Adventure):
         paths = adventure.paths_from_here
-        path_choices = [PathChoice(to_adventure=path.to_adventure,
-                                   path_description=path.pathchoicedescription.description) for path in paths]
-        self = NextAdventureChoice(from_adventure=adventure,
-                                   choice_description=adventure.nextadventurechoicedescription.description,
-                                   path_choices=path_choices)
-        return self
+        try:
+            path_choices = [PathChoice(to_adventure=path.to_adventure,
+                                       description=path.pathchoicedescription.description) for path in paths]
+            self = NextAdventureChoice(from_adventure=adventure,
+                                       description=adventure.nextadventurechoicedescription.description,
+                                       path_choices=path_choices)
+            return self
+        except (Path.pathchoicedescription.RelatedObjectDoesNotExist,
+                Adventure.nextadventurechoicedescription.RelatedObjectDoesNotExist):
+            return None
 
 
 class QuestionSummary:

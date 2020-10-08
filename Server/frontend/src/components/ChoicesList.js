@@ -27,13 +27,13 @@ class ChoicesList extends React.Component {
               <AccordionDetails>
                 <FormGroup style={{ marginBottom: '5px' }}>
                   <TextField label={'Z przygody'} name={'fromAdventure'} value={this.getAdventureName(choice.fromAdventure)} disabled/>
-                  <TextField label={'Opis wyboru przejścia'} multiline rows={4} name={'choiceDescription'} value={choice.choiceDescription} fullWidth/>
+                  <TextField label={'Opis wyboru przejścia'} multiline rows={4} name={'description'} value={choice.description} fullWidth/>
                   <Typography variant='subtitle1'>Możliwe przejścia</Typography>
                   {choice.pathChoices.map((pathChoice) => {
                     return (
                       <>
                         <TextField label={'Do przygody'} name={'toAdventure'} value={this.getAdventureName(pathChoice.toAdventure)} disabled/>
-                        <TextField label={'Opis przejścia'} name={'pathDescription'} value={pathChoice.pathDescription} />
+                        <TextField label={'Opis przejścia'} name={'description'} value={pathChoice.description} />
                       </>
                     );
                   })}
