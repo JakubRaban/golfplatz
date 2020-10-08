@@ -1,0 +1,36 @@
+{
+    "paths": [
+        {
+            "fromAdventure": 1,
+            "toAdventure": 2
+        },
+        {
+            "fromAdventure": 2,
+            "toAdventure": 3
+        },
+        {
+            "fromAdventure": 2,
+            "toAdventure": 4
+        },
+        {
+            "fromAdventure": 3,
+            "toAdventure": 4
+        }
+    ],
+    "descriptions": [
+        {
+            "fromAdventure": 2,
+            "description": "Widzisz cerbera",
+            "pathChoices": [
+                {
+                    "toAdventure": 3,
+                    "description": "Uciekasz"
+                },
+                {
+                    "toAdventure": 4,
+                    "description": "Walczysz"
+                }
+            ]
+        }
+    ]
+}

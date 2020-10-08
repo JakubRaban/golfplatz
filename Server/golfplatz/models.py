@@ -133,6 +133,10 @@ class Chapter(models.Model):
     def initial_adventure(self):
         return self.adventures.get(is_initial=True)
 
+    def complete(self):
+        self.creating_completed = True
+        self.save()
+
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
 
