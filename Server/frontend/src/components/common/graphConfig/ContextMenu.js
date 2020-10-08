@@ -1,6 +1,5 @@
 export const contextMenuConfig = {
-  menuRadius: 80,
-  selector: 'edge',
+  menuRadius: 100,
   commands: [],
   fillColor: 'rgba(0, 0, 0, 0.55)',
   activeFillColor: 'rgba(32, 201, 151, 0.75)',

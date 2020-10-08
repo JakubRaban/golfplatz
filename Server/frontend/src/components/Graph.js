@@ -2,17 +2,20 @@ import '../styles/graph.css';
 
 import React from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
+import { Redirect } from 'react-router-dom';
 
+import { fromServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
 import graphStyle from '../styles/graphStyle.js';
 import ChoicesList from './ChoicesList.js';
 import contextMenuConfig from './common/graphConfig/ContextMenu.js';
 import edgesConfig from './common/graphConfig/Edges.js';
 
 class Graph extends React.Component {
-  state = { elements: [], layout: { name: 'breadthfirst' } };
+  state = { chosenAdventureId: -1, elements: [], layout: { name: 'breadthfirst' } };
   cy = null;
   edgeHandler = null;
-  contextMenu = null;
+  edgeContextMenu = null;
+  nodeContextMenu = null;
 
   componentDidMount() {
     const nodes = this.getAllNodes();
@@ -41,6 +44,7 @@ class Graph extends React.Component {
       return {
         data: {
           id: adventure.id,
+          resId: adventure.id, // duplikat z powodów bibliotecznych
           label: adventure.name,
         },
       };
@@ -48,6 +52,7 @@ class Graph extends React.Component {
   }
 
   createContextMenu() {
+    contextMenuConfig.selector = 'edge';
     contextMenuConfig.commands = [
       {
         select: (edge) => {
@@ -56,7 +61,25 @@ class Graph extends React.Component {
         content: 'Usuń',
       },
     ];
-    this.contextMenu = this.cy.cxtmenu(contextMenuConfig);
+    this.edgeContextMenu = this.cy.cxtmenu(contextMenuConfig);
+
+    contextMenuConfig.selector = 'node';
+    contextMenuConfig.commands = [
+      {
+        select: (node) => {
+          this.setState({ chosenAdventureId: node.data().resId });
+        },
+        content: 'Edytuj',
+      },
+      {
+        select: (node) => {
+          this.cy.remove(node);
+        },
+        content: 'Usuń',
+      },
+    ];
+
+    this.nodeContextMenu = this.cy.cxtmenu(contextMenuConfig);
   }
 
   onDiagramCreated = (cy) => {
@@ -77,6 +100,20 @@ class Graph extends React.Component {
   }
 
   render() {
+    if (this.state.chosenAdventureId !== -1) {
+      const url = `/adventure/${this.state.chosenAdventureId}`;
+      console.log(url);
+      return (
+        <Redirect to={
+          {
+            pathname: url,
+            state: {
+              adventure: fromServerForm(this.props.adventures.find((adventure) => adventure.id === this.state.chosenAdventureId)),
+            },
+          }
+        }/>
+      );
+    }
     return (
       <div className='graph-view'>
         <CytoscapeComponent
