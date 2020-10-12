@@ -2,7 +2,7 @@ from django.db import transaction
 from knox.models import AuthToken
 from rest_framework import generics
 from rest_framework import status
-from rest_framework.generics import UpdateAPIView
+from rest_framework.generics import UpdateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -155,7 +155,7 @@ class AdventureView(APIView):
         return Response(AdventureSerializer(new_adventure).data)
 
 
-class UpdateAdventureView(UpdateAPIView):
+class UpdateAdventureView(RetrieveUpdateDestroyAPIView):
     queryset = Adventure.objects.all()
     serializer_class = CreateAdventuresSerializer
     permission_classes = [IsTutor]
