@@ -130,6 +130,10 @@ class Chapter(models.Model):
         self.creating_completed = True
         self.save()
 
+    def uncomplete(self):
+        self.creating_completed = False
+        self.save()
+
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
 
