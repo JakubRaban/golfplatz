@@ -12,7 +12,7 @@ export class AdventuresList extends Component {
   columns = [
     { title: 'ID przygody', field: 'id', type: 'numeric' },
     { title: 'Nazwa', field: 'name' },
-    { title: 'Opis', field: 'description' },
+    { title: 'Opis', field: 'taskDescription' },
     { title: 'Utworzono', field: 'createdOn', type: 'date' },
   ];
 

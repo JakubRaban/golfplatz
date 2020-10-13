@@ -1,5 +1,9 @@
+/* eslint-disable radix */
+/* eslint-disable quotes */
+/* eslint-disable prefer-template */
 import '../styles/graph.css';
 
+import { Button } from '@material-ui/core';
 import React from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 import { Redirect } from 'react-router-dom';
@@ -11,7 +15,7 @@ import contextMenuConfig from './common/graphConfig/ContextMenu.js';
 import edgesConfig from './common/graphConfig/Edges.js';
 
 class Graph extends React.Component {
-  state = { chosenAdventureId: -1, elements: [], layout: { name: 'breadthfirst' } };
+  state = { chosenAdventureId: -1, elements: [], graphMode: true, layout: { name: 'breadthfirst' } };
   cy = null;
   edgeHandler = null;
   edgeContextMenu = null;
@@ -21,7 +25,8 @@ class Graph extends React.Component {
     const nodes = this.getAllNodes();
     const edges = this.getAllEdges();
     const elements = nodes.concat(edges);
-    this.setState({ elements }, () => this.cy.layout(this.state.layout).run());
+    const choices = this.props.choices || [];
+    this.setState({ elements, choices }, () => this.cy.layout(this.state.layout).run());
   }
 
   componentWillUnmount() {
@@ -67,7 +72,7 @@ class Graph extends React.Component {
     contextMenuConfig.commands = [
       {
         select: (node) => {
-          this.setState({ chosenAdventureId: node.data().resId });
+          setTimeout(() => { this.setState({ chosenAdventureId: node.data().resId }); }, 250);
         },
         content: 'Edytuj',
       },
@@ -99,6 +104,70 @@ class Graph extends React.Component {
     console.log(paths);
   }
 
+  mapChoices = () => {
+    const protoChoices = [];
+    this.cy.$('node').forEach((node) => {
+      const sourceEdges = this.cy.edges("[source='" + node.data().id + "']");
+      if (sourceEdges.length >= 2) {
+        const pathChoices = [];
+        sourceEdges.forEach((edge) => {
+          const pathChoice = {
+            toAdventure: parseInt(edge.data().target),
+            description: '',
+          };
+          pathChoices.push(pathChoice);
+        });
+
+        const choice = {
+          fromAdventure: node.data().resId,
+          description: '',
+          pathChoices,
+        };
+        protoChoices.push(choice);
+      }
+    });
+    return protoChoices;
+  }
+
+  validateChoices = (protoChoices) => {
+    if (!this.state.choices.length) return protoChoices;
+    const { choices } = this.state;
+    choices.forEach((choice) => {
+      const protoChoice = protoChoices.find((c) => c.fromAdventure === choice.fromAdventure);
+      if (protoChoice) {
+        choice.pathChoices.forEach((pathChoice) => {
+          const protoPath = protoChoice.pathChoices.find((p) => p.toAdventure === pathChoice.toAdventure);
+          if (!protoPath) {
+            choice.pathChoices.splice(choice.pathChoices.indexOf(pathChoice), 1);
+          }
+          protoChoice.pathChoices.splice(protoPath, 1);
+        });
+
+        protoChoice.pathChoices.forEach((pathProtoChoice) => {
+          choice.pathChoices.push(pathProtoChoice);
+        });
+        protoChoices.splice(protoChoice, 1);
+      } else {
+        choices.splice(choices.indexOf(choice), 1);
+      }
+    });
+
+    protoChoices.forEach((protoChoice) => {
+      choices.push(protoChoice);
+    });
+
+    return choices;
+  }
+
+  handleSubmit = () => {
+    if (this.state.graphMode) {
+      const choices = this.validateChoices(this.mapChoices());
+      this.edgeHandler.disable();
+      this.setState({ choices, graphMode: false });
+    }
+    // else - uderzamy do api
+  }
+
   render() {
     if (this.state.chosenAdventureId !== -1) {
       const url = `/adventure/${this.state.chosenAdventureId}`;
@@ -126,7 +195,16 @@ class Graph extends React.Component {
           stylesheet={graphStyle}
           wheelSensitivity={0.1}
         />
-        <ChoicesList adventures={this.props.adventures} choices={this.props.choices}/>
+        <div className='choices-wrapper'>
+          <ChoicesList adventures={this.props.adventures} choices={this.state.choices}/>
+          <Button
+            variant='outlined'
+            color='primary'
+            onClick={this.handleSubmit}
+            type='submit'
+          > {this.state.graphMode ? 'Zapisz ścieżki' : 'Zapisz przejścia'}
+          </Button>
+        </div>
       </div>
     );
   }

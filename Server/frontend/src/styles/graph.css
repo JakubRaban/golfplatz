@@ -11,9 +11,12 @@
   min-width: 0;
 }
 
+.choices-wrapper {
+  width: 30%;
+}
+
 .choices-container {
   background-color: rgb(231, 228, 228);
-  max-width: 30%;
   flex: 1 1 0;
   min-width: 0;
   overflow: auto;

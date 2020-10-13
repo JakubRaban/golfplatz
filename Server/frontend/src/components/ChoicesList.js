@@ -8,9 +8,15 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React from 'react';
 
 class ChoicesList extends React.Component {
+  componentDidUpdate(prevProps) {
+    if (prevProps.choices !== this.props.choices) {
+      this.setState({});
+    }
+  }
+
   getAdventureName = (id) => {
-    const adventure = this.props.adventures.find((adv) => adv.id === id);
-    return adventure.name;
+    const adventure = this.props.adventures.find((adv) => adv.id === parseInt(id));
+    return adventure.name || '';
   }
 
   render() {
