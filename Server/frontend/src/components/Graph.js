@@ -6,8 +6,10 @@ import '../styles/graph.css';
 import { Button } from '@material-ui/core';
 import React from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
+import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
+import { addPathsWithDescriptions } from '../actions/course.js';
 import { fromServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
 import graphStyle from '../styles/graphStyle.js';
 import ChoicesList from './ChoicesList.js';
@@ -96,12 +98,26 @@ class Graph extends React.Component {
     this.createContextMenu();
   };
 
-  postPaths = () => {
+  formPaths = () => {
     const paths = [];
     this.cy.$('edge').forEach((edge) => {
       paths.push({ fromAdventure: edge.data().source, toAdventure: edge.data().target });
     });
-    console.log(paths);
+    return paths;
+  }
+
+  handleChoiceChange = (value, index, nestedIndex) => {
+    const { choices } = this.state;
+    const choice = choices[index];
+
+    if (nestedIndex === undefined) choice.description = value;
+    else {
+      const pathChoice = choice.pathChoices[nestedIndex];
+      pathChoice.description = value;
+      choice.pathChoices[nestedIndex] = pathChoice;
+    }
+    choices[index] = choice;
+    this.setState({ choices });
   }
 
   mapChoices = () => {
@@ -164,8 +180,12 @@ class Graph extends React.Component {
       const choices = this.validateChoices(this.mapChoices());
       this.edgeHandler.disable();
       this.setState({ choices, graphMode: false });
+    } else {
+      const paths = this.formPaths();
+      const descriptions = this.state.choices;
+      const submit = { paths, descriptions };
+      this.props.addPathsWithDescriptions(submit, this.props.chapter.id);
     }
-    // else - uderzamy do api
   }
 
   render() {
@@ -196,7 +216,10 @@ class Graph extends React.Component {
           wheelSensitivity={0.1}
         />
         <div className='choices-wrapper'>
-          <ChoicesList adventures={this.props.adventures} choices={this.state.choices}/>
+          <ChoicesList
+            adventures={this.props.adventures}
+            choices={this.state.choices}
+            handleChange={this.handleChoiceChange}/>
           <Button
             variant='outlined'
             color='primary'
@@ -210,4 +233,9 @@ class Graph extends React.Component {
   }
 }
 
-export default Graph;
+const mapStateToProps = (state) => ({
+  chapter: state.course.chapterDetailed,
+  pathsWithDescriptions: state.course.pathsWithDescriptions,
+});
+
+export default connect(mapStateToProps, { addPathsWithDescriptions })(Graph);

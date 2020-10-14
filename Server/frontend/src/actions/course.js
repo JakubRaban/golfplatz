@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
+import { tokenConfig } from './auth.js';
+import { createMessage, returnErrors } from './messages.js';
 import { ADD_ADVENTURES,
   ADD_ANSWER,
   ADD_CHAPTER,
@@ -11,13 +14,11 @@ import { ADD_ADVENTURES,
   GET_COURSE,
   GET_COURSES,
   NEXT_ADVENTURE,
+  PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
+  UPDATE_ADVENTURE,
 }
-  from '../actions/types.js';
-import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
-import { tokenConfig } from './auth.js';
-import { createMessage, returnErrors } from './messages.js';
-import {UPDATE_ADVENTURE} from "./types";
+  from './types.js';
 
 
 export const addAdventure = (adventure, chapterId) => (dispatch, getState) => {
@@ -42,8 +43,20 @@ export const updateAdventure = (adventure, id) => (dispatch, getState) => {
   })
     .catch((err) => {
       console.log(err.response.data);
-    })
-}
+    });
+};
+
+export const addPathsWithDescriptions = (pathsWithDescriptions, chapterId) => (dispatch, getState) => {
+  axios.post(`/api/chapters/${chapterId}/submit/`, pathsWithDescriptions, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: PATHS_WITH_DESCRIPTIONS,
+      payload: res.data,
+    });
+  })
+    .catch((err) => {
+      console.log(err.response.data);
+    });
+};
 
 export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
   axios.post(`/api/plot_parts/${plotPartId}/chapters/`, chapters, tokenConfig(getState)).then((res) => {

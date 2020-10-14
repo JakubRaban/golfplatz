@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import compose from 'recompose/compose';
 
 import { logout } from '../actions/auth.js';
-import { getAdventures,getChapter } from '../actions/course.js';
+import { getAdventures, getChapter } from '../actions/course.js';
 import { styles } from '../styles/style.js';
 import AdventuresList from './AdventuresList.js';
 import NavBar from './common/NavBar.js';
