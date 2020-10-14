@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 /* eslint-disable radix */
 /* eslint-disable quotes */
 /* eslint-disable prefer-template */
@@ -148,25 +149,33 @@ class Graph extends React.Component {
   validateChoices = (protoChoices) => {
     if (!this.state.choices.length) return protoChoices;
     const { choices } = this.state;
-    choices.forEach((choice) => {
+    let i = choices.length - 1;
+
+    while (i >= 0) {
+      const choice = choices[i];
       const protoChoice = protoChoices.find((c) => c.fromAdventure === choice.fromAdventure);
+
       if (protoChoice) {
-        choice.pathChoices.forEach((pathChoice) => {
+        let j = choice.pathChoices.length - 1;
+        while (j >= 0) {
+          const pathChoice = choice.pathChoices[j];
           const protoPath = protoChoice.pathChoices.find((p) => p.toAdventure === pathChoice.toAdventure);
           if (!protoPath) {
-            choice.pathChoices.splice(choice.pathChoices.indexOf(pathChoice), 1);
+            choice.pathChoices.splice(j, 1);
           }
-          protoChoice.pathChoices.splice(protoPath, 1);
-        });
+          protoChoice.pathChoices.splice(protoChoice.pathChoices.indexOf(protoPath), 1);
+          j--;
+        }
 
         protoChoice.pathChoices.forEach((pathProtoChoice) => {
           choice.pathChoices.push(pathProtoChoice);
         });
-        protoChoices.splice(protoChoice, 1);
+        protoChoices.splice(protoChoices.indexOf(protoChoice), 1);
       } else {
-        choices.splice(choices.indexOf(choice), 1);
+        choices.splice(i, 1);
       }
-    });
+      i--;
+    }
 
     protoChoices.forEach((protoChoice) => {
       choices.push(protoChoice);
