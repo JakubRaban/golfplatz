@@ -62,6 +62,32 @@ class CourseGroup(models.Model):
         return self.group_name
 
 
+class Achievement(models.Model):
+    class CourseElementChoice(models.TextChoices):
+        PLOT_PART = 'PLOT_PART', 'Plot part'
+        CHAPTER = 'CHAPTER', 'Chapter'
+
+    class ConditionType(models.TextChoices):
+        SCORE = 'SCORE', 'Score'
+        TIME = 'TIME', 'Time'
+
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='achievements')
+    name = models.CharField(max_length=100)
+    image = models.ImageField()
+    course_element_considered = models.CharField(max_length=10, choices=CourseElementChoice.choices)
+    how_many = models.PositiveSmallIntegerField()
+    in_a_row = models.BooleanField()
+    condition_type = models.CharField(max_length=10, choices=ConditionType.choices)
+    percentage = models.PositiveSmallIntegerField()
+    accomplished_by_students = models.ManyToManyField('Participant', through='AccomplishedAchievement')
+
+
+class AccomplishedAchievement(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    achievement = models.ForeignKey('Achievement', on_delete=models.PROTECT)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+
 class PlotPart(models.Model):
     name = models.CharField(max_length=50)
     introduction = models.TextField()
@@ -93,6 +119,7 @@ class Chapter(models.Model):
     points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3, default=0)
     position_in_plot_part = models.PositiveSmallIntegerField()
     creating_completed = models.BooleanField(default=False)
+    done_by_students = models.ManyToManyField('Participant', through='AccomplishedChapter')
 
     class Meta:
         ordering = ['position_in_plot_part']
@@ -229,6 +256,16 @@ class AccomplishedAdventure(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['student', 'adventure'], name='student_accomplishes_adventure_once')
         ]
+
+
+class AccomplishedChapter(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    chapter = models.ForeignKey('Chapter', on_delete=models.PROTECT)
+    points_scored = models.DecimalField(max_digits=7, decimal_places=3)
+    average_time_taken_percent = models.PositiveSmallIntegerField()
+    is_completed = models.BooleanField(default=False)
+    time_started = models.DateTimeField(auto_now_add=True)
+    time_completed = models.DateTimeField(null=True, default=None)
 
 
 class PointSource(models.Model):

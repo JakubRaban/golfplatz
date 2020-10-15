@@ -1,22 +1,19 @@
-import pprint
-
 from django.db import transaction
 from knox.models import AuthToken
 from rest_framework import generics
-from rest_framework.generics import UpdateAPIView
+from rest_framework import status
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView, exception_handler
-from rest_framework import status
+from rest_framework.views import APIView
 
+from .gameplay import grade_answers_and_get_next_adventure, get_summary
 from .graph_utils.chaptertograph import chapter_to_graph
-from .graph_utils.errors import GraphError
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
-from .models import PathChoiceDescription, NextAdventureChoiceDescription, NextAdventureChoice
+from .models import NextAdventureChoice
 from .permissions import IsTutor, IsStudent
 from .serializers import *
-from .gameplay import grade_answers_and_get_next_adventure, get_summary
 
 
 class CourseView(APIView):
@@ -158,10 +155,39 @@ class AdventureView(APIView):
         return Response(AdventureSerializer(new_adventure).data)
 
 
-class UpdateAdventureView(UpdateAPIView):
+class UpdateAdventureView(RetrieveUpdateDestroyAPIView):
     queryset = Adventure.objects.all()
     serializer_class = CreateAdventuresSerializer
     permission_classes = [IsTutor]
+
+
+def save_chapter_structure(request, chapter_id, update=False, draft=False):
+    chapter = Chapter.objects.get(pk=chapter_id)
+    if update:
+        Path.objects.filter(from_adventure__chapter=chapter).delete()
+        NextAdventureChoiceDescription.objects.filter(from_adventure__chapter=chapter).delete()
+    _create_paths(request.data['paths'])
+    _create_descriptions(request.data.get('descriptions', []))
+    if not draft:
+        adventure_graph = chapter_to_graph(chapter)
+        initial_adventure = designate_initial_adventure(adventure_graph)
+        verify_adventure_graph(adventure_graph, initial_adventure)
+        chapter.complete()
+    else:
+        chapter.uncomplete()
+    return Response(ChapterSerializer(chapter).data)
+
+
+def _create_paths(paths_data):
+    serializer = PathSerializer(data=paths_data, many=True)
+    serializer.is_valid(raise_exception=True)
+    return serializer.save()
+
+
+def _create_descriptions(descriptions_data):
+    serializer = NextAdventureChoiceSerializer(data=descriptions_data, many=True)
+    serializer.is_valid(raise_exception=True)
+    return serializer.save()
 
 
 class ChapterSubmissionView(APIView):
@@ -169,26 +195,23 @@ class ChapterSubmissionView(APIView):
 
     @transaction.atomic
     def post(self, request, chapter_id):
-        chapter = Chapter.objects.get(pk=chapter_id)
-        self.create_paths(request.data['paths'])
-        self.create_descriptions(request.data.get('descriptions', []))
-        adventure_graph = chapter_to_graph(chapter)
-        initial_adventure = designate_initial_adventure(adventure_graph)
-        verify_adventure_graph(adventure_graph, initial_adventure)
-        chapter.complete()
-        return Response(ChapterSerializer(chapter).data)
+        return save_chapter_structure(request, chapter_id)
 
-    @staticmethod
-    def create_paths(paths_data):
-        serializer = PathSerializer(data=paths_data, many=True)
-        serializer.is_valid(raise_exception=True)
-        return serializer.save()
+    @transaction.atomic
+    def put(self, request, chapter_id):
+        return save_chapter_structure(request, chapter_id, update=True)
 
-    @staticmethod
-    def create_descriptions(descriptions_data):
-        serializer = NextAdventureChoiceSerializer(data=descriptions_data, many=True)
-        serializer.is_valid(raise_exception=True)
-        return serializer.save()
+
+class ChapterDraftSubmissionView(APIView):
+    permission_classes = [IsTutor]
+
+    @transaction.atomic
+    def post(self, request, chapter_id):
+        return save_chapter_structure(request, chapter_id, draft=True)
+
+    @transaction.atomic
+    def put(self, request, chapter_id):
+        return save_chapter_structure(request, chapter_id, update=True, draft=True)
 
 
 class ChapterStartView(APIView):
