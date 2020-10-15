@@ -7,11 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .gameplay import grade_answers_and_get_next_adventure, get_summary
+from .gameplay import grade_answers_and_get_next_adventure, _get_summary, start_chapter, process_answers, is_summary, \
+    is_adventure, is_choice
 from .graph_utils.chaptertograph import chapter_to_graph
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
-from .models import NextAdventureChoice
+from .models import NextAdventureChoice, AccomplishedChapter
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 
@@ -113,7 +114,8 @@ class ChapterView(APIView):
         serializer = CreateChapterSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         plot_part = PlotPart.objects.get(pk=plot_part_id)
-        created_chapters = [Chapter.objects.create(plot_part=plot_part, **chapter_dict) for chapter_dict in serializer.validated_data]
+        created_chapters = [Chapter.objects.create(plot_part=plot_part, **chapter_dict) for chapter_dict in
+                            serializer.validated_data]
         return Response(ChapterSerializer(created_chapters, many=True).data)
 
     def get(self, request, plot_part_id):
@@ -219,10 +221,11 @@ class ChapterStartView(APIView):
 
     def get(self, request, chapter_id):
         chapter = Chapter.objects.get(pk=chapter_id)
+        initial_adventure = start_chapter(self.request.user, chapter)
         return Response({
             'response_type': 'adventure',
             'chapter_name': chapter.name,
-            'adventure': AdventureSerializer(chapter.initial_adventure).data
+            'adventure': AdventureSerializer(initial_adventure).data
         })
 
 
@@ -239,31 +242,31 @@ class AdventureAnswerView(APIView):
         closed_questions = []
         for question_data in closed_questions_data:
             closed_questions.append((Question.objects.get(pk=question_data['question_id']),
-                                    set([Answer.objects.get(pk=answer_id)
-                                         for answer_id in question_data['marked_answers']])))
+                                     set([Answer.objects.get(pk=answer_id)
+                                          for answer_id in question_data['marked_answers']])))
         open_questions = []
         for question_data in open_questions_data:
             open_questions.append((Question.objects.get(pk=question_data['question_id']),
                                    question_data['given_answer']))
-        next_adventures = grade_answers_and_get_next_adventure(self.request.user,
-                                                               current_adventure,
-                                                               data['start_time'], data['answer_time'],
-                                                               closed_questions,
-                                                               open_questions)
-        if len(next_adventures) == 0:
+        next_stage = process_answers(self.request.user,
+                                     current_adventure,
+                                     data['start_time'], data['answer_time'],
+                                     closed_questions,
+                                     open_questions)
+        if is_summary(next_stage):
             return Response({
                 'response_type': 'summary',
-                'summary': AdventureSummarySerializer(get_summary(self.request.user, current_adventure), many=True).data
+                'summary': AdventureSummarySerializer(next_stage, many=True).data
             })
-        elif len(next_adventures) == 1:
+        elif is_adventure(next_stage):
             return Response({
                 'response_type': 'adventure',
-                'adventure': AdventureSerializer(next_adventures[0]).data
+                'adventure': AdventureSerializer(next_stage).data
             })
-        else:
+        elif is_choice(next_stage):
             return Response({
                 'response_type': 'choice',
-                'choice': NextAdventureChoiceSerializer(NextAdventureChoice.for_adventure(current_adventure)).data
+                'choice': NextAdventureChoiceSerializer(next_stage).data
             })
 
 

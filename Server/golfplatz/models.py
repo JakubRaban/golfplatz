@@ -8,6 +8,7 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Max
+from django.utils.timezone import now
 from knox.models import AuthToken
 
 from .managers import ParticipantManager
@@ -261,11 +262,18 @@ class AccomplishedAdventure(models.Model):
 class AccomplishedChapter(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     chapter = models.ForeignKey('Chapter', on_delete=models.PROTECT)
-    points_scored = models.DecimalField(max_digits=7, decimal_places=3)
-    average_time_taken_percent = models.PositiveSmallIntegerField()
+    points_scored = models.DecimalField(max_digits=7, decimal_places=3, null=True)
+    average_time_taken_percent = models.PositiveSmallIntegerField(null=True)
     is_completed = models.BooleanField(default=False)
     time_started = models.DateTimeField(auto_now_add=True)
-    time_completed = models.DateTimeField(null=True, default=None)
+    time_completed = models.DateTimeField(null=True)
+
+    def complete(self, points_scored, average_time_taken_percent):
+        self.points_scored = points_scored
+        self.average_time_taken_percent = average_time_taken_percent
+        self.is_completed = True
+        self.time_completed = now()
+        self.save()
 
 
 class PointSource(models.Model):
