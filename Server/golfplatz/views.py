@@ -7,12 +7,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .gameplay import grade_answers_and_get_next_adventure, _get_summary, start_chapter, process_answers, is_summary, \
-    is_adventure, is_choice
+from .gameplay import start_chapter, process_answers, is_adventure, is_summary, is_choice
 from .graph_utils.chaptertograph import chapter_to_graph
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
-from .models import NextAdventureChoice, AccomplishedChapter
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 

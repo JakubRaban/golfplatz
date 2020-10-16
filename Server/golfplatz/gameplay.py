@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import List, Tuple, Set, Union
+from typing import List, Tuple, Set, Union, Optional
+from statistics import mean
 
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
     AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice
@@ -10,27 +11,34 @@ def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
     return chapter.initial_adventure
 
 
-def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]):
+def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int,
+                    closed_question_answers: List[Tuple[Question, Set[Answer]]],
+                    open_question_answers: List[Tuple[Question, str]]):
     AccomplishedAdventure.objects.create(student=participant, adventure=adventure,
                                          adventure_started_time=start_time, time_elapsed_seconds=answer_time)
     _grade_answers(participant, closed_question_answers, open_question_answers)
-    next_stage = _get_next_stage(participant, adventure)
-    if is_summary(next_stage):
-        total_points, average_time_taken_percent = _get_player_stats_from_chapter(participant, adventure.chapter)
-        AccomplishedChapter.objects.get(chapter=adventure.chapter, student=participant)\
-            .complete(total_points, average_time_taken_percent)
+    next_stage = _get_next_stage(adventure)
+    if not next_stage:
+        accomplished_adventures = AccomplishedAdventure.objects.filter(student=participant,
+                                                                       adventure__chapter=adventure.chapter)
+        total_points, average_time_taken_percent = _get_player_stats_from_chapter(accomplished_adventures)
+        AccomplishedChapter.objects.get(chapter=adventure.chapter,
+                                        student=participant).complete(total_points, average_time_taken_percent)
+        summary = _get_summary(accomplished_adventures)
         # TODO check for achievements
         # TODO update rank
-    return next_stage
+    return next_stage or summary
 
 
-def _grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]) -> None:
+def _grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]],
+                   open_question_answers: List[Tuple[Question, str]]) -> None:
     for question_answer_type in (closed_question_answers, open_question_answers):
         for question_answer in question_answer_type:
             question = question_answer[0]
             given_answer = question_answer[1]
             if not question.is_auto_checked:
-                Grade.objects.create(student=participant, question=question, points_scored=0, awaiting_tutor_grading=True)
+                Grade.objects.create(student=participant, question=question, points_scored=0,
+                                     awaiting_tutor_grading=True)
             else:
                 if question_answer in closed_question_answers:
                     points_scored = question.score_for_closed_question(given_answer)
@@ -39,20 +47,18 @@ def _grade_answers(participant: Participant, closed_question_answers: List[Tuple
                 Grade.objects.create(student=participant, question=question, points_scored=points_scored)
 
 
-def _get_next_stage(participant: Participant, adventure: Adventure) -> Union[NextAdventureChoice, Adventure, List[AdventureSummary]]:
+def _get_next_stage(adventure: Adventure) -> Optional[Union[NextAdventureChoice, Adventure]]:
     next_adventures = adventure.next_adventures
     next_adventures_count = len(next_adventures)
     if next_adventures_count == 0:
-        return _get_summary(participant, adventure)
+        return None
     elif next_adventures_count == 1:
         return next_adventures[0]
     else:
         return NextAdventureChoice.for_adventure(adventure)
 
 
-def _get_summary(participant: Participant, last_adventure: Adventure) -> List[AdventureSummary]:
-    accomplished_adventures = AccomplishedAdventure.objects.filter(student=participant, adventure__chapter=last_adventure.chapter)\
-        .order_by('adventure_started_time')
+def _get_summary(accomplished_adventures: Set[AccomplishedAdventure]) -> List[AdventureSummary]:
     adventure_summaries = []
     for accomplished_adventure in accomplished_adventures:
         adventure = accomplished_adventure.adventure
@@ -61,7 +67,9 @@ def _get_summary(participant: Participant, last_adventure: Adventure) -> List[Ad
         question_summaries = [QuestionSummary(text=question.text,
                                               is_auto_checked=question.is_auto_checked,
                                               max_points=question.max_points_possible,
-                                              points_scored=Grade.objects.get(question=question, student=participant).points_scored)
+                                              points_scored=Grade.objects.get(question=question,
+                                                                              student=accomplished_adventure.student)
+                                              .points_scored)
                               for question in questions]
         adventure_summaries.append(AdventureSummary(
             adventure_name=adventure.name,
@@ -72,17 +80,20 @@ def _get_summary(participant: Participant, last_adventure: Adventure) -> List[Ad
     return adventure_summaries
 
 
-def _get_player_stats_from_chapter(participant: Participant, chapter: Chapter):
-    return None, None  # TODO obliczanie całości punktów i średniego czasu odpowiedzi
+def _get_player_stats_from_chapter(accomplished_adventures: Set[AccomplishedAdventure]):
+    total_points = sum([aa.points_after_applying_modifier for aa in accomplished_adventures])
+    average_time_used_percent = int(mean([aa.time_elapsed_seconds / aa.adventure.time_limit for aa
+                                          in accomplished_adventures if aa.adventure.time_limit > 0]))
+    return total_points, average_time_used_percent
 
 
-def is_summary(adventure_stage: Union[NextAdventureChoice, Adventure, List[AdventureSummary]]) -> bool:
-    return isinstance(adventure_stage, list)
+def is_adventure(adventure_stage: Optional[Union[NextAdventureChoice, Adventure]]) -> bool:
+    return isinstance(adventure_stage, Adventure)
 
 
-def is_choice(adventure_stage: Union[NextAdventureChoice, Adventure, List[AdventureSummary]]) -> bool:
+def is_choice(adventure_stage: Optional[Union[NextAdventureChoice, Adventure]]) -> bool:
     return isinstance(adventure_stage, NextAdventureChoice)
 
 
-def is_adventure(adventure_stage: Union[NextAdventureChoice, Adventure, List[AdventureSummary]]) -> bool:
-    return isinstance(adventure_stage, Adventure)
+def is_summary(adventure_stage: Optional[Union[NextAdventureChoice, Adventure]]) -> bool:
+    return not is_adventure(adventure_stage) and not is_choice(adventure_stage)

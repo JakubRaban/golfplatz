@@ -252,8 +252,15 @@ class AccomplishedAdventure(models.Model):
     adventure = models.ForeignKey('Adventure', on_delete=models.PROTECT)
     adventure_started_time = models.DateTimeField()
     time_elapsed_seconds = models.PositiveSmallIntegerField()
+    total_points_for_questions_awarded = models.DecimalField(max_digits=7, decimal_places=3)
+    applied_time_modifier_percent = models.PositiveSmallIntegerField()
+
+    @property
+    def points_after_applying_modifier(self):
+        return self.total_points_for_questions_awarded * self.applied_time_modifier_percent / 100
 
     class Meta:
+        ordering = ['adventure_started_time']
         constraints = [
             models.UniqueConstraint(fields=['student', 'adventure'], name='student_accomplishes_adventure_once')
         ]
@@ -365,6 +372,10 @@ class Question(models.Model):
             return self.points_per_correct_answer
         else:
             return self.points_per_correct_answer * self.answers.count()
+
+    @property
+    def adventure(self):
+        return self.point_source.adventure
 
     @property
     def is_open(self) -> bool:
