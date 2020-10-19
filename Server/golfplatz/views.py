@@ -2,7 +2,7 @@ from django.db import transaction
 from knox.models import AuthToken
 from rest_framework import generics
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -79,6 +79,14 @@ class CourseGroupView(APIView):
         course = Course.objects.get(pk=course_id)
         created_groups = course.add_course_groups(request.data)
         return Response(CourseGroupSerializer(created_groups, many=True).data)
+
+
+class AchievementView(ListCreateAPIView):
+    permission_classes = [IsTutor]
+    serializer_class = AchievementSerializer
+
+    def get_queryset(self):
+        return Achievement.objects.filter(course_id=self.kwargs['course_id'])
 
 
 class PlotPartView(APIView):
