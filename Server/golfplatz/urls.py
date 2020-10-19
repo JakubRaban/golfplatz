@@ -4,6 +4,7 @@ from knox import views as knox_views
 from .views import *
 
 urlpatterns = [
+
     path('register/tutor/', RegisterTutorView.as_view()),
     path('register/student/', RegisterStudentView.as_view()),
     path('login/', LoginView.as_view()),
@@ -30,4 +31,5 @@ urlpatterns = [
     path('play/desist/', WhoAmIView.as_view()),
     path('play/adventure_timeout/', WhoAmIView.as_view()),
     path('play/chapter_timeout/', WhoAmIView.as_view()),
+
 ]
