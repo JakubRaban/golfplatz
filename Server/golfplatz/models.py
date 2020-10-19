@@ -74,7 +74,7 @@ class Achievement(models.Model):
 
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='achievements')
     name = models.CharField(max_length=100)
-    image = models.ImageField()
+    image = models.ImageField(null=True)
     course_element_considered = models.CharField(max_length=10, choices=CourseElementChoice.choices)
     how_many = models.PositiveSmallIntegerField()
     in_a_row = models.BooleanField()
@@ -154,6 +154,23 @@ class Chapter(models.Model):
     def initial_adventure(self):
         return self.adventures.get(is_initial=True)
 
+    @property
+    def course(self):
+        return self.plot_part.course
+
+    @property
+    def is_last_in_plot_part(self):
+        chapters_from_current_plot_part = Chapter.objects.filter(plot_part=self.plot_part)
+        return self.position_in_plot_part == chapters_from_current_plot_part.aggregate(index=Max('position_in_plot_part'))['index']
+
+    @property
+    def max_points_possible(self):
+        return sum([adventure.max_points_possible for adventure in self.adventures])
+
+    @property
+    def timed_adventures_count(self):
+        return len([adventure for adventure in self.adventures if adventure.has_time_limit])
+
     def complete(self):
         self.creating_completed = True
         self.save()
@@ -210,6 +227,10 @@ class Adventure(models.Model):
     @property
     def max_points_possible(self):
         return sum([question.max_points_possible for question in self.point_source.questions])
+
+    @property
+    def has_time_limit(self):
+        return self.time_limit > 0
 
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \
@@ -274,6 +295,10 @@ class AccomplishedChapter(models.Model):
     is_completed = models.BooleanField(default=False)
     time_started = models.DateTimeField(auto_now_add=True)
     time_completed = models.DateTimeField(null=True)
+    new_achievements_count = models.PositiveSmallIntegerField(null=True)
+
+    class Meta:
+        ordering = ['time_started']
 
     def complete(self, points_scored, average_time_taken_percent):
         self.points_scored = points_scored

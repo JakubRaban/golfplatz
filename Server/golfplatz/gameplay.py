@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List, Tuple, Set, Union, Optional
 from statistics import mean
 
+from .achievements import check_for_achievements
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
     AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice
 
@@ -11,27 +12,25 @@ def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
     return chapter.initial_adventure
 
 
-def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int,
-                    closed_question_answers: List[Tuple[Question, Set[Answer]]],
-                    open_question_answers: List[Tuple[Question, str]]):
+def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]):
     AccomplishedAdventure.objects.create(student=participant, adventure=adventure,
                                          adventure_started_time=start_time, time_elapsed_seconds=answer_time)
     _grade_answers(participant, closed_question_answers, open_question_answers)
     next_stage = _get_next_stage(adventure)
     if not next_stage:
+        current_chapter = adventure.chapter
         accomplished_adventures = AccomplishedAdventure.objects.filter(student=participant,
-                                                                       adventure__chapter=adventure.chapter)
+                                                                       adventure__chapter=current_chapter)
         total_points, average_time_taken_percent = _get_player_stats_from_chapter(accomplished_adventures)
-        AccomplishedChapter.objects.get(chapter=adventure.chapter,
+        AccomplishedChapter.objects.get(chapter=current_chapter,
                                         student=participant).complete(total_points, average_time_taken_percent)
         summary = _get_summary(accomplished_adventures)
-        # TODO check for achievements
+        check_for_achievements(participant, current_chapter)
         # TODO update rank
     return next_stage or summary
 
 
-def _grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]],
-                   open_question_answers: List[Tuple[Question, str]]) -> None:
+def _grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]) -> None:
     for question_answer_type in (closed_question_answers, open_question_answers):
         for question_answer in question_answer_type:
             question = question_answer[0]
