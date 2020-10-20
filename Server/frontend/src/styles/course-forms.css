@@ -29,6 +29,10 @@
   margin-top: 6px;
 }
 
+.achievements-wrapper {
+  flex-basis: 100%;
+}
+
 .row:after {
   content: "";
   display: table;
