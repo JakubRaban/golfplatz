@@ -19,7 +19,7 @@ import Ranking from './studentComponents/Ranking.js';
 import StudentDashboard from './studentComponents/StudentDashboard.js';
 import StudentMarks from './studentComponents/StudentMarks.js';
 import TurboAdventure from './TurboAdventure.js';
-import AddCourse from './tutorComponents/AddCourse.js';
+import AddCourse from './tutorComponents/addCourse/AddCourse.js';
 import CourseDetails from './tutorComponents/CourseDetails.js';
 import Adventure from './tutorComponents/createAdventure/Adventure.js';
 import GetCourses from './tutorComponents/GetCourses.js';
