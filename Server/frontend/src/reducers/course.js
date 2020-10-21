@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import {
   ADD_ADVENTURES,
   ADD_ANSWER,
@@ -5,6 +6,7 @@ import {
   ADD_COURSE,
   ADD_COURSE_GROUPS,
   ADD_PLOT_PARTS,
+  DELETE_ADVENTURE,
   GET_ADVENTURES,
   GET_CHAPTER,
   GET_COURSE,
@@ -86,7 +88,13 @@ export default function (state = initialState, action) {
     case UPDATE_ADVENTURE:
       return {
         ...state,
-        adventures: [...state.adventures.filter((adventure) => adventure.id !== action.payload.id), action.payload]
+        adventures: [...state.adventures.filter((adventure) => adventure.id !== action.payload.id), action.payload],
+      };
+    // zdefinować akcję dla DELETE
+    case DELETE_ADVENTURE:
+      console.log(action);
+      return {
+        ...state,
       };
     case START_CHAPTER:
     case ADD_ANSWER:

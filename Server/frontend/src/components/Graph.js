@@ -10,15 +10,16 @@ import CytoscapeComponent from 'react-cytoscapejs';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
-import { addPathsWithDescriptions } from '../actions/course.js';
+import { addPathsWithDescriptions, deleteAdventure, updatePathsWithDescriptions } from '../actions/course.js';
 import { fromServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
 import graphStyle from '../styles/graphStyle.js';
 import ChoicesList from './ChoicesList.js';
 import contextMenuConfig from './common/graphConfig/ContextMenu.js';
 import edgesConfig from './common/graphConfig/Edges.js';
+import DeleteAdventureDialog from './DeleteAdventureDialog.js';
 
 class Graph extends React.Component {
-  state = { chosenAdventureId: -1, elements: [], graphMode: true, layout: { name: 'breadthfirst' } };
+  state = { chosenAdventureId: -1, dialogOpen: false, elements: [], graphMode: true, layout: { name: 'breadthfirst' }, nodeToDelete: null };
   cy = null;
   edgeHandler = null;
   edgeContextMenu = null;
@@ -81,13 +82,23 @@ class Graph extends React.Component {
       },
       {
         select: (node) => {
-          this.cy.remove(node);
+          this.setState({ dialogOpen: true, nodeToDelete: node });
         },
         content: 'Usuń',
       },
     ];
 
     this.nodeContextMenu = this.cy.cxtmenu(contextMenuConfig);
+  }
+
+  handleDialogClose = () => {
+    this.setState({ dialogOpen: false, nodeToDelete: null });
+  }
+
+  handleAdventureDelete = () => {
+    this.props.deleteAdventure(this.state.nodeToDelete.data().resId);
+    this.cy.remove(this.state.nodeToDelete);
+    this.handleDialogClose();
   }
 
   onDiagramCreated = (cy) => {
@@ -193,14 +204,15 @@ class Graph extends React.Component {
       const paths = this.formPaths();
       const descriptions = this.state.choices;
       const submit = { paths, descriptions };
-      this.props.addPathsWithDescriptions(submit, this.props.chapter.id);
+
+      this.props.paths.length > 0 ? this.props.updatePathsWithDescriptions(submit, this.props.chapter.id) :
+        this.props.addPathsWithDescriptions(submit, this.props.chapter.id);
     }
   }
 
   render() {
     if (this.state.chosenAdventureId !== -1) {
       const url = `/adventure/${this.state.chosenAdventureId}`;
-      console.log(url);
       return (
         <Redirect to={
           {
@@ -237,6 +249,7 @@ class Graph extends React.Component {
           > {this.state.graphMode ? 'Zapisz ścieżki' : 'Zapisz przejścia'}
           </Button>
         </div>
+        <DeleteAdventureDialog onDelete={this.handleAdventureDelete} onClose={this.handleDialogClose} open={this.state.dialogOpen} />
       </div>
     );
   }
@@ -247,4 +260,4 @@ const mapStateToProps = (state) => ({
   pathsWithDescriptions: state.course.pathsWithDescriptions,
 });
 
-export default connect(mapStateToProps, { addPathsWithDescriptions })(Graph);
+export default connect(mapStateToProps, { addPathsWithDescriptions, updatePathsWithDescriptions, deleteAdventure })(Graph);
