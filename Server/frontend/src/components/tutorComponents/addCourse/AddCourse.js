@@ -57,7 +57,6 @@ export class AddCourse extends Component {
   }
 
   handleAchievementChange = (input, index, value) => {
-    console.log(value);
     const { achievements } = this.state;
     achievements[index][input] = value;
     this.setState({ achievements });
@@ -98,7 +97,7 @@ export class AddCourse extends Component {
         <Redirect to="/"/>
       );
     }
-    console.log(this.state.achievements);
+
     return (
       <div className={classes.root}>
         <CssBaseline />

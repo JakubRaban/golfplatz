@@ -1,5 +1,5 @@
 import React from 'react';
-import { Provider as AlertProvider } from 'react-alert';
+import { positions, Provider as AlertProvider } from 'react-alert';
 import AlertTemplate from 'react-alert-template-basic';
 import { Provider } from 'react-redux';
 import { HashRouter as Router, Route, Switch } from 'react-router-dom';
@@ -28,7 +28,7 @@ import TutorDashboard from './tutorComponents/TutorDashboard.js';
 
 const alertOptions = {
   timeout: 3000,
-  position: 'top center',
+  position: positions.BOTTOM_CENTER,
 };
 
 class App extends React.Component {

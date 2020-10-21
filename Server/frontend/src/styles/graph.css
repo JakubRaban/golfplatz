@@ -22,3 +22,7 @@
   overflow: auto;
   padding: 5px;
 }
+
+.choices-descriptions-wrapper {
+  flex-basis: 100%;
+}
