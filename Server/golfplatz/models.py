@@ -47,6 +47,10 @@ class Course(models.Model):
     def add_course_groups(self, names: List[str]):
         return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]
 
+    @property
+    def max_points_possible(self):
+        return sum([plot_part.max_points_possible for plot_part in self.plot_parts])
+
     def __str__(self):
         return f'Course {self.name}'
 
@@ -112,6 +116,10 @@ class PlotPart(models.Model):
     @property
     def total_time_limit(self):
         return sum([chapter.total_time_limit for chapter in self.chapters])
+
+    @property
+    def max_points_possible(self):
+        return sum([chapter.max_points_possible for chapter in self.chapters])
 
     def __str__(self):
         return f'Plot part {self.name} in {self.course.name}'
@@ -179,9 +187,18 @@ class Chapter(models.Model):
     def total_time_limit(self):
         return sum([adventure.time_limit for adventure in self.adventures])
 
+    @property
+    def previous_chapters(self):
+        previous_plot_parts = PlotPart.objects.filter(position_in_course__lt=self.plot_part.position_in_course)
+        chapters_from_prev_plot_parts = {plot_part: list(plot_part.chapters) for plot_part in previous_plot_parts}
+        chapters_from_prev_plot_parts[self.plot_part] = list(
+            Chapter.objects.filter(plot_part=self.plot_part, position_in_plot_part__lte=self.position_in_plot_part)
+        )
+        return chapters_from_prev_plot_parts
+
     def complete(self):
         self.creating_completed = True
-        self.save()
+        self.save(position_in_plot_part=self.position_in_plot_part)
 
     def __str__(self):
         return f'Chapter {self.name} in {self.plot_part.course.name}.{self.plot_part.name}'
@@ -299,7 +316,6 @@ class AccomplishedChapter(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     chapter = models.ForeignKey('Chapter', on_delete=models.PROTECT)
     points_scored = models.DecimalField(max_digits=7, decimal_places=3, null=True)
-    average_time_taken_percent = models.PositiveSmallIntegerField(null=True)
     is_completed = models.BooleanField(default=False)
     time_started = models.DateTimeField(auto_now_add=True)
     time_completed = models.DateTimeField(null=True)
@@ -308,9 +324,8 @@ class AccomplishedChapter(models.Model):
     class Meta:
         ordering = ['time_started']
 
-    def complete(self, points_scored, average_time_taken_percent):
+    def complete(self, points_scored):
         self.points_scored = points_scored
-        self.average_time_taken_percent = average_time_taken_percent
         self.is_completed = True
         self.time_completed = now()
         self.save()
