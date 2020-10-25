@@ -3,6 +3,7 @@ from typing import List, Tuple, Set, Union, Optional
 from statistics import mean
 
 from .achievements import check_for_achievements
+from .grading import grade_answers, points_for_chapter, average_time_taken_in_chapter_percent
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
     AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice
 
@@ -13,37 +14,24 @@ def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
 
 
 def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]):
-    AccomplishedAdventure.objects.create(student=participant, adventure=adventure,
-                                         adventure_started_time=start_time, time_elapsed_seconds=answer_time)
-    _grade_answers(participant, closed_question_answers, open_question_answers)
+    points_gained = grade_answers(participant, closed_question_answers, open_question_answers)
+    AccomplishedAdventure.objects.create(student=participant, adventure=adventure, adventure_started_time=start_time,
+                                         time_elapsed_seconds=answer_time,
+                                         total_points_for_questions_awarded=points_gained,
+                                         applied_time_modifier_percent=adventure.get_time_modifier(answer_time))
     next_stage = _get_next_stage(adventure)
     if not next_stage:
         current_chapter = adventure.chapter
         accomplished_adventures = AccomplishedAdventure.objects.filter(student=participant,
                                                                        adventure__chapter=current_chapter)
-        total_points, average_time_taken_percent = _get_player_stats_from_chapter(accomplished_adventures)
+        total_points = points_for_chapter(participant, acc_adventures=accomplished_adventures)
+        average_time_taken_percent = average_time_taken_in_chapter_percent(participant, current_chapter, accomplished_adventures)
         AccomplishedChapter.objects.get(chapter=current_chapter,
                                         student=participant).complete(total_points, average_time_taken_percent)
         summary = _get_summary(accomplished_adventures)
         check_for_achievements(participant, current_chapter)
         # TODO update rank
     return next_stage or summary
-
-
-def _grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]) -> None:
-    for question_answer_type in (closed_question_answers, open_question_answers):
-        for question_answer in question_answer_type:
-            question = question_answer[0]
-            given_answer = question_answer[1]
-            if not question.is_auto_checked:
-                Grade.objects.create(student=participant, question=question, points_scored=0,
-                                     awaiting_tutor_grading=True)
-            else:
-                if question_answer in closed_question_answers:
-                    points_scored = question.score_for_closed_question(given_answer)
-                else:
-                    points_scored = question.score_for_open_question(given_answer)
-                Grade.objects.create(student=participant, question=question, points_scored=points_scored)
 
 
 def _get_next_stage(adventure: Adventure) -> Optional[Union[NextAdventureChoice, Adventure]]:
@@ -77,13 +65,6 @@ def _get_summary(accomplished_adventures: Set[AccomplishedAdventure]) -> List[Ad
             question_summaries=question_summaries
         ))
     return adventure_summaries
-
-
-def _get_player_stats_from_chapter(accomplished_adventures: Set[AccomplishedAdventure]):
-    total_points = sum([aa.points_after_applying_modifier for aa in accomplished_adventures])
-    average_time_used_percent = int(mean([aa.time_elapsed_seconds / aa.adventure.time_limit for aa
-                                          in accomplished_adventures if aa.adventure.time_limit > 0]))
-    return total_points, average_time_used_percent
 
 
 def is_adventure(adventure_stage: Optional[Union[NextAdventureChoice, Adventure]]) -> bool:

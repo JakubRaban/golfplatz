@@ -109,6 +109,10 @@ class PlotPart(models.Model):
             self.position_in_course = last_part_index + 1
         super(PlotPart, self).save(*args, **kwargs)
 
+    @property
+    def total_time_limit(self):
+        return sum([chapter.total_time_limit for chapter in self.chapters])
+
     def __str__(self):
         return f'Plot part {self.name} in {self.course.name}'
 
@@ -170,6 +174,10 @@ class Chapter(models.Model):
     @property
     def timed_adventures_count(self):
         return len([adventure for adventure in self.adventures if adventure.has_time_limit])
+
+    @property
+    def total_time_limit(self):
+        return sum([adventure.time_limit for adventure in self.adventures])
 
     def complete(self):
         self.creating_completed = True
