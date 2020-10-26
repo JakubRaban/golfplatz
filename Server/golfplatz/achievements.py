@@ -7,7 +7,7 @@ from golfplatz.models import Participant, Achievement, Chapter, AccomplishedChap
     PlotPart
 
 
-async def check_for_achievements(student: Participant, previous_chapters: Dict[PlotPart, List[Chapter]]):
+def check_for_achievements(student: Participant, previous_chapters: Dict[PlotPart, List[Chapter]]):
     accomplish_count = 0
     last_chapter = list(previous_chapters.items())[-1][1][-1]
     not_collected_achievements = Achievement.objects.filter(course=last_chapter.course).exclude(accomplished_by_students=student)
@@ -31,6 +31,8 @@ def check_player_gained(student: Participant, achievement: Achievement, after_ch
 
 def _check_for_chapter_achievement(previous_chapters: Dict[PlotPart, List[Chapter]], achievement: Achievement, student: Participant):
     chapters = list(chain(*previous_chapters.values()))
+    if len(chapters) < achievement.how_many:
+        return False
     counter = 0
     for chapter in chapters:
         if _check_chapter_meets_condition(chapter, achievement, student):
@@ -42,6 +44,8 @@ def _check_for_chapter_achievement(previous_chapters: Dict[PlotPart, List[Chapte
 
 def _check_for_plot_part_achievement(previous_chapters: Dict[PlotPart, List[Chapter]], achievement: Achievement, student: Participant):
     plot_parts = list(previous_chapters.keys())
+    if len(plot_parts) < achievement.how_many:
+        return False
     counter = 0
     for plot_part in plot_parts:
         if _check_plot_part_meets_condition(plot_part, achievement, student):
