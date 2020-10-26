@@ -1,3 +1,4 @@
+import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
@@ -6,10 +7,11 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
-import { logout } from '../../actions/auth.js';
-import { addCourse } from '../../actions/course.js';
-import { styles } from '../../styles/style.js';
-import NavBar from '../common/NavBar.js';
+import { logout } from '../../../actions/auth.js';
+import { addCourse } from '../../../actions/course.js';
+import { styles } from '../../../styles/style.js';
+import NavBar from '../../common/NavBar.js';
+import AddAchievements from './AddAchievements.js';
 import AddCourseConfirm from './AddCourseConfirm.js';
 import AddCourseInitialInfo from './AddCourseInitialInfo.js';
 import AddGroupsAndPlot from './AddGroupsAndPlot.js';
@@ -17,31 +19,27 @@ import AddGroupsAndPlot from './AddGroupsAndPlot.js';
 
 export class AddCourse extends Component {
   state = {
-    step: 1,
     name: '',
     description: '',
     courseGroups: [],
     plotParts: [],
     redirect: false,
+    achievements: [],
   };
+
+  emptyAchievement = {
+    name: '',
+    image: '',
+    courseElementConsidered: 'NOT SELECTED',
+    howMany: 0,
+    inARow: false,
+    conditionType: 'NOT SELECTED',
+    percentage: 0,
+  }
 
   static propTypes = {
     user: PropTypes.any,
     isAuthenticated: PropTypes.bool,
-  };
-
-  nextStep = () => {
-    const { step } = this.state;
-    this.setState({
-      step: step + 1,
-    });
-  };
-
-  prevStep = () => {
-    const { step } = this.state;
-    this.setState({
-      step: step - 1,
-    });
   };
 
   handleChange = (input) => (e) => {
@@ -52,11 +50,24 @@ export class AddCourse extends Component {
     this.setState({ [input]: value });
   }
 
+  addNewAchievement = () => {
+    const { achievements } = this.state;
+    achievements.push({ ...this.emptyAchievement });
+    this.setState({ achievements });
+  }
+
+  handleAchievementChange = (input, index, value) => {
+    const { achievements } = this.state;
+    achievements[index][input] = value;
+    this.setState({ achievements });
+  }
+
   onSubmit = (e) => {
     // e.preventDefault();
     const { name, description, courseGroups, plotParts } = this.state;
     const course = { name, description };
-    this.props.addCourse(course, courseGroups, plotParts);
+    console.log(this.state);
+    // this.props.addCourse(course, courseGroups, plotParts);
     this.setState({
       name: '',
       description: '',
@@ -66,47 +77,14 @@ export class AddCourse extends Component {
     });
   };
 
-  renderAddingStep(step, values) {
-    switch (step) {
-      case 1:
-        return (
-          <AddCourseInitialInfo
-            nextStep={this.nextStep}
-            handleChange={this.handleChange}
-            values={values}
-          />
-        );
-      case 2:
-        return (
-          <AddGroupsAndPlot
-            nextStep={this.nextStep}
-            prevStep={this.prevStep}
-            handleChange={this.handleObjectChange}
-            values={values}
-          />
-        );
-      case 3:
-        return (
-          <AddCourseConfirm
-            nextStep={this.nextStep}
-            prevStep={this.prevStep}
-            submit={this.onSubmit}
-            values={values}
-          />
-        );
-    }
-    return null;
-  }
-
   render() {
-    const { step } = this.state;
-    const { name, description, courseGroups, plotParts, chapters } = this.state;
-    const values = { name, description, courseGroups, plotParts, chapters };
+    const { name, description, courseGroups, plotParts } = this.state;
+    const values = { name, description, courseGroups, plotParts };
     const { classes } = this.props;
 
     if (this.state.redirect) {
       return (
-        <Redirect to="/courses"/>
+        <Redirect to="/"/>
       );
     }
     if (!this.props.isAuthenticated) {
@@ -119,13 +97,33 @@ export class AddCourse extends Component {
         <Redirect to="/"/>
       );
     }
+
     return (
       <div className={classes.root}>
         <CssBaseline />
         <NavBar logout={this.props.logout} title={'Dodaj kurs'} returnLink={'/'} />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
-          {this.renderAddingStep(step, values)}
+          <AddCourseInitialInfo
+            handleChange={this.handleChange}
+            values={values}
+          />
+          <AddGroupsAndPlot
+            handleChange={this.handleObjectChange}
+            values={values}
+          />
+          <AddAchievements
+            achievements={this.state.achievements}
+            addNewAchievement={this.addNewAchievement}
+            handleAchievementChange={this.handleAchievementChange}
+          />
+          <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={this.onSubmit}
+            >Potwierdź i wyślij</Button>
+          </div>
         </main>
       </div>
     );

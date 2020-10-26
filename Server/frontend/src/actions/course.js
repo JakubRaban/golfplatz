@@ -1,24 +1,26 @@
 import axios from 'axios';
 
+import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
+import Alerts from '../components/common/alerts/Alerts.js';
+import { tokenConfig } from './auth.js';
+import { returnErrors } from './messages.js';
 import { ADD_ADVENTURES,
   ADD_ANSWER,
   ADD_CHAPTER,
   ADD_COURSE,
   ADD_COURSE_GROUPS,
   ADD_PLOT_PARTS,
+  DELETE_ADVENTURE,
   GET_ADVENTURES,
   GET_CHAPTER,
   GET_COURSE,
   GET_COURSES,
   NEXT_ADVENTURE,
+  PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
+  UPDATE_ADVENTURE,
 }
-  from '../actions/types.js';
-import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
-import { tokenConfig } from './auth.js';
-import { createMessage, returnErrors } from './messages.js';
-import {UPDATE_ADVENTURE} from "./types";
-
+  from './types.js';
 
 export const addAdventure = (adventure, chapterId) => (dispatch, getState) => {
   axios.post(`/api/chapters/${chapterId}/adventures/`, toServerForm(adventure), tokenConfig(getState)).then((res) => {
@@ -26,6 +28,7 @@ export const addAdventure = (adventure, chapterId) => (dispatch, getState) => {
       type: ADD_ADVENTURES,
       payload: res.data,
     });
+    Alerts.success('Pomyślnie dodano przygodę');
   })
     .catch((err) => {
       console.log(err.response.data);
@@ -39,11 +42,51 @@ export const updateAdventure = (adventure, id) => (dispatch, getState) => {
       type: UPDATE_ADVENTURE,
       payload: res.data,
     });
+    Alerts.success('Pomyślnie zaktualizowano przygodę');
   })
     .catch((err) => {
       console.log(err.response.data);
-    })
-}
+    });
+};
+
+export const deleteAdventure = (id) => (dispatch, getState) => {
+  axios.delete(`/api/adventures/${id}/`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: DELETE_ADVENTURE,
+      id: id,
+    });
+    Alerts.success('Pomyślnie usunięto przygodę');
+  })
+    .catch((err) => {
+      console.log(err.response.data);
+    });
+};
+
+export const addPathsWithDescriptions = (pathsWithDescriptions, chapterId) => (dispatch, getState) => {
+  axios.post(`/api/chapters/${chapterId}/submit/`, pathsWithDescriptions, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: PATHS_WITH_DESCRIPTIONS,
+      payload: res.data,
+    });
+    Alerts.success('Pomyślnie dodano ścieżki i opisy');
+  })
+    .catch((err) => {
+      console.log(err.response.data);
+    });
+};
+
+export const updatePathsWithDescriptions = (pathsWithDescriptions, chapterId) => (dispatch, getState) => {
+  axios.put(`/api/chapters/${chapterId}/submit/`, pathsWithDescriptions, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: PATHS_WITH_DESCRIPTIONS,
+      payload: res.data,
+    });
+    Alerts.success('Pomyślnie zaktualizowano ścieżki i opisy');
+  })
+    .catch((err) => {
+      Alerts.error(err.response.data);
+    });
+};
 
 export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
   axios.post(`/api/plot_parts/${plotPartId}/chapters/`, chapters, tokenConfig(getState)).then((res) => {
@@ -51,6 +94,7 @@ export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
       type: ADD_CHAPTER,
       payload: res.data,
     });
+    Alerts.success('Pomyślnie dodano rozdział');
   })
     .catch((err) => {
       dispatch(returnErrors(err.response.data, err.response.status));
@@ -90,7 +134,7 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, 
   // let plotPartsData = [];
 
   await axios.post(`/api/courses/${courseId}/plot_parts/`, plotParts, tokenConfig(getState)).then((res) => {
-    dispatch(createMessage({ courseAdded: 'Kurs dodany pomyślnie' }));
+    Alerts.success('Pomyślnie dodano kurs');
     dispatch({
       type: ADD_PLOT_PARTS,
       payload: res.data,

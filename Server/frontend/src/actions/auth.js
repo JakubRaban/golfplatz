@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-import { createMessage, returnErrors } from './messages.js';
+import Alerts from '../components/common/alerts/Alerts.js';
+import { returnErrors } from './messages.js';
 import {
   AUTH_ERROR,
   LOGIN_FAIL,
@@ -37,10 +38,10 @@ export const logout = () => (dispatch, getState) => {
   axios
     .post('/api/logout/', null, tokenConfig(getState))
     .then((res) => {
-      dispatch(createMessage({ logout: 'Wylogowano pomyślnie' }));
       dispatch({
         type: LOGOUT_SUCCESS,
       });
+      Alerts.success('Wylogowano pomyślnie');
     })
     .catch((err) => {
       dispatch(returnErrors(err.response.data, err.response.status));
@@ -58,6 +59,7 @@ export const login = (email, password) => (dispatch) => {
         type: LOGIN_SUCCESS,
         payload: res.data,
       });
+      Alerts.success('Zalogowano pomyślnie');
     })
     .catch((err) => {
       dispatch(returnErrors(err.response.data, err.response.status));
@@ -85,7 +87,7 @@ function postRegisterRequest(user, body, dispatch) {
   axios
     .post(apiAddress, body, config)
     .then((res) => {
-      dispatch(createMessage({ userRegistered: `${user} pomyślnie zarejestrowany` }));
+      Alerts.success(`${user} pomyślnie zarejestrowany`);
       dispatch({
         type: REGISTER_SUCCESS,
         payload: res.data,

@@ -222,7 +222,7 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
   chapter: state.course.chapterDetailed,
-  adventures: state.course.adventures
+  adventures: state.course.adventures,
 });
 
 export default compose(

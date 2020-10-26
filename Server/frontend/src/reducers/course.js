@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import {
   ADD_ADVENTURES,
   ADD_ANSWER,
@@ -5,11 +6,15 @@ import {
   ADD_COURSE,
   ADD_COURSE_GROUPS,
   ADD_PLOT_PARTS,
+  DELETE_ADVENTURE,
   GET_ADVENTURES,
   GET_CHAPTER,
   GET_COURSE,
   GET_COURSES,
-  NEXT_ADVENTURE, START_CHAPTER, UPDATE_ADVENTURE
+  NEXT_ADVENTURE,
+  PATHS_WITH_DESCRIPTIONS,
+  START_CHAPTER,
+  UPDATE_ADVENTURE,
 }
   from '../actions/types.js';
 
@@ -23,6 +28,7 @@ const initialState = {
   adventures: [],
   adventurePart: {},
   paths: [],
+  pathsWithDescriptions: {},
 };
 
 export default function (state = initialState, action) {
@@ -74,11 +80,21 @@ export default function (state = initialState, action) {
         ...state,
         adventures: [...state.adventures, action.payload],
       };
+    case PATHS_WITH_DESCRIPTIONS:
+      return {
+        ...state,
+        pathsWithDescriptions: action.payload,
+      };
     case UPDATE_ADVENTURE:
       return {
         ...state,
-        adventures: [...state.adventures.filter((adventure) => adventure.id !== action.payload.id), action.payload]
-      }
+        adventures: [...state.adventures.filter((adventure) => adventure.id !== action.payload.id), action.payload],
+      };
+    case DELETE_ADVENTURE:
+      return {
+        ...state,
+        adventures: [...state.adventures.filter((adventure) => adventure.id !== action.id)],
+      };
     case START_CHAPTER:
     case ADD_ANSWER:
     case NEXT_ADVENTURE:
