@@ -90,11 +90,10 @@ export default function (state = initialState, action) {
         ...state,
         adventures: [...state.adventures.filter((adventure) => adventure.id !== action.payload.id), action.payload],
       };
-    // zdefinować akcję dla DELETE
     case DELETE_ADVENTURE:
-      console.log(action);
       return {
         ...state,
+        adventures: [...state.adventures.filter((adventure) => adventure.id !== action.id)],
       };
     case START_CHAPTER:
     case ADD_ANSWER:

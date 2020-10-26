@@ -15,7 +15,7 @@ class ChoicesList extends React.Component {
 
   getAdventureName = (id) => {
     const adventure = this.props.adventures.find((adv) => adv.id === parseInt(id));
-    return adventure.name || '';
+    return adventure?.name || '';
   }
 
   render() {

@@ -53,7 +53,7 @@ export const deleteAdventure = (id) => (dispatch, getState) => {
   axios.delete(`/api/adventures/${id}/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: DELETE_ADVENTURE,
-      payload: res.data,
+      id: id,
     });
     Alerts.success('Pomyślnie usunięto przygodę');
   })
