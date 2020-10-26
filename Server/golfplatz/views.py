@@ -111,6 +111,24 @@ class NewAchievementsAfterChapterView(APIView):
             return Response({'status': 'not_calculating'})
 
 
+class StudentAccomplishedAchievementsView(APIView):
+    permission_classes = [IsStudent]
+
+    def get(self, request, course_id):
+        return Response(AchievementSerializer(
+            Achievement.objects.filter(accomplished_by_students=self.request.user, course_id=course_id)
+        ).data)
+
+
+class StudentNotAccomplishedAchievementsView(APIView):
+    permission_classes = [IsStudent]
+
+    def get(self, request, course_id):
+        return Response(AchievementSerializer(
+            Achievement.objects.filter(course_id=course_id).exclude(accomplished_by_students=self.request.user)
+        ).data)
+
+
 class PlotPartView(APIView):
     permission_classes = [IsTutor]
 
