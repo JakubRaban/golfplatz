@@ -24,6 +24,7 @@ urlpatterns = [
     path('chapters/<int:chapter_id>/adventures/', AdventureView.as_view()),
     path('adventures/<int:pk>/', UpdateAdventureView.as_view()),
     path('chapters/<int:chapter_id>/submit/', ChapterSubmissionView.as_view()),
+    path('chapters/<int:chapter_id>/submit-draft', ChapterDraftSubmissionView.as_view()),
 
     path('play/start/<int:chapter_id>/', ChapterStartView.as_view()),
     path('play/answer/<int:adventure_id>/', AdventureAnswerView.as_view()),

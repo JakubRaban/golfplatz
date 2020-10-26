@@ -229,7 +229,7 @@ export class CourseDetails extends Component {
                           <MuiThemeProvider theme={theme}>
                             <React.Fragment>
                               <CssBaseline />
-                              <Dialog open={this.state.openDialog} fullWidth="true" maxWidth='sm'>
+                              <Dialog open={this.state.openDialog} fullWidth={true} maxWidth='sm'>
                                 <div style={{ margin: '10px' }}>
                                   <Form onSubmit={this.onSubmit}>
                                     {(formApi) =>

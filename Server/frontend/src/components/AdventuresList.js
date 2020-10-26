@@ -1,8 +1,11 @@
 import { Button, withStyles } from '@material-ui/core';
 import MaterialTable from 'material-table';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
+import compose from 'recompose/compose';
 
+import { deleteAdventure } from '../actions/course.js';
 import { fromServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
 import { styles } from '../styles/style.js';
 
@@ -12,7 +15,7 @@ export class AdventuresList extends Component {
   columns = [
     { title: 'ID przygody', field: 'id', type: 'numeric' },
     { title: 'Nazwa', field: 'name' },
-    { title: 'Opis', field: 'description' },
+    { title: 'Opis', field: 'taskDescription' },
     { title: 'Utworzono', field: 'createdOn', type: 'date' },
   ];
 
@@ -20,6 +23,10 @@ export class AdventuresList extends Component {
     this.setState({
       chosenAdventureId: d.id,
     });
+  }
+
+  deleteAdventure(d) {
+    this.props.deleteAdventure(d.id);
   }
 
   render() {
@@ -47,6 +54,11 @@ export class AdventuresList extends Component {
               icon: 'edit',
               tooltip: 'Zobacz/edytuj informacje o przygodzie',
               onClick: (event, d) => this.setRedirectedParams(d),
+            },
+            {
+              icon: 'delete',
+              tooltip: 'Usuń przygodę',
+              onClick: (event, d) => this.deleteAdventure(d),
             },
           ]}
           options={{
@@ -84,5 +96,11 @@ export class AdventuresList extends Component {
   }
 }
 
-export default withStyles(styles)(AdventuresList);
+const mapStateToProps = (state) => ({
+  adventures: state.course.adventures,
+});
 
+export default compose(
+  connect(mapStateToProps, { deleteAdventure }),
+  withStyles(styles),
+)(AdventuresList);

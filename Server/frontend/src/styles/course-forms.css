@@ -17,10 +17,20 @@
   margin-top: 6px;
 }
 
+.col-50 {
+  float: left;
+  width: 50%;
+  margin-top: 6px;
+}
+
 .col-75 {
   float: left;
   width: 75%;
   margin-top: 6px;
+}
+
+.achievements-wrapper {
+  flex-basis: 100%;
 }
 
 .row:after {

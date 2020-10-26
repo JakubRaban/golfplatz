@@ -5,10 +5,11 @@ import Tabs from '@material-ui/core/Tabs';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
 import { logout } from '../actions/auth.js';
-import { getAdventures,getChapter } from '../actions/course.js';
+import { getAdventures, getChapter } from '../actions/course.js';
 import { styles } from '../styles/style.js';
 import AdventuresList from './AdventuresList.js';
 import NavBar from './common/NavBar.js';
@@ -43,6 +44,17 @@ export class TurboAdventure extends Component {
   render() {
     const { classes } = this.props;
 
+    if (!this.props.isAuthenticated) {
+      return (
+        <Redirect to="/login"/>
+      );
+    }
+    if (this.props.user.groups[0] === 1) {
+      return (
+        <Redirect to="/"/>
+      );
+    }
+
     return (
       <div className={classes.root}>
         <CssBaseline />
@@ -51,7 +63,7 @@ export class TurboAdventure extends Component {
           <div className={classes.appBarSpacer} />
           {this.state.loaded &&
             <>
-              <Tabs onChange={this.handleChange}>
+              <Tabs value={this.state.mode} onChange={this.handleChange}>
                 <Tab label='Lista przygód' value='text'/>
                 <Tab label='Tworzenie powiązań' value='graph'/>
               </Tabs>
