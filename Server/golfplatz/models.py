@@ -90,6 +90,7 @@ class Achievement(models.Model):
 class AccomplishedAchievement(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     achievement = models.ForeignKey('Achievement', on_delete=models.PROTECT)
+    accomplished_in_chapter = models.ForeignKey('AccomplishedChapter', on_delete=models.PROTECT)
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
@@ -261,6 +262,10 @@ class Adventure(models.Model):
     def has_time_limit(self):
         return self.time_limit > 0
 
+    @property
+    def is_auto_checked(self):
+        return all([question.is_auto_checked for question in self.point_source.questions.all()])
+
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \
                f'{self.chapter.name}'
@@ -323,7 +328,9 @@ class AccomplishedChapter(models.Model):
     is_completed = models.BooleanField(default=False)
     time_started = models.DateTimeField(auto_now_add=True)
     time_completed = models.DateTimeField(null=True)
-    new_achievements_count = models.PositiveSmallIntegerField(null=True)
+    recalculating_score_started = models.BooleanField(default=False)
+    achievements_calculated = models.BooleanField(default=False)
+    total_score_recalculated = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['time_started']
@@ -334,6 +341,17 @@ class AccomplishedChapter(models.Model):
         self.time_completed = now()
         self.save()
 
+    def start_recalculating(self):
+        self.recalculating_score_started = True
+        self.save()
+
+    def calculate_achievements(self):
+        self.achievements_calculated = True
+        self.save()
+
+    def recalculate_total_score(self):
+        self.total_score_recalculated = True
+        self.save()
 
 class PointSource(models.Model):
     class Category(models.TextChoices):

@@ -32,4 +32,6 @@ urlpatterns = [
     path('play/adventure_timeout/', WhoAmIView.as_view()),
     path('play/chapter_timeout/', WhoAmIView.as_view()),
 
+    path('chapters/<int:chapter_id>/new_achievements/', NewAchievementsAfterChapterView.as_view()),
+
 ]

@@ -11,6 +11,7 @@ from .gameplay import start_chapter, process_answers, is_adventure, is_summary, 
 from .graph_utils.chaptertograph import chapter_to_graph
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
+from .models import AccomplishedChapter
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 
@@ -87,6 +88,27 @@ class AchievementView(ListCreateAPIView):
 
     def get_queryset(self):
         return Achievement.objects.filter(course_id=self.kwargs['course_id'])
+
+
+class NewAchievementsAfterChapterView(APIView):
+    permission_classes = [IsStudent]
+
+    def get(self, request, chapter_id):
+        student = self.request.user
+        chapter = Chapter.objects.get(pk=chapter_id)
+        acc_chapter = AccomplishedChapter.objects.get(student=student, chapter=chapter)
+        if acc_chapter.recalculating_score_started:
+            if acc_chapter.achievements_calculated:
+                new_achievements = Achievement.objects.filter(accomplished_by_students=self.request.user,
+                                                              accomplishedachievement__accomplished_in_chapter=AccomplishedChapter.objects.get(chapter=chapter, student=student))
+                return Response({
+                    'status': 'calculated',
+                    'achievements': AchievementSerializer(new_achievements, many=True).data
+                })
+            else:
+                return Response({'status': 'calculating_in_progress'})
+        else:
+            return Response({'status': 'not_calculating'})
 
 
 class PlotPartView(APIView):

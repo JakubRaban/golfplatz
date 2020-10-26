@@ -8,16 +8,14 @@ from golfplatz.models import Participant, Achievement, Chapter, AccomplishedChap
 
 
 def check_for_achievements(student: Participant, previous_chapters: Dict[PlotPart, List[Chapter]]):
-    accomplish_count = 0
     last_chapter = list(previous_chapters.items())[-1][1][-1]
     not_collected_achievements = Achievement.objects.filter(course=last_chapter.course).exclude(accomplished_by_students=student)
+    current_acc_chapter = AccomplishedChapter.objects.get(student=student, chapter=last_chapter)
     for achievement in not_collected_achievements:
         if check_player_gained(student, achievement, last_chapter, previous_chapters):
-            AccomplishedAchievement.objects.create(achievement=achievement, student=student)
-            accomplish_count += 1
-    current_acc_chapter = AccomplishedChapter.objects.get(student=student, chapter=last_chapter)
-    current_acc_chapter.new_achievements_count = accomplish_count
-    current_acc_chapter.save()
+            AccomplishedAchievement.objects.create(achievement=achievement, student=student,
+                                                   accomplished_in_chapter=current_acc_chapter)
+    current_acc_chapter.calculate_achievements()
 
 
 def check_player_gained(student: Participant, achievement: Achievement, after_chapter: Chapter, previous_chapters: Dict[PlotPart, List[Chapter]]):
