@@ -22,7 +22,6 @@ export class Ranking extends Component {
     return (
       <div>
         <h3>Tutaj pojawi się ranking walczących</h3>
-        <NavLink to = "/">Powrót</NavLink>
       </div>
 
     );

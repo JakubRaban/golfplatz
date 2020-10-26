@@ -64,17 +64,11 @@ export class AddCourse extends Component {
 
   onSubmit = (e) => {
     // e.preventDefault();
-    const { name, description, courseGroups, plotParts } = this.state;
+    const { name, description, courseGroups, plotParts, achievements } = this.state;
     const course = { name, description };
     console.log(this.state);
-    // this.props.addCourse(course, courseGroups, plotParts);
-    this.setState({
-      name: '',
-      description: '',
-      courseGroups: [],
-      plotParts: [],
-      redirect: true,
-    });
+    this.props.addCourse(course, courseGroups, plotParts, achievements);
+    this.setState({ redirect: true });
   };
 
   render() {

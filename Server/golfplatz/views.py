@@ -82,12 +82,20 @@ class CourseGroupView(APIView):
         return Response(CourseGroupSerializer(created_groups, many=True).data)
 
 
-class AchievementView(ListCreateAPIView):
+class AchievementView(APIView):
     permission_classes = [IsTutor]
-    serializer_class = AchievementSerializer
 
-    def get_queryset(self):
-        return Achievement.objects.filter(course_id=self.kwargs['course_id'])
+    def get(self, request, course_id):
+        serializer = AchievementSerializer(Achievement.objects.filter(course_id=course_id), many=True)
+        return Response(serializer.data)
+
+    def post(self, request, course_id):
+        serializer = AchievementSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        course = Course.objects.get(pk=course_id)
+        new_chievements = [Achievement.objects.create(course=course, **serialized_achievements)
+                          for serialized_achievements in serializer.validated_data]
+        return Response(AchievementSerializer(new_chievements, many=True).data)
 
 
 class NewAchievementsAfterChapterView(APIView):

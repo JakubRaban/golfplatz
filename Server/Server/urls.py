@@ -24,6 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('fonts/roboto-latin-400.woff', RedirectView.as_view(url='/static/frontend/fonts/roboto-latin-400.woff')),
     path('fonts/roboto-latin-500.woff', RedirectView.as_view(url='/static/frontend/fonts/roboto-latin-500.woff')),
+    path('fonts/roboto-latin-700.woff', RedirectView.as_view(url='/static/frontend/fonts/roboto-latin-700.woff')),
     path('fonts/roboto-latin-400.woff2', RedirectView.as_view(url='/static/frontend/fonts/roboto-latin-400.woff2')),
     path('fonts/roboto-latin-500.woff2', RedirectView.as_view(url='/static/frontend/fonts/roboto-latin-500.woff2')),
+    path('fonts/roboto-latin-700.woff2', RedirectView.as_view(url='/static/frontend/fonts/roboto-latin-700.woff2')),
 ]

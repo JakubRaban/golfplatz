@@ -45,7 +45,7 @@ class AchievementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Achievement
-        exclude = ['accomplished_by_students']
+        exclude = ['accomplished_by_students', 'course']
 
 
 class PathChoiceDescriptionSerializer(serializers.Serializer):

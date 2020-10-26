@@ -12,12 +12,10 @@ import Login from './authentication/Login.js';
 import RegisterStudent from './authentication/RegisterStudent.js';
 import RegisterTutor from './authentication/RegisterTutor.js';
 import PrivateRoute from './PrivateRoute.js';
-import Achievements from './studentComponents/Achievements.js';
 import ChapterPassing from './studentComponents/ChapterPassing.js';
 import GameCard from './studentComponents/GameCard.js';
 import Ranking from './studentComponents/Ranking.js';
 import StudentDashboard from './studentComponents/StudentDashboard.js';
-import StudentMarks from './studentComponents/StudentMarks.js';
 import TurboAdventure from './TurboAdventure.js';
 import AddCourse from './tutorComponents/addCourse/AddCourse.js';
 import CourseDetails from './tutorComponents/CourseDetails.js';
@@ -52,8 +50,6 @@ class App extends React.Component {
               <Route exact path="/marks" component={Marks}/>
               <Route exact path="/game-card" component = {GameCard}/>
               <Route exact path="/ranking" component = {Ranking}/>
-              <Route exact path="/achievements" component = {Achievements}/>
-              <Route exact path="/student-marks" component = {StudentMarks}/>
               <Route exact path="/open-chapter/:id" component = {ChapterPassing}/>
             </Switch>
           </Router>

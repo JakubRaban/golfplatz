@@ -4,7 +4,8 @@ import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js'
 import Alerts from '../components/common/alerts/Alerts.js';
 import { tokenConfig } from './auth.js';
 import { returnErrors } from './messages.js';
-import { ADD_ADVENTURES,
+import { ADD_ACHIEVEMENTS,
+  ADD_ADVENTURES,
   ADD_ANSWER,
   ADD_CHAPTER,
   ADD_COURSE,
@@ -101,11 +102,11 @@ export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
     });
 };
 
-export const addCourse = (course, courseGroups, plotParts, chapters) => (dispatch, getState) => {
-  makeAllCourseRequests(course, plotParts, courseGroups, chapters, dispatch, getState);
+export const addCourse = (course, courseGroups, plotParts, achievements) => (dispatch, getState) => {
+  makeAllCourseRequests(course, plotParts, courseGroups, achievements, dispatch, getState);
 };
 
-async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, dispatch, getState) {
+async function makeAllCourseRequests(course, plotParts, courseGroups, achievements, dispatch, getState) {
   let courseId = -1;
   await axios.post('/api/courses/', course, tokenConfig(getState)).then((res) => {
     dispatch({
@@ -131,7 +132,6 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, 
       dispatch(returnErrors(err.response.data, err.response.status));
     });
 
-  // let plotPartsData = [];
 
   await axios.post(`/api/courses/${courseId}/plot_parts/`, plotParts, tokenConfig(getState)).then((res) => {
     Alerts.success('Pomyślnie dodano kurs');
@@ -139,11 +139,20 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, chapters, 
       type: ADD_PLOT_PARTS,
       payload: res.data,
     });
-    // plotPartsData = res.data;
   })
     .catch((err) => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });
+
+    await axios.post(`/api/courses/${courseId}/achievements/`, achievements, tokenConfig(getState)).then((res) => {
+      dispatch({
+        type: ADD_ACHIEVEMENTS,
+        payload: res.data,
+      });
+    })
+      .catch((err) => {
+        dispatch(returnErrors(err.response.data, err.response.status));
+      });
 }
 
 export const getAdventures = (id) => (dispatch, getState) => {

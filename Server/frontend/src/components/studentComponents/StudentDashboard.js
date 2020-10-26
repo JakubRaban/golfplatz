@@ -82,16 +82,6 @@ export class StudentDashboard extends Component {
                   <Link to="/game-card">Podejrzyj kartę gry</Link>
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper className={fixedHeightPaper}>
-                  <Link to="/student-marks">Zobacz swoje oceny</Link>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper className={fixedHeightPaper}>
-                  <Link to="/achievements">Zobacz swoje odznaki</Link>
-                </Paper>
-              </Grid>
               <Grid item xs={12} md={8} lg={9}>
                 <Paper className={fixedHeightPaper.paper}>
                   <div>można go wyrenderować tutaj</div>
