@@ -49,7 +49,7 @@ class Course(models.Model):
 
     @property
     def max_points_possible(self):
-        return sum([plot_part.max_points_possible for plot_part in self.plot_parts])
+        return sum([plot_part.max_points_possible for plot_part in self.plot_parts.all()])
 
     def __str__(self):
         return f'Course {self.name}'
@@ -115,11 +115,11 @@ class PlotPart(models.Model):
 
     @property
     def total_time_limit(self):
-        return sum([chapter.total_time_limit for chapter in self.chapters])
+        return sum([chapter.total_time_limit for chapter in self.chapters.all()])
 
     @property
     def max_points_possible(self):
-        return sum([chapter.max_points_possible for chapter in self.chapters])
+        return sum([chapter.max_points_possible for chapter in self.chapters.all()])
 
     def __str__(self):
         return f'Plot part {self.name} in {self.course.name}'
@@ -177,20 +177,22 @@ class Chapter(models.Model):
 
     @property
     def max_points_possible(self):
-        return sum([adventure.max_points_possible for adventure in self.adventures])
+        return self.points_for_max_grade
 
     @property
     def timed_adventures_count(self):
-        return len([adventure for adventure in self.adventures if adventure.has_time_limit])
+        return len([adventure for adventure in self.adventures.all() if adventure.has_time_limit])
 
     @property
     def total_time_limit(self):
-        return sum([adventure.time_limit for adventure in self.adventures])
+        return sum([adventure.time_limit for adventure in self.adventures.all()])
 
     @property
     def previous_chapters(self):
         previous_plot_parts = PlotPart.objects.filter(position_in_course__lt=self.plot_part.position_in_course)
-        chapters_from_prev_plot_parts = {plot_part: list(plot_part.chapters) for plot_part in previous_plot_parts}
+        chapters_from_prev_plot_parts = {
+            plot_part: list(plot_part.chapters.filter(creating_completed=True)) for plot_part in previous_plot_parts
+        }
         chapters_from_prev_plot_parts[self.plot_part] = list(
             Chapter.objects.filter(plot_part=self.plot_part, position_in_plot_part__lte=self.position_in_plot_part)
         )
@@ -251,7 +253,9 @@ class Adventure(models.Model):
 
     @property
     def max_points_possible(self):
-        return sum([question.max_points_possible for question in self.point_source.questions])
+        return sum([
+            question.max_points_possible for question in Question.objects.filter(point_source__adventure=self)
+        ])
 
     @property
     def has_time_limit(self):
