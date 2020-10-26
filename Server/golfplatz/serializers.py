@@ -1,9 +1,11 @@
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, \
-    Question, Answer, PointSource, SurpriseExercise, Path, NextAdventureChoiceDescription, PathChoiceDescription
+    Question, Answer, PointSource, SurpriseExercise, Path, NextAdventureChoiceDescription, PathChoiceDescription, \
+    Achievement
 
 
 class LoginSerializer(serializers.Serializer):
@@ -36,6 +38,14 @@ class CourseGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseGroup
         fields = '__all__'
+
+
+class AchievementSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(allow_null=True, required=False)
+
+    class Meta:
+        model = Achievement
+        exclude = ['accomplished_by_students']
 
 
 class PathChoiceDescriptionSerializer(serializers.Serializer):

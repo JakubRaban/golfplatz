@@ -1,35 +1,52 @@
 from datetime import datetime
-from typing import List, Tuple, Set
+from typing import List, Tuple, Set, Union, Optional
 
+from .achievements import check_for_achievements
+from .grading import grade_answers, points_for_chapter
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
-    AdventureSummary
+    AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice
 
 
-def grade_answers_and_get_next_adventure(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]) -> List[Adventure]:
-    AccomplishedAdventure.objects.create(student=participant, adventure=adventure,
-                                         adventure_started_time=start_time, time_elapsed_seconds=answer_time)
-    _grade_answers(participant, closed_question_answers, open_question_answers)
-    return adventure.next_adventures
-        
-
-def _grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]):
-    for question_answer_type in (closed_question_answers, open_question_answers):
-        for question_answer in question_answer_type:
-            question = question_answer[0]
-            given_answer = question_answer[1]
-            if not question.is_auto_checked:
-                Grade.objects.create(student=participant, question=question, points_scored=0, awaiting_tutor_grading=True)
-            else:
-                if question_answer in closed_question_answers:
-                    points_scored = question.score_for_closed_question(given_answer)
-                else:
-                    points_scored = question.score_for_open_question(given_answer)
-                Grade.objects.create(student=participant, question=question, points_scored=points_scored)
+def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
+    AccomplishedChapter.objects.create(chapter=chapter, student=participant)
+    return chapter.initial_adventure
 
 
-def get_summary(participant: Participant, last_adventure: Adventure):
-    accomplished_adventures = AccomplishedAdventure.objects.filter(student=participant, adventure__chapter=last_adventure.chapter)\
-        .order_by('adventure_started_time')
+def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]):
+    points_gained = grade_answers(participant, closed_question_answers, open_question_answers)
+    AccomplishedAdventure.objects.create(student=participant, adventure=adventure, adventure_started_time=start_time,
+                                         time_elapsed_seconds=answer_time,
+                                         total_points_for_questions_awarded=points_gained,
+                                         applied_time_modifier_percent=adventure.get_time_modifier(answer_time))
+    next_stage = _get_next_stage(adventure)
+    if not next_stage:
+        current_chapter = adventure.chapter
+        current_chapter_acc_adventures = AccomplishedAdventure.objects.filter(student=participant,
+                                                                              adventure__chapter=current_chapter)
+        acc_chapter = AccomplishedChapter.objects.get(chapter=current_chapter, student=participant)
+        total_points = points_for_chapter(participant, current_chapter)
+        acc_chapter.complete(total_points)
+        summary = _get_summary(current_chapter_acc_adventures)
+        if all([acc_adventure.adventure.is_auto_checked for acc_adventure in current_chapter_acc_adventures]):
+            acc_chapter.start_recalculating()
+            previous_chapters = current_chapter.previous_chapters
+            check_for_achievements(participant, previous_chapters)
+            # TODO update rank
+    return next_stage or summary
+
+
+def _get_next_stage(adventure: Adventure) -> Optional[Union[NextAdventureChoice, Adventure]]:
+    next_adventures = adventure.next_adventures
+    next_adventures_count = len(next_adventures)
+    if next_adventures_count == 0:
+        return None
+    elif next_adventures_count == 1:
+        return next_adventures[0]
+    else:
+        return NextAdventureChoice.for_adventure(adventure)
+
+
+def _get_summary(accomplished_adventures: Set[AccomplishedAdventure]) -> List[AdventureSummary]:
     adventure_summaries = []
     for accomplished_adventure in accomplished_adventures:
         adventure = accomplished_adventure.adventure
@@ -38,7 +55,9 @@ def get_summary(participant: Participant, last_adventure: Adventure):
         question_summaries = [QuestionSummary(text=question.text,
                                               is_auto_checked=question.is_auto_checked,
                                               max_points=question.max_points_possible,
-                                              points_scored=Grade.objects.get(question=question, student=participant).points_scored)
+                                              points_scored=Grade.objects.get(question=question,
+                                                                              student=accomplished_adventure.student)
+                                              .points_scored)
                               for question in questions]
         adventure_summaries.append(AdventureSummary(
             adventure_name=adventure.name,
@@ -47,3 +66,15 @@ def get_summary(participant: Participant, last_adventure: Adventure):
             question_summaries=question_summaries
         ))
     return adventure_summaries
+
+
+def is_adventure(adventure_stage: Optional[Union[NextAdventureChoice, Adventure]]) -> bool:
+    return isinstance(adventure_stage, Adventure)
+
+
+def is_choice(adventure_stage: Optional[Union[NextAdventureChoice, Adventure]]) -> bool:
+    return isinstance(adventure_stage, NextAdventureChoice)
+
+
+def is_summary(adventure_stage: Optional[Union[NextAdventureChoice, Adventure]]) -> bool:
+    return not is_adventure(adventure_stage) and not is_choice(adventure_stage)

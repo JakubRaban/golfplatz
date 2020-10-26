@@ -8,6 +8,7 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Max
+from django.utils.timezone import now
 from knox.models import AuthToken
 
 from .managers import ParticipantManager
@@ -46,6 +47,10 @@ class Course(models.Model):
     def add_course_groups(self, names: List[str]):
         return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]
 
+    @property
+    def max_points_possible(self):
+        return sum([plot_part.max_points_possible for plot_part in self.plot_parts.all()])
+
     def __str__(self):
         return f'Course {self.name}'
 
@@ -60,6 +65,33 @@ class CourseGroup(models.Model):
 
     def __str__(self):
         return self.group_name
+
+
+class Achievement(models.Model):
+    class CourseElementChoice(models.TextChoices):
+        PLOT_PART = 'PLOT_PART', 'Plot part'
+        CHAPTER = 'CHAPTER', 'Chapter'
+
+    class ConditionType(models.TextChoices):
+        SCORE = 'SCORE', 'Score'
+        TIME = 'TIME', 'Time'
+
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='achievements')
+    name = models.CharField(max_length=100)
+    image = models.ImageField(null=True)
+    course_element_considered = models.CharField(max_length=10, choices=CourseElementChoice.choices)
+    how_many = models.PositiveSmallIntegerField()
+    in_a_row = models.BooleanField()
+    condition_type = models.CharField(max_length=10, choices=ConditionType.choices)
+    percentage = models.PositiveSmallIntegerField()
+    accomplished_by_students = models.ManyToManyField('Participant', through='AccomplishedAchievement')
+
+
+class AccomplishedAchievement(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    achievement = models.ForeignKey('Achievement', on_delete=models.PROTECT)
+    accomplished_in_chapter = models.ForeignKey('AccomplishedChapter', on_delete=models.PROTECT)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 
 class PlotPart(models.Model):
@@ -82,6 +114,14 @@ class PlotPart(models.Model):
             self.position_in_course = last_part_index + 1
         super(PlotPart, self).save(*args, **kwargs)
 
+    @property
+    def total_time_limit(self):
+        return sum([chapter.total_time_limit for chapter in self.chapters.all()])
+
+    @property
+    def max_points_possible(self):
+        return sum([chapter.max_points_possible for chapter in self.chapters.all()])
+
     def __str__(self):
         return f'Plot part {self.name} in {self.course.name}'
 
@@ -93,6 +133,7 @@ class Chapter(models.Model):
     points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3, default=0)
     position_in_plot_part = models.PositiveSmallIntegerField()
     creating_completed = models.BooleanField(default=False)
+    done_by_students = models.ManyToManyField('Participant', through='AccomplishedChapter')
 
     class Meta:
         ordering = ['position_in_plot_part']
@@ -126,9 +167,41 @@ class Chapter(models.Model):
     def initial_adventure(self):
         return self.adventures.get(is_initial=True)
 
+    @property
+    def course(self):
+        return self.plot_part.course
+
+    @property
+    def is_last_in_plot_part(self):
+        chapters_from_current_plot_part = Chapter.objects.filter(plot_part=self.plot_part)
+        return self.position_in_plot_part == chapters_from_current_plot_part.aggregate(index=Max('position_in_plot_part'))['index']
+
+    @property
+    def max_points_possible(self):
+        return self.points_for_max_grade
+
+    @property
+    def timed_adventures_count(self):
+        return len([adventure for adventure in self.adventures.all() if adventure.has_time_limit])
+
+    @property
+    def total_time_limit(self):
+        return sum([adventure.time_limit for adventure in self.adventures.all()])
+
+    @property
+    def previous_chapters(self):
+        previous_plot_parts = PlotPart.objects.filter(position_in_course__lt=self.plot_part.position_in_course)
+        chapters_from_prev_plot_parts = {
+            plot_part: list(plot_part.chapters.filter(creating_completed=True)) for plot_part in previous_plot_parts
+        }
+        chapters_from_prev_plot_parts[self.plot_part] = list(
+            Chapter.objects.filter(plot_part=self.plot_part, position_in_plot_part__lte=self.position_in_plot_part)
+        )
+        return chapters_from_prev_plot_parts
+
     def complete(self):
         self.creating_completed = True
-        self.save()
+        self.save(position_in_plot_part=self.position_in_plot_part)
 
     def uncomplete(self):
         self.creating_completed = False
@@ -185,7 +258,17 @@ class Adventure(models.Model):
 
     @property
     def max_points_possible(self):
-        return sum([question.max_points_possible for question in self.point_source.questions])
+        return sum([
+            question.max_points_possible for question in Question.objects.filter(point_source__adventure=self)
+        ])
+
+    @property
+    def has_time_limit(self):
+        return self.time_limit > 0
+
+    @property
+    def is_auto_checked(self):
+        return all([question.is_auto_checked for question in self.point_source.questions.all()])
 
     def __str__(self):
         return f'Adventure {self.name} in {self.chapter.plot_part.course.name}.{self.chapter.plot_part.name}.' \
@@ -228,12 +311,51 @@ class AccomplishedAdventure(models.Model):
     adventure = models.ForeignKey('Adventure', on_delete=models.PROTECT)
     adventure_started_time = models.DateTimeField()
     time_elapsed_seconds = models.PositiveSmallIntegerField()
+    total_points_for_questions_awarded = models.DecimalField(max_digits=7, decimal_places=3)
+    applied_time_modifier_percent = models.PositiveSmallIntegerField()
+
+    @property
+    def points_after_applying_modifier(self):
+        return self.total_points_for_questions_awarded * self.applied_time_modifier_percent / 100
 
     class Meta:
+        ordering = ['adventure_started_time']
         constraints = [
             models.UniqueConstraint(fields=['student', 'adventure'], name='student_accomplishes_adventure_once')
         ]
 
+
+class AccomplishedChapter(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    chapter = models.ForeignKey('Chapter', on_delete=models.PROTECT)
+    points_scored = models.DecimalField(max_digits=7, decimal_places=3, null=True)
+    is_completed = models.BooleanField(default=False)
+    time_started = models.DateTimeField(auto_now_add=True)
+    time_completed = models.DateTimeField(null=True)
+    recalculating_score_started = models.BooleanField(default=False)
+    achievements_calculated = models.BooleanField(default=False)
+    total_score_recalculated = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['time_started']
+
+    def complete(self, points_scored):
+        self.points_scored = points_scored
+        self.is_completed = True
+        self.time_completed = now()
+        self.save()
+
+    def start_recalculating(self):
+        self.recalculating_score_started = True
+        self.save()
+
+    def calculate_achievements(self):
+        self.achievements_calculated = True
+        self.save()
+
+    def recalculate_total_score(self):
+        self.total_score_recalculated = True
+        self.save()
 
 class PointSource(models.Model):
     class Category(models.TextChoices):
@@ -324,6 +446,10 @@ class Question(models.Model):
             return self.points_per_correct_answer
         else:
             return self.points_per_correct_answer * self.answers.count()
+
+    @property
+    def adventure(self):
+        return self.point_source.adventure
 
     @property
     def is_open(self) -> bool:
