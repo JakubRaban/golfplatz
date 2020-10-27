@@ -108,7 +108,8 @@ class NewAchievementsAfterChapterView(APIView):
         if acc_chapter.recalculating_score_started:
             if acc_chapter.achievements_calculated:
                 new_achievements = Achievement.objects.filter(accomplished_by_students=self.request.user,
-                                                              accomplishedachievement__accomplished_in_chapter=AccomplishedChapter.objects.get(chapter=chapter, student=student))
+                                                              accomplishedachievement__accomplished_in_chapter=AccomplishedChapter.objects.get(
+                                                                  chapter=chapter, student=student))
                 return Response({
                     'status': 'calculated',
                     'achievements': AchievementSerializer(new_achievements, many=True).data
@@ -117,6 +118,31 @@ class NewAchievementsAfterChapterView(APIView):
                 return Response({'status': 'calculating_in_progress'})
         else:
             return Response({'status': 'not_calculating'})
+
+
+class StudentAccomplishedAchievementsView(APIView):
+    permission_classes = [IsStudent]
+
+    def get(self, request, course_id):
+        return Response(
+            {
+                'accomplished': AchievementSerializer(
+                    Achievement.objects.filter(accomplished_by_students=self.request.user, course_id=course_id)
+                ).data,
+                'not_accomplished': AchievementSerializer(
+                    Achievement.objects.filter(course_id=course_id).exclude(accomplished_by_students=self.request.user)
+                ).data
+            }
+        )
+
+
+class StudentNotAccomplishedAchievementsView(APIView):
+    permission_classes = [IsStudent]
+
+    def get(self, request, course_id):
+        return Response(AchievementSerializer(
+            Achievement.objects.filter(course_id=course_id).exclude(accomplished_by_students=self.request.user)
+        ).data)
 
 
 class PlotPartView(APIView):
