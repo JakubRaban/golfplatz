@@ -17,7 +17,7 @@ from .serializers import *
 
 
 class CourseView(APIView):
-    permission_classes = [IsTutor]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, course_id=None, format=None):
         if not course_id:
@@ -83,7 +83,7 @@ class CourseGroupView(APIView):
 
 
 class AchievementView(APIView):
-    permission_classes = [IsTutor]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, course_id):
         serializer = AchievementSerializer(Achievement.objects.filter(course_id=course_id), many=True)

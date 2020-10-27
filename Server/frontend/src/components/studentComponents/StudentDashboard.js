@@ -4,6 +4,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
@@ -13,9 +14,10 @@ import { Link, Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
+import { getCourses } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import DashboardNavbar from '../common/DashboardNavbar.js';
-
+import ChooseCourseDialog from './ChooseCourseDialog.js';
 
 function Copyright() {
   return (
@@ -38,19 +40,39 @@ export class StudentDashboard extends Component {
   };
 
   state = {
-    open: false,
+    drawerOpen: false,
+    dialogOpen: false,
+    loaded: false,
   };
+
+  componentDidMount() {
+    this.props.getCourses();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.courses !== this.props.courses) {
+      this.setState({ loaded: true });
+    }
+  }
 
   handleDrawerOpen = () => {
     this.setState({
-      open: true,
+      drawerOpen: true,
     });
   }
 
   handleDrawerClose = () => {
     this.setState({
-      open: false,
+      drawerOpen: false,
     });
+  }
+
+  handleDialogClose = () => {
+    this.setState({ dialogOpen: false });
+  }
+
+  handleDialogOpen = () => {
+    this.setState({ dialogOpen: true });
   }
 
   render() {
@@ -69,36 +91,42 @@ export class StudentDashboard extends Component {
       <div className={classes.root}>
         <CssBaseline />
         <DashboardNavbar title={'Panel uczestnika kursu'} handleDrawerOpen={this.handleDrawerOpen}
-          handleDrawerClose={this.handleDrawerClose} logout={this.props.logout} open={this.state.open}
+          handleDrawerClose={this.handleDrawerClose} logout={this.props.logout} open={this.state.drawerOpen}
         />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
           <h2>Witaj { this.props.user.firstName} {this.props.user.lastName}!</h2>
-          <h3>Twoja aktualna ranga w kursie to robak.</h3>
-          <Container maxWidth="lg" className={classes.container}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper className={fixedHeightPaper}>
-                  <Link to="/game-card">Podejrzyj kartę gry</Link>
-                </Paper>
+          {this.state.loaded &&
+          <>
+            <Container maxWidth="lg" className={classes.container}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={8} lg={9}>
+                  <Paper className={fixedHeightPaper}>
+                    <Button color="primary" onClick={this.handleDialogOpen}>
+                      Podejrzyj kartę gry
+                    </Button>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} md={4} lg={3}>
+                  <Paper className={fixedHeightPaper.paper}>
+                    <div>można go wyrenderować tutaj</div>
+                    <Link to="/ranking">Podgląd rankingu</Link>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12}>
+                  <Paper className={classes.paper}>
+                    <div> To będzie dostępne tylko o określonym czasie</div>
+                    <Link to="/open-chapter/6">Podejmij wyzwanie!</Link>
+                  </Paper>
+                </Grid>
               </Grid>
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper className={fixedHeightPaper.paper}>
-                  <div>można go wyrenderować tutaj</div>
-                  <Link to="/ranking">Podgląd rankingu</Link>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper className={classes.paper}>
-                  <div> To będzie dostępne tylko o określonym czasie</div>
-                  <Link to="/open-chapter/6">Podejmij wyzwanie!</Link>
-                </Paper>
-              </Grid>
-            </Grid>
-            <Box pt={4}>
-              <Copyright />
-            </Box>
-          </Container>
+              <Box pt={4}>
+                <Copyright />
+              </Box>
+            </Container>
+            <ChooseCourseDialog courses={this.props.courses} onClose={this.handleDialogClose} open={this.state.dialogOpen} />
+          </>
+          }
         </main>
       </div>
     );
@@ -108,9 +136,10 @@ export class StudentDashboard extends Component {
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
+  courses: state.course.courses
 });
 
 export default compose(
-  connect(mapStateToProps, { logout }),
+  connect(mapStateToProps, { logout, getCourses }),
   withStyles(styles),
 )(StudentDashboard);

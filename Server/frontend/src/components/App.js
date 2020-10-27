@@ -48,7 +48,7 @@ class App extends React.Component {
               <Route exact path="/register-student" component={RegisterStudent}/>
               <Route exact path="/register-tutor" component={RegisterTutor}/>
               <Route exact path="/marks" component={Marks}/>
-              <Route exact path="/game-card" component = {GameCard}/>
+              <Route exact path="/game-card/:id" component = {GameCard}/>
               <Route exact path="/ranking" component = {Ranking}/>
               <Route exact path="/open-chapter/:id" component = {ChapterPassing}/>
             </Switch>

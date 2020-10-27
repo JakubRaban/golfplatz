@@ -12,6 +12,7 @@ import { ADD_ACHIEVEMENTS,
   ADD_COURSE_GROUPS,
   ADD_PLOT_PARTS,
   DELETE_ADVENTURE,
+  GET_ACHIEVEMENTS,
   GET_ADVENTURES,
   GET_CHAPTER,
   GET_COURSE,
@@ -153,6 +154,15 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, achievemen
       .catch((err) => {
         dispatch(returnErrors(err.response.data, err.response.status));
       });
+}
+
+export const getAchievements = (courseId) => (dispatch, getState) => {
+  axios.get(`/api/courses/${courseId}/achievements`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_ACHIEVEMENTS,
+      payload: res.data,
+    });
+  });
 }
 
 export const getAdventures = (id) => (dispatch, getState) => {

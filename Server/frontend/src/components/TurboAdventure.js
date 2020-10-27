@@ -65,7 +65,7 @@ export class TurboAdventure extends Component {
             <>
               <Tabs value={this.state.mode} onChange={this.handleChange}>
                 <Tab label='Lista przygód' value='text'/>
-                <Tab label='Tworzenie powiązań' value='graph'/>
+                <Tab label='Tworzenie ścieżek' value='graph'/>
               </Tabs>
               {this.state.mode === 'text' ?
                 <AdventuresList adventures={this.props.adventures}/> :
