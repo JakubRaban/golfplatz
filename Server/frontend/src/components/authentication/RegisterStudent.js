@@ -1,5 +1,5 @@
 import '@material/react-text-field/dist/text-field.css';
-import '../../../style/login.css';
+import '../../styles/login.css';
 import '@material/react-button/dist/button.css';
 import 'typeface-roboto';
 
