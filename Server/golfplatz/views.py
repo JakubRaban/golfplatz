@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .gameplay import start_chapter, process_answers, is_adventure, is_summary, is_choice
-from .graph_utils.chaptertograph import chapter_to_graph
+from .graph_utils.chaptertograph import chapter_to_graph, get_most_points_possible_in_chapter
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
 from .models import AccomplishedChapter
@@ -202,6 +202,8 @@ def save_chapter_structure(request, chapter_id, update=False, draft=False):
         adventure_graph = chapter_to_graph(chapter)
         initial_adventure = designate_initial_adventure(adventure_graph)
         verify_adventure_graph(adventure_graph, initial_adventure)
+        max_points = get_most_points_possible_in_chapter(adventure_graph, initial_adventure)
+        chapter.points_for_max_grade = max_points
         chapter.complete()
     else:
         chapter.uncomplete()
