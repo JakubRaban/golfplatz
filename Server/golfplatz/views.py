@@ -104,12 +104,18 @@ class NewAchievementsAfterChapterView(APIView):
     def get(self, request, chapter_id):
         student = self.request.user
         chapter = Chapter.objects.get(pk=chapter_id)
+        print(chapter)
         acc_chapter = AccomplishedChapter.objects.get(student=student, chapter=chapter)
+        print(acc_chapter)
+
         if acc_chapter.recalculating_score_started:
+            print("STARTED")
             if acc_chapter.achievements_calculated:
                 new_achievements = Achievement.objects.filter(accomplished_by_students=self.request.user,
-                                                              accomplishedachievement__accomplished_in_chapter=AccomplishedChapter.objects.get(
+                                                              accomplishedachievement_accomplished_in_chapter=AccomplishedChapter.objects.get(
                                                                   chapter=chapter, student=student))
+                print(new_achievements)
+
                 return Response({
                     'status': 'calculated',
                     'achievements': AchievementSerializer(new_achievements, many=True).data
@@ -127,10 +133,10 @@ class StudentAccomplishedAchievementsView(APIView):
         return Response(
             {
                 'accomplished': AchievementSerializer(
-                    Achievement.objects.filter(accomplished_by_students=self.request.user, course_id=course_id)
+                    Achievement.objects.filter(accomplished_by_students=self.request.user, course_id=course_id), many=True
                 ).data,
                 'not_accomplished': AchievementSerializer(
-                    Achievement.objects.filter(course_id=course_id).exclude(accomplished_by_students=self.request.user)
+                    Achievement.objects.filter(course_id=course_id).exclude(accomplished_by_students=self.request.user), many=True
                 ).data
             }
         )

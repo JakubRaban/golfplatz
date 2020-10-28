@@ -157,7 +157,16 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, achievemen
 }
 
 export const getAchievements = (courseId) => (dispatch, getState) => {
-  axios.get(`/api/courses/${courseId}/achievements`, tokenConfig(getState)).then((res) => {
+  axios.get(`/api/courses/${courseId}/accomplished_achievements`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_ACHIEVEMENTS,
+      payload: res.data,
+    });
+  });
+}
+
+export const getAchievementsAfterChapter = (chapterId) => (dispatch, getState) => {
+  axios.get(`/api/chapters/${chapterId}/new_achievements`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_ACHIEVEMENTS,
       payload: res.data,

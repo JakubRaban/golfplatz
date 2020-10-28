@@ -1,12 +1,18 @@
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { Button, Card, CardContent, CardMedia, Typography } from '@material-ui/core';
 
 
 export class Summary extends Component {
+  state = { achievementsLoaded: false };
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.achievements !== this.props.achievements && this.props.achievements.status === 'calculated') {
+      this.setState({ achievementsLoaded: true });
+    }
+  }
+
   render() {
-    console.log(this.props.adventurePart.summary);
+    console.log(this.props);
     return (
       <div>
         <Typography variant="h5" gutterBottom>
@@ -37,6 +43,28 @@ export class Summary extends Component {
             )}
           </React.Fragment>,
         )}
+        { this.state.achievementsLoaded &&
+          this.props.achievements.achievements.map((achievement) => 
+            <>
+              <Typography variant="h5" gutterBottom>Zdobyto odznakę!</Typography>
+              <Card style={{width: '350px', margin: '5px'}}>
+                <CardMedia
+                  style={{height: '140px'}}
+                  component='img'
+                  src={achievement.image}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="h2">
+                    {achievement.name}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="p">
+                    Przyznawana za {this.getDescription(achievement)}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </>
+          ) 
+        }
         <Button variant="contained" onClick={this.props.endChapter}>
           Zakończ rozdział
         </Button>
@@ -46,4 +74,4 @@ export class Summary extends Component {
   }
 }
 
-export default connect(null)(Summary);
+export default Summary;

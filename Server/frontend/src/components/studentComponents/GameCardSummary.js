@@ -37,6 +37,28 @@ export class GameCardSummary extends Component {
     return result;
   }
 
+  renderAchievement = (achievement, accomplished = false) => {
+    const cardMediaStyle = accomplished ? { height: '140px' } : { height: '140px', opacity: '10%' };
+
+    return (
+      <Card style={{ width: '350px', margin: '5px' }}>
+        <CardMedia
+          style={cardMediaStyle}
+          component='img'
+          src={achievement.image}
+        />
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="h2">
+            {achievement.name}
+          </Typography>
+          <Typography variant="body2" color="textSecondary" component="p">
+            Przyznawana za {this.getDescription(achievement)}
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
+
   render() {
     return (
       <>
@@ -57,27 +79,18 @@ export class GameCardSummary extends Component {
 
         {this.state.loaded &&
           <Typography component='h6' variant='h6'>
-            {this.props.achievements.length > 0 ? 'Odznaki w kursie:' : 'Prowadzący nie zdefiniował odznak w tym kursie.'}
+            {this.props.achievements.accomplished.length > 0 || this.props.achievements.notAccomplished.length > 0
+              ? 'Odznaki w kursie:' : 'Prowadzący nie zdefiniował odznak w tym kursie.'}
           </Typography>
         }
-
-        {this.state.loaded && this.props.achievements?.map((achievement) =>
-          <Card style={{width: '350px'}}>
-            <CardMedia
-              style={{height: '140px', opacity: '10%'}}
-              component='img'
-              src={achievement.image}
-            />
-            <CardContent>
-              <Typography gutterBottom variant="h5" component="h2">
-                {achievement.name}
-              </Typography>
-              <Typography variant="body2" color="textSecondary" component="p">
-                Przyznawana za {this.getDescription(achievement)}
-              </Typography>
-            </CardContent>
-          </Card>
-        )}
+        <div style={{display: 'flex'}}>
+          {this.state.loaded && this.props.achievements?.accomplished.map((achievement) =>
+            this.renderAchievement(achievement, true)
+          )}
+          {this.state.loaded && this.props.achievements?.notAccomplished.map((achievement) => 
+            this.renderAchievement(achievement)
+          )}
+        </div>
     </>
     );
   }

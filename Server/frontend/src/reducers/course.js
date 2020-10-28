@@ -26,7 +26,7 @@ const initialState = {
   courseDetailed: {},
   chapters: [],
   chapterDetailed: {},
-  achievements: [],
+  achievements: {},
   adventures: [],
   adventurePart: {},
   paths: [],
