@@ -463,6 +463,18 @@ class Grade(models.Model):
     awaiting_tutor_grading = models.BooleanField(default=False)
 
 
+class StudentAnswer(models.Model):
+    grade = models.ForeignKey('Grade', on_delete=models.CASCADE)
+
+
+class StudentTextAnswer(StudentAnswer):
+    text = models.TextField()
+
+
+class StudentImageAnswer(StudentAnswer):
+    image = models.ImageField()
+
+
 class PathChoice:
     def __init__(self, **kwargs):
         self.to_adventure: Adventure = kwargs['to_adventure']
