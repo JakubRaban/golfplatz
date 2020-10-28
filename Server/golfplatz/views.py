@@ -104,17 +104,13 @@ class NewAchievementsAfterChapterView(APIView):
     def get(self, request, chapter_id):
         student = self.request.user
         chapter = Chapter.objects.get(pk=chapter_id)
-        print(chapter)
         acc_chapter = AccomplishedChapter.objects.get(student=student, chapter=chapter)
-        print(acc_chapter)
 
         if acc_chapter.recalculating_score_started:
-            print("STARTED")
             if acc_chapter.achievements_calculated:
                 new_achievements = Achievement.objects.filter(accomplished_by_students=self.request.user,
-                                                              accomplishedachievement_accomplished_in_chapter=AccomplishedChapter.objects.get(
+                                                              accomplishedachievement__accomplished_in_chapter=AccomplishedChapter.objects.get(
                                                                   chapter=chapter, student=student))
-                print(new_achievements)
 
                 return Response({
                     'status': 'calculated',

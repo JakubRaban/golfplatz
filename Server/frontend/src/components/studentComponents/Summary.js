@@ -11,6 +11,28 @@ export class Summary extends Component {
     }
   }
 
+  getScoreDescription = (achievement) => {
+    return `zdobycie minimum ${achievement.percentage} procent punktów`;
+  }
+
+  getTimeDescription = (achievement) => {
+    return `wykorzystanie nie więcej niż ${achievement.percentage} procent czasu na ograniczone czasowo zadania`;
+  }
+
+  getDescription = (achievement) => {
+    const description = achievement.conditionType === 'SCORE' ?
+      this.getScoreDescription(achievement) : this.getTimeDescription(achievement);
+
+    const chapterStr = achievement.howMany === 1 ? 'rozdziale' : 'rozdziałach';
+    const plotPartStr = achievement.howMany === 1 ? 'części fabuły' : 'częściach fabuły';
+
+    const result = description + ` w co najmniej ${achievement.howMany} 
+      ${achievement.courseElementConsidered === 'CHAPTER' ? chapterStr : plotPartStr}
+      ${achievement.inARow ? 'pod rząd' : 'ogółem'}.`
+
+    return result;
+  }
+
   render() {
     console.log(this.props);
     return (
