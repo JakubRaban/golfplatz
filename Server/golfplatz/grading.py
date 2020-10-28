@@ -1,7 +1,9 @@
 from typing import Set, List, Tuple
 
+import base64
+
 from .models import Participant, Adventure, AccomplishedAdventure, Chapter, PlotPart, Course, Question, \
-    Grade, Answer
+    Grade, Answer, StudentImageAnswer, StudentTextAnswer
 
 
 def points_for_accomplished_adventures(acc_adventures: Set[AccomplishedAdventure]):
@@ -70,15 +72,18 @@ def average_time_taken_in_plot_part_percent(student: Participant, plot_part: Plo
     return time_taken_for_accomplished_adventures_percent(acc_adventures)
 
 
-def grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]) -> float:
+def grade_answers(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]], image_question_answers: List[Tuple[Question, str]]) -> float:
     sum_of_points = 0.0
-    for question_answer_type in (closed_question_answers, open_question_answers):
+    for question_answer_type in (closed_question_answers, open_question_answers, image_question_answers):
         for question_answer in question_answer_type:
             question = question_answer[0]
             given_answer = question_answer[1]
             if not question.is_auto_checked:
-                Grade.objects.create(student=participant, question=question, points_scored=0,
-                                     awaiting_tutor_grading=True)
+                new_grade = Grade.objects.create(student=participant, question=question, points_scored=0, awaiting_tutor_grading=True)
+                if question_answer in image_question_answers:
+                    StudentImageAnswer.objects.create(grade=new_grade, image=base64.b64decode(given_answer))
+                else:
+                    StudentTextAnswer.objects.create(grade=new_grade, text=given_answer)
             else:
                 if question_answer in closed_question_answers:
                     question_points_scored = question.score_for_closed_question(given_answer)
