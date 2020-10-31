@@ -36,7 +36,7 @@ class CourseView(APIView):
         if not course_id:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         else:
-            Course.objects.get(pk=course_id).delete()
+            Course.objects.filter(pk=course_id).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -112,7 +112,7 @@ class NewAchievementsAfterChapterView(APIView):
             print("STARTED")
             if acc_chapter.achievements_calculated:
                 new_achievements = Achievement.objects.filter(accomplished_by_students=self.request.user,
-                                                              accomplishedachievement_accomplished_in_chapter=AccomplishedChapter.objects.get(
+                                                              accomplishedachievement__accomplished_in_chapter=AccomplishedChapter.objects.get(
                                                                   chapter=chapter, student=student))
                 print(new_achievements)
 

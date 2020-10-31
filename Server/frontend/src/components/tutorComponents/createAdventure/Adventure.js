@@ -12,6 +12,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
+import { isEmpty } from 'lodash'
 
 import { logout } from '../../../actions/auth.js';
 import { addAdventure, updateAdventure } from '../../../actions/course.js';
@@ -64,6 +65,7 @@ class Adventure extends React.Component {
         timeLimit: 0,
         timerRulesEnabled: false,
         timerRules: [{ ...this.emptyTimerRule }],
+        errors: {}
       };
       this.state.isNew = true;
       this.state.questions[0].answers = [];
@@ -75,12 +77,25 @@ class Adventure extends React.Component {
 
   submitForm = async () => {
     this.setState({ isAddingAdventure: true })
-    if(this.state.isNew) {
-      await this.props.addAdventure(this.state, this.props.chapter.id);
+    await this.checkFormValid()
+    if (isEmpty(this.state.errors)) {
+      if (this.state.isNew) {
+        await this.props.addAdventure(this.state, this.props.chapter.id);
+      } else {
+        await this.props.updateAdventure(this.state, this.props.location.state.adventure.id);
+      }
+      this.setState({isAdded: true});
     } else {
-      await this.props.updateAdventure(this.state, this.props.location.state.adventure.id);
+      this.setState({ isAddingAdventure: false })
     }
-    this.setState({ isAdded: true });
+  }
+
+  checkFormValid = async () => {
+    const errors = {}
+    if (this.state.name === '') errors.name = 'To pole nie może być puste'
+    if (this.state.taskDescription === '') errors.taskDescription = 'To pole nie może być puste'
+    if (this.state.hasTimeLimit && parseInt(this.state.timeLimit) <= 0) errors.timeLimit = 'Limit czasowy musi być większy od 0'
+    await this.setState({ errors })
   }
 
   updateBasicData = (data) => {
@@ -178,7 +193,7 @@ class Adventure extends React.Component {
           title={this.state.isNew ? 'Stwórz nową przygodę' : 'Edytuj przygodę'} returnLink={`/chapters/${this.props.chapter.id}`} />
         <main className={classes.content}>
           <div className={classes.appBarSpacer}/>
-          <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData}/>
+          <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData} errors={this.state.errors}/>
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
               <Typography className={classes.heading}>Pytania</Typography>
@@ -199,7 +214,7 @@ class Adventure extends React.Component {
               <div>
                 <div>
                   <TimeLimitForm hasTimeLimit={this.state.hasTimeLimit} setHasTimeLimit={this.setHasTimeLimit}
-                    timeLimit={this.state.timeLimit} setTimeLimit={this.setTimeLimit}/>
+                    timeLimit={this.state.timeLimit} setTimeLimit={this.setTimeLimit} errors={this.state.errors}/>
                 </div>
                 <div>
                   <TimerRulesFormList timerRules={this.state.timerRules} enableTimerRules={this.enableTimerRules}
