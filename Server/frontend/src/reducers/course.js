@@ -7,6 +7,7 @@ import {
   ADD_COURSE_GROUPS,
   ADD_PLOT_PARTS,
   DELETE_ADVENTURE,
+  ERRORS,
   GET_ACHIEVEMENTS,
   GET_ADVENTURES,
   GET_CHAPTER,
@@ -26,6 +27,7 @@ const initialState = {
   courseDetailed: {},
   chapters: [],
   chapterDetailed: {},
+  errors: {},
   achievements: {},
   adventures: [],
   adventurePart: {},
@@ -108,6 +110,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         adventurePart: action.payload,
+      };
+    case ERRORS:
+      return {
+        ...state,
+        errors: action.payload,
       };
     default:
       return state;

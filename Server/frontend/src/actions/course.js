@@ -4,6 +4,7 @@ import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js'
 import Alerts from '../components/common/alerts/Alerts.js';
 import { tokenConfig } from './auth.js';
 import { returnErrors } from './messages.js';
+import { parseErrors } from './parseErrors.js';
 import { ADD_ACHIEVEMENTS,
   ADD_ADVENTURES,
   ADD_ANSWER,
@@ -12,6 +13,7 @@ import { ADD_ACHIEVEMENTS,
   ADD_COURSE_GROUPS,
   ADD_PLOT_PARTS,
   DELETE_ADVENTURE,
+  ERRORS,
   GET_ACHIEVEMENTS,
   GET_ADVENTURES,
   GET_CHAPTER,
@@ -33,8 +35,11 @@ export const addAdventure = (adventure, chapterId) => (dispatch, getState) => {
     Alerts.success('Pomyślnie dodano przygodę');
   })
     .catch((err) => {
-      console.log(err.response.data);
-      dispatch(returnErrors(err.response.data, err.response.status));
+      console.log(parseErrors(err.response.data));
+      dispatch({
+        type: ERRORS,
+        payload: err.response.data,
+      });
     });
 };
 
