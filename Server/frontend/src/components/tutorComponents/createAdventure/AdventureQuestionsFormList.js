@@ -15,7 +15,7 @@ class AdventureQuestionsFormList extends React.Component {
           <Grid item key={index} sm={6}>
             <Box border={1} borderColor={'grey.500'} borderRadius={8}>
               <AdventureQuestionForm key={index} index={index} question={question} updateQuestion={this.props.updateQuestion} deleteQuestion={this.props.deleteQuestion}
-                addAnswer={this.props.addAnswer} updateAnswer={this.props.updateAnswer} deleteAnswer={this.props.deleteAnswer}/>
+                addAnswer={this.props.addAnswer} updateAnswer={this.props.updateAnswer} deleteAnswer={this.props.deleteAnswer} errors={this.props.errors}/>
             </Box>
           </Grid>,
         )}

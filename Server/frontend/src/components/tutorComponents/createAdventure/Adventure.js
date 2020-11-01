@@ -12,7 +12,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
-import { isEmpty } from 'lodash'
+import { isEmpty as empty } from 'lodash'
+import isEmpty from 'validator/lib/isEmpty.js'
+import isInt from 'validator/lib/isInt.js'
+import isDecimal from 'validator/lib/isDecimal.js'
+import { setWith } from 'lodash'
 
 import { logout } from '../../../actions/auth.js';
 import { addAdventure, updateAdventure } from '../../../actions/course.js';
@@ -62,7 +66,7 @@ class Adventure extends React.Component {
         category: 'NOT SELECTED',
         questions: [{ ...this.emptyQuestion }],
         hasTimeLimit: false,
-        timeLimit: 0,
+        timeLimit: '0',
         timerRulesEnabled: false,
         timerRules: [{ ...this.emptyTimerRule }],
         errors: {}
@@ -78,7 +82,7 @@ class Adventure extends React.Component {
   submitForm = async () => {
     this.setState({ isAddingAdventure: true })
     await this.checkFormValid()
-    if (isEmpty(this.state.errors)) {
+    if (empty(this.state.errors)) {
       if (this.state.isNew) {
         await this.props.addAdventure(this.state, this.props.chapter.id);
       } else {
@@ -92,9 +96,29 @@ class Adventure extends React.Component {
 
   checkFormValid = async () => {
     const errors = {}
-    if (this.state.name === '') errors.name = 'To pole nie może być puste'
-    if (this.state.taskDescription === '') errors.taskDescription = 'To pole nie może być puste'
-    if (this.state.hasTimeLimit && parseInt(this.state.timeLimit) <= 0) errors.timeLimit = 'Limit czasowy musi być większy od 0'
+    if (isEmpty(this.state.name)) errors.name = 'Nazwa przygody nie może być pusta'
+    if (isEmpty(this.state.taskDescription)) errors.taskDescription = 'Opis przygody nie może być pusty'
+    if (this.state.category === 'NOT SELECTED') errors.category = 'Wybierz kategorię'
+    const questions = this.state.questions
+    for (let i = 0; i < questions.length; i++) {
+      if (isEmpty(questions[i].text)) setWith(errors, `questions[${i}].text`, 'Tekst pytania nie może być pusty', Object)
+      if (!isDecimal(questions[i].pointsPerCorrectAnswer.replace(",", "."))) setWith(errors, `questions[${i}].pointsPerCorrectAnswer`, 'Podaj liczbę', Object)
+      if (!isDecimal(questions[i].pointsPerIncorrectAnswer.replace(",", "."))) setWith(errors, `questions[${i}].pointsPerIncorrectAnswer`, 'Podaj liczbę', Object)
+      for (let j = 0; j < questions[i].answers.length; j++) {
+        console.log(questions[i], questions[i].answers, questions[i].answers[j], questions[i].answers[j].text)
+        if (questions[i].isAutoChecked && isEmpty(questions[i].answers[j].text)) setWith(errors, `questions[${i}].answers[${j}].text`, 'Tekst odpowiedzi nie może być pusty', Object)
+      }
+    }
+    if (this.state.hasTimeLimit && !isInt(this.state.timeLimit, { min: 1 })) errors.timeLimit = 'Limit czasowy musi być liczbą większą od 0'
+    if (this.state.timerRulesEnabled) {
+      const timerRules = this.state.timerRules
+      for (let i = 0; i < this.state.timerRules.length; i++) {
+        if (!isInt(timerRules[i].leastPointsAwardedPercent, { min: 1 })) setWith(errors, `timerRules[${i}].leastPointsAwardedPercent`, 'Podaj liczbę większą od 0', Object)
+        if (!isInt(timerRules[i].ruleEndTime, { min: 1 })) setWith(errors, `timerRules[${i}].ruleEndTime`, 'Podaj liczbę większą od 0', Object)
+      }
+    }
+    console.log(errors)
+
     await this.setState({ errors })
   }
 
@@ -203,7 +227,8 @@ class Adventure extends React.Component {
                 addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion}
                 deleteQuestion={this.deleteQuestion}
                 addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer}
-                deleteAnswer={this.deleteAnswer}/>
+                deleteAnswer={this.deleteAnswer}
+                errors={this.state.errors}/>
             </AccordionDetails>
           </Accordion>
           <Accordion>
@@ -220,12 +245,13 @@ class Adventure extends React.Component {
                   <TimerRulesFormList timerRules={this.state.timerRules} enableTimerRules={this.enableTimerRules}
                     timerRulesEnabled={this.state.timerRulesEnabled}
                     addTimerRule={this.addTimerRule} updateTimerRule={this.updateTimerRule}
-                    deleteTimerRule={this.deleteTimerRule}/>
+                    deleteTimerRule={this.deleteTimerRule} errors={this.state.errors}/>
                 </div>
               </div>
             </AccordionDetails>
           </Accordion>
           <Button color={'primary'} onClick={this.submitForm}>Zatwierdź i zapisz</Button>
+          {!empty(this.state.errors) && <div style={{ color: 'red' }}>Formularz zawiera błędy. Popraw je i spróbuj ponownie.</div>}
           {this.state.isAddingAdventure && <CircularProgress />}
         </main>
       </div>

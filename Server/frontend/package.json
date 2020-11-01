@@ -69,6 +69,7 @@
     "sass-loader": "^8.0.2",
     "style-loader": "^1.1.4",
     "to-string-loader": "^1.1.6",
-    "typeface-roboto": "0.0.75"
+    "typeface-roboto": "0.0.75",
+    "validator": "^13.1.17"
   }
 }

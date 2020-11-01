@@ -29,7 +29,8 @@ class TimerRulesFormList extends React.Component {
               <TableBody>
                 {this.props.timerRules.map((timerRule, index, timerRules) =>
                   <TimerRuleForm timerRule={timerRule} prevRule={index > 0 ? timerRules[index - 1] : undefined} key={index} index={index}
-                    updateTimerRule={this.props.updateTimerRule} deleteTimerRule={this.props.deleteTimerRule}/>,
+                    updateTimerRule={this.props.updateTimerRule} deleteTimerRule={this.props.deleteTimerRule}
+                    errors={this.props.errors}/>,
                 )}
               </TableBody>
             </Table>

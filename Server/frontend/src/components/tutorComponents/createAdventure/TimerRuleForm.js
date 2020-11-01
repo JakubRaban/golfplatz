@@ -1,6 +1,7 @@
 import { Button, MenuItem, Select, TableCell, TableRow, TextField, Typography } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import React from 'react';
+import { get } from "lodash";
 
 class TimerRuleForm extends React.Component {
   handleChange = (e) => {
@@ -12,18 +13,23 @@ class TimerRuleForm extends React.Component {
   }
 
   render() {
-    const { prevRule, timerRule } = this.props;
+    const { prevRule, timerRule, index, errors } = this.props;
     return (
       <TableRow>
         <TableCell>
           {!prevRule ?
             <Typography>Jeśli uczestnik odpowie w ciągu <TextField name={'ruleEndTime'} value={timerRule.ruleEndTime}
-              onChange={this.handleChange}
+              onChange={this.handleChange} error={get(errors, `timerRules[${index}].ruleEndTime`, false)}
+              helperText={get(errors, `timerRules[${index}].ruleEndTime`, '')}
               label={'Czas w sek.'}/> sekund, otrzyma <TextField
               label={'Procent punktów'} name={'leastPointsAwardedPercent'} onChange={this.handleChange}
+              error={get(errors, `timerRules[${index}].leastPointsAwardedPercent`, false)}
+              helperText={get(errors, `timerRules[${index}].leastPointsAwardedPercent`, '')}
               value={timerRule.leastPointsAwardedPercent}/>% punktów</Typography> :
             <Typography>W przeciwnym wypadku, jeśli uczestnik odpowie w czasie od {prevRule.ruleEndTime} do <TextField
               label={'Czas w sek.'} name={'ruleEndTime'} value={timerRule.ruleEndTime}
+              error={get(errors, `timerRules[${index}].ruleEndTime`, false)}
+              helperText={get(errors, `timerRules[${index}].ruleEndTime`, '')}
               onChange={this.handleChange}/> sekund,{' '}
             <Select name={'decreasingMethod'} value={timerRule.decreasingMethod} onChange={this.handleChange}>
               <MenuItem value={'NONE'}>otrzyma</MenuItem>
@@ -31,8 +37,12 @@ class TimerRuleForm extends React.Component {
             </Select>
             {timerRule.decreasingMethod === 'NONE' ?
               <><TextField label={'Procent punktów'} value={timerRule.leastPointsAwardedPercent}
-                name={'leastPointsAwardedPercent'} onChange={this.handleChange}/>% punktów</> :
+                name={'leastPointsAwardedPercent'} onChange={this.handleChange}
+                error={get(errors, `timerRules[${index}].leastPointsAwardedPercent`, false)}
+                helperText={get(errors, `timerRules[${index}].leastPointsAwardedPercent`, '')}/>% punktów</> :
               <>od {prevRule.leastPointsAwardedPercent}% do <TextField label={'Procent punktów'}
+                error={get(errors, `timerRules[${index}].leastPointsAwardedPercent`, false)}
+                helperText={get(errors, `timerRules[${index}].leastPointsAwardedPercent`, '')}
                 value={timerRule.leastPointsAwardedPercent}
                 name={'leastPointsAwardedPercent'}
                 onChange={this.handleChange}/>% punktów</>

@@ -1,6 +1,7 @@
 
 import { Button, FormControl, FormControlLabel, FormGroup, FormLabel, Radio, RadioGroup, Switch, TextField } from '@material-ui/core';
 import React from 'react';
+import { get } from 'lodash'
 
 import AnswerList from './AnswerList.js';
 
@@ -15,12 +16,14 @@ class AdventureQuestionForm extends React.Component {
   }
 
   render() {
-    const { question } = this.props;
+    const { question, errors, index } = this.props;
     return (
       <>
-        <div>Pytanie {this.props.index + 1}</div>
+        <div>Pytanie {index + 1}</div>
         <FormGroup>
-          <TextField label={'Treść pytania'} name={'text'} value={question.text} onChange={this.handleChange}/>
+          <TextField label={'Treść pytania'} name={'text'} value={question.text} onChange={this.handleChange}
+            error={get(errors, `questions[${index}].text`, false)}
+            helperText={get(errors, `questions[${index}].text`, '')}/>
           <FormControlLabel control={<Switch checked={question.isAutoChecked} name={'isAutoChecked'} onChange={this.handleChange}/>} label={'Sprawdzane automatycznie'} />
           <FormGroup row>
             <FormControl component={'fieldset'}>
@@ -39,14 +42,16 @@ class AdventureQuestionForm extends React.Component {
               </RadioGroup>
             </FormControl>
           </FormGroup>
-          {question.isAutoChecked && <AnswerList question={question} questionIndex={this.props.index} addAnswer={this.props.addAnswer}
-            updateAnswer={this.props.updateAnswer} deleteAnswer={this.props.deleteAnswer}/>}
+          {question.isAutoChecked && <AnswerList question={question} questionIndex={index} addAnswer={this.props.addAnswer}
+            updateAnswer={this.props.updateAnswer} deleteAnswer={this.props.deleteAnswer} errors={errors}/>}
           <TextField label={question.isAutoChecked ? 'Punkty za popr. odp.' : 'Max. punktów za to pytanie'} name={'pointsPerCorrectAnswer'}
-            value={question.pointsPerCorrectAnswer} onChange={this.handleChange}/>
+            value={question.pointsPerCorrectAnswer} onChange={this.handleChange} error={get(errors, `questions[${index}].pointsPerCorrectAnswer`, false)}
+            helperText={get(errors, `questions[${index}].pointsPerCorrectAnswer`, '')}/>
           {question.isAutoChecked && <TextField label={'Komunikat po popr. odp.'} name={'messageAfterCorrectAnswer'}
             value={question.messageAfterCorrectAnswer} onChange={this.handleChange}/>}
           <TextField label={question.isAutoChecked ? 'Punkty za niepopr. odp.' : 'Min. punktów za to pytanie'} name={'pointsPerIncorrectAnswer'}
-            value={question.pointsPerIncorrectAnswer} onChange={this.handleChange}/>
+            value={question.pointsPerIncorrectAnswer} onChange={this.handleChange} error={get(errors, `questions[${index}].pointsPerIncorrectAnswer`, false)}
+            helperText={get(errors, `questions[${index}].pointsPerIncorrectAnswer`, '')}/>
           {question.isAutoChecked && <TextField label={'Komunikat po niepopr. odp.'} name={'messageAfterIncorrectAnswer'}
             value={question.messageAfterIncorrectAnswer} onChange={this.handleChange}/>}
           <Button onClick={this.handleDelete}>Usuń to pytanie</Button>
