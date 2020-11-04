@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 import Alerts from '../components/common/alerts/Alerts.js';
-import { returnErrors } from './messages.js';
 import {
   AUTH_ERROR,
   LOGIN_FAIL,
@@ -26,7 +25,6 @@ export const loadUser = () => (dispatch, getState) => {
       });
     })
     .catch((err) => {
-      dispatch(returnErrors(err.response.data, err.response.status));
       dispatch({
         type: AUTH_ERROR,
       });
@@ -44,7 +42,6 @@ export const logout = () => (dispatch, getState) => {
       Alerts.success('Wylogowano pomyślnie');
     })
     .catch((err) => {
-      dispatch(returnErrors(err.response.data, err.response.status));
     });
 };
 
@@ -62,7 +59,6 @@ export const login = (email, password) => (dispatch) => {
       Alerts.success('Zalogowano pomyślnie');
     })
     .catch((err) => {
-      dispatch(returnErrors(err.response.data, err.response.status));
       dispatch({
         type: LOGIN_FAIL,
       });
@@ -94,7 +90,6 @@ function postRegisterRequest(user, body, dispatch) {
       });
     })
     .catch((err) => {
-      dispatch(returnErrors(err.response.data, err.response.status));
       dispatch({
         type: REGISTER_FAIL,
       });

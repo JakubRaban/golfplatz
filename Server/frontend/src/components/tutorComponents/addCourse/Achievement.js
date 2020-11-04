@@ -4,7 +4,6 @@ import { Accordion, AccordionDetails, AccordionSummary, MenuItem, Select, Typogr
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React, { Component } from 'react';
 
-
 export class AddAchievement extends Component {
   handleImage = (e) => {
     const file = e.target.files[0];

@@ -12,17 +12,15 @@ import { addCourse } from '../../../actions/course.js';
 import { styles } from '../../../styles/style.js';
 import NavBar from '../../common/NavBar.js';
 import AddAchievements from './AddAchievements.js';
-import AddCourseConfirm from './AddCourseConfirm.js';
 import AddCourseInitialInfo from './AddCourseInitialInfo.js';
 import AddGroupsAndPlot from './AddGroupsAndPlot.js';
-
 
 export class AddCourse extends Component {
   state = {
     name: '',
     description: '',
-    courseGroups: [],
-    plotParts: [],
+    courseGroups: [''],
+    plotParts: [{ name: '', introduction: '' }],
     redirect: false,
     achievements: [],
   };
@@ -46,10 +44,6 @@ export class AddCourse extends Component {
     this.setState({ [input]: e.target.value });
   };
 
-  handleObjectChange = (input, value) => {
-    this.setState({ [input]: value });
-  }
-
   addNewAchievement = () => {
     const { achievements } = this.state;
     achievements.push({ ...this.emptyAchievement });
@@ -60,6 +54,30 @@ export class AddCourse extends Component {
     const { achievements } = this.state;
     achievements[index][input] = value;
     this.setState({ achievements });
+  }
+
+  addNewCourseGroup = () => {
+    const { courseGroups } = this.state;
+    courseGroups.push('');
+    this.setState({ courseGroups });
+  }
+
+  handleGroupChange = (index, value) => {
+    const { courseGroups } = this.state;
+    courseGroups[index] = value;
+    this.setState({ courseGroups });
+  }
+
+  addNewPlotPart = () => {
+    const { plotParts } = this.state;
+    plotParts.push({ name: '', introduction: '' });
+    this.setState({ plotParts });
+  }
+
+  handlePlotPartChange = (input, index, value) => {
+    const { plotParts } = this.state;
+    plotParts[index][input] = value;
+    this.setState({ plotParts });
   }
 
   onSubmit = (e) => {
@@ -73,7 +91,7 @@ export class AddCourse extends Component {
 
   render() {
     const { name, description, courseGroups, plotParts } = this.state;
-    const values = { name, description, courseGroups, plotParts };
+    const values = { name, description };
     const { classes } = this.props;
 
     if (this.state.redirect) {
@@ -103,13 +121,18 @@ export class AddCourse extends Component {
             values={values}
           />
           <AddGroupsAndPlot
-            handleChange={this.handleObjectChange}
-            values={values}
+            addNewCourseGroup={this.addNewCourseGroup}
+            addNewPlotPart={this.addNewPlotPart}
+            groups={courseGroups}
+            handleGroupChange={this.handleGroupChange}
+            handlePlotPartChange={this.handlePlotPartChange}
+            plotParts={plotParts}
           />
           <AddAchievements
             achievements={this.state.achievements}
             addNewAchievement={this.addNewAchievement}
             handleAchievementChange={this.handleAchievementChange}
+            handlePlotPartChange={this.handlePlotPartChange}
           />
           <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
             <Button

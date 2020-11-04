@@ -14,7 +14,6 @@ import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 
 import { registerTutor } from '../../actions/auth.js';
-import { createMessage } from '../../actions/messages.js';
 
 
 export class RegisterTutor extends Component {
@@ -42,7 +41,7 @@ export class RegisterTutor extends Component {
         password,
       };
       this.props.registerTutor(newTutor);
-    } else this.props.createMessage({ passwordNotMatch: 'Podane hasła są różne' });
+    }
   };
 
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
@@ -119,4 +118,4 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, { registerTutor, createMessage })(RegisterTutor);
+export default connect(mapStateToProps, { registerTutor })(RegisterTutor);

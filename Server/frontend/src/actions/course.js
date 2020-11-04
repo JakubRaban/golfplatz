@@ -3,8 +3,6 @@ import axios from 'axios';
 import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
 import Alerts from '../components/common/alerts/Alerts.js';
 import { tokenConfig } from './auth.js';
-import { returnErrors } from './messages.js';
-import { parseErrors } from './parseErrors.js';
 import { ADD_ACHIEVEMENTS,
   ADD_ADVENTURES,
   ADD_ANSWER,
@@ -35,7 +33,6 @@ export const addAdventure = (adventure, chapterId) => (dispatch, getState) => {
     Alerts.success('Pomyślnie dodano przygodę');
   })
     .catch((err) => {
-      console.log(parseErrors(err.response.data));
       dispatch({
         type: ERRORS,
         payload: err.response.data,
@@ -109,10 +106,10 @@ export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
 };
 
 export const addCourse = (course, courseGroups, plotParts, achievements) => (dispatch, getState) => {
-  makeAllCourseRequests(course, plotParts, courseGroups, achievements, dispatch, getState);
+  makeAllCourseRequests(course, courseGroups, plotParts, achievements, dispatch, getState);
 };
 
-async function makeAllCourseRequests(course, plotParts, courseGroups, achievements, dispatch, getState) {
+async function makeAllCourseRequests(course, courseGroups, plotParts, achievements, dispatch, getState) {
   let courseId = -1;
   await axios.post('/api/courses/', course, tokenConfig(getState)).then((res) => {
     dispatch({
@@ -126,9 +123,7 @@ async function makeAllCourseRequests(course, plotParts, courseGroups, achievemen
       dispatch(returnErrors(err.response.data, err.response.status));
     });
 
-  const courseGroupsNames = courseGroups.map((x) => x.groupName);
-
-  await axios.post(`/api/courses/${courseId}/course_groups/`, courseGroupsNames, tokenConfig(getState)).then((res) => {
+  await axios.post(`/api/courses/${courseId}/course_groups/`, courseGroups, tokenConfig(getState)).then((res) => {
     dispatch({
       type: ADD_COURSE_GROUPS,
       payload: res.data,
