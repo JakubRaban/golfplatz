@@ -4,6 +4,9 @@ import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { isEmpty as empty } from 'lodash'
+import isEmpty from 'validator/lib/isEmpty.js'
+import { setWith } from 'lodash'
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
@@ -23,6 +26,7 @@ export class AddCourse extends Component {
     plotParts: [{ name: '', introduction: '' }],
     redirect: false,
     achievements: [],
+    errors: {},
   };
 
   emptyAchievement = {
@@ -80,13 +84,30 @@ export class AddCourse extends Component {
     this.setState({ plotParts });
   }
 
-  onSubmit = (e) => {
-    // e.preventDefault();
-    const { name, description, courseGroups, plotParts, achievements } = this.state;
-    const course = { name, description };
-    console.log(this.state);
-    this.props.addCourse(course, courseGroups, plotParts, achievements);
-    this.setState({ redirect: true });
+  checkErrors = async () => {
+    const errors = {}
+    if (isEmpty(this.state.name)) errors.name = 'Nazwa kursu nie może być pusta'
+    if (isEmpty(this.state.description)) errors.description = 'Opis kursu nie może być pusty'
+    this.state.courseGroups.forEach((group, i) => {
+      if (isEmpty(group)) setWith(errors, `groups[${i}]`, 'Nazwa grupy nie może być pusta');
+    });
+    this.state.plotPart.forEach((plotPart, i) => {
+      if (isEmpty(plotPart.name)) setWith(errors, `plotParts[${i}].name`, 'Nazwa części fabuły nie może być pusta');
+      if (isEmpty(plotPart.introduction)) setWith(errors, `plotParts[${i}].introduction`, 'Opis części fabuły nie może być pusty');
+    });
+
+    await this.setState({ errors })
+  }
+
+  onSubmit = async () => {
+    await this.checkErrors();
+
+    if (empty(this.state.errors)) {
+      const { name, description, courseGroups, plotParts, achievements } = this.state;
+      const course = { name, description };
+      this.props.addCourse(course, courseGroups, plotParts, achievements);
+      this.setState({ redirect: true });
+    }
   };
 
   render() {
@@ -117,12 +138,14 @@ export class AddCourse extends Component {
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
           <AddCourseInitialInfo
+            errors={this.state.errors}
             handleChange={this.handleChange}
             values={values}
           />
           <AddGroupsAndPlot
             addNewCourseGroup={this.addNewCourseGroup}
             addNewPlotPart={this.addNewPlotPart}
+            errors={this.state.errors}
             groups={courseGroups}
             handleGroupChange={this.handleGroupChange}
             handlePlotPartChange={this.handlePlotPartChange}

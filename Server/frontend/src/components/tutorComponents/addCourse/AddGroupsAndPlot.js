@@ -18,6 +18,7 @@ export class AddGroupsAndPlot extends Component {
           </Typography>
           {this.props.groups.map((group, index) =>
             <CourseGroup
+              errors={this.props.errors}
               group={group}
               handleChange={this.props.handleGroupChange}
               index={index}
@@ -35,6 +36,7 @@ export class AddGroupsAndPlot extends Component {
           </Typography>
           {this.props.plotParts.map((plotPart, index) =>
             <PlotPart
+              errors={this.props.errors}
               handleChange={this.props.handlePlotPartChange}
               index={index}
               key={index}

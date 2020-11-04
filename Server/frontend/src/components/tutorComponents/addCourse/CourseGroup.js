@@ -1,18 +1,21 @@
 import React from 'react';
-import Typography from '@material-ui/core/Typography';
+import { InputLabel, TextField } from '@material-ui/core';
+import { get } from 'lodash'
 
 export class CourseGroup extends React.Component {
   render() {
+    const { group, errors, index } = this.props;
+
     return (
-      <div key={this.props.index}>
+      <div key={index}>
         <div className="row">
           <div className="col-25">
-            <label className="label-class">Dzień i godzina zajęć: </label>
+            <InputLabel className="label-class">Dzień i godzina zajęć:</InputLabel>
           </div>
           <div className="col-75">
-            <input className="input-class" value={this.props.group} type="text" name="groupName"
-              onChange={() => this.props.handleChange(this.props.index, event.target.value)}
-            />
+            <TextField className="input-class" value={group} type="text" name="groupName" variant="outlined"
+              error={get(errors, `groups[${index}]`, false)} helperText={get(errors, `groups[${index}]`, '')} 
+              onChange={() => this.props.handleChange(index, event.target.value)} />
           </div>
         </div>
       </div>
