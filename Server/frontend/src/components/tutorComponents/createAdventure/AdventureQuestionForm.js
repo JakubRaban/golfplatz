@@ -6,8 +6,24 @@ import AnswerList from './AnswerList.js';
 
 class AdventureQuestionForm extends React.Component {
   handleChange = (e) => {
-    if (e.target.name === 'isAutoChecked') this.props.updateQuestion(this.props.index, { isAutoChecked: e.target.checked, questionType: 'OPEN', answers: [] });
-    else this.props.updateQuestion(this.props.index, { [e.target.name]: e.target.value });
+    const index = this.props.index;
+    if (e.target.name === 'isAutoChecked') {
+      if (e.target.checked) {
+        this.props.updateQuestion(index, {
+          inputType: this.props.question.inputType === 'IMAGE' ? 'TEXTFIELD' : this.props.question.inputType
+        });
+      } else {
+        this.props.updateQuestion(index, { questionType: 'OPEN', answers: [] });
+      }
+    } else if (e.target.name === 'questionType' && e.target.value === 'CLOSED') {
+      this.props.updateQuestion(index, {
+        isAutoChecked: true,
+        inputType: this.props.question.inputType === 'IMAGE' ? 'TEXTFIELD' : this.props.question.inputType
+      })
+    } else if (e.target.name === 'inputType' && e.target.value === 'IMAGE') {
+      this.props.updateQuestion(index, { questionType: 'OPEN', isAutoChecked: false, answers: [] });
+    }
+    this.props.updateQuestion(index, { [e.target.name]: e.target.name === 'isAutoChecked' ? e.target.checked : e.target.value });
   }
 
   handleDelete = () => {
@@ -26,16 +42,16 @@ class AdventureQuestionForm extends React.Component {
             <FormControl component={'fieldset'}>
               <FormLabel component={'legend'}>Rodzaj pytania</FormLabel>
               <RadioGroup name={'questionType'} value={question.questionType} onChange={this.handleChange}>
-                <FormControlLabel control={<Radio/>} label={'Zamknięte'} value={'CLOSED'}
-                  disabled={!question.isAutoChecked}/>
+                <FormControlLabel control={<Radio/>} label={'Zamknięte'} value={'CLOSED'}/>
                 <FormControlLabel control={<Radio/>} label={'Otwarte'} value={'OPEN'}/>
               </RadioGroup>
             </FormControl>
             <FormControl component={'fieldset'}>
               <FormLabel component={'legend'}>Typ odpowiedzi</FormLabel>
               <RadioGroup name={'inputType'} value={question.inputType} onChange={this.handleChange}>
-                <FormControlLabel control={<Radio/>} label={'Krótka'} value={'TEXTFIELD'}/>
-                <FormControlLabel control={<Radio/>} label={'Wielolinijkowa'} value={'TEXTAREA'}/>
+                <FormControlLabel control={<Radio/>} label={'Krótki tekst'} value={'TEXTFIELD'}/>
+                <FormControlLabel control={<Radio/>} label={'Wielolinijkowy tekst'} value={'TEXTAREA'}/>
+                <FormControlLabel control={<Radio/>} label={'Grafika'} value={'IMAGE'}/>
               </RadioGroup>
             </FormControl>
           </FormGroup>
