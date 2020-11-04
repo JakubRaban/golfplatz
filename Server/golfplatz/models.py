@@ -397,6 +397,7 @@ class Question(models.Model):
     class InputType(models.TextChoices):
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
         TEXT_AREA = 'TEXTAREA', 'Large text area'
+        IMAGE = 'IMAGE', 'Image'
 
     point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE, related_name='questions')
     text = models.CharField(max_length=250)
