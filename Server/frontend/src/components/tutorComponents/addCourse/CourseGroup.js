@@ -1,6 +1,6 @@
 import React from 'react';
 import { InputLabel, TextField } from '@material-ui/core';
-import { get } from 'lodash'
+import { get } from 'lodash';
 
 export class CourseGroup extends React.Component {
   render() {

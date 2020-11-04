@@ -17,6 +17,7 @@ export class AddAchievements extends Component {
         {this.props.achievements.map((achievement, index) =>
           <Achievement
             achievement={achievement}
+            errors={this.props.errors}
             handleChange={this.props.handleAchievementChange}
             index={index}
             key={index} />,

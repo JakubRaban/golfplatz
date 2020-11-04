@@ -24,7 +24,7 @@ class AdventureBasicDataForm extends React.Component {
             <MenuItem value={'TEST'}>Kolokwium</MenuItem>
             <MenuItem value={'HOMEWORK'}>Praca domowa</MenuItem>
           </Select>
-          {this.props.errors.category && <FormHelperText>{this.props.errors.category}</FormHelperText>}
+          {this.props.errors.category && <FormHelperText error>{this.props.errors.category}</FormHelperText>}
         </FormControl>
       </FormGroup>
     );

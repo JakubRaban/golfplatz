@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty as empty } from 'lodash'
 import isEmpty from 'validator/lib/isEmpty.js'
+import isInt from 'validator/lib/isInt.js'
 import { setWith } from 'lodash'
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
@@ -33,10 +34,10 @@ export class AddCourse extends Component {
     name: '',
     image: '',
     courseElementConsidered: 'NOT SELECTED',
-    howMany: 0,
+    howMany: '0',
     inARow: false,
     conditionType: 'NOT SELECTED',
-    percentage: 0,
+    percentage: '0',
   }
 
   static propTypes = {
@@ -91,10 +92,24 @@ export class AddCourse extends Component {
     this.state.courseGroups.forEach((group, i) => {
       if (isEmpty(group)) setWith(errors, `groups[${i}]`, 'Nazwa grupy nie może być pusta');
     });
-    this.state.plotPart.forEach((plotPart, i) => {
+    this.state.plotParts.forEach((plotPart, i) => {
       if (isEmpty(plotPart.name)) setWith(errors, `plotParts[${i}].name`, 'Nazwa części fabuły nie może być pusta');
       if (isEmpty(plotPart.introduction)) setWith(errors, `plotParts[${i}].introduction`, 'Opis części fabuły nie może być pusty');
     });
+    this.state.achievements.forEach((achievement, i) => {
+      if (isEmpty(achievement.name))
+        setWith(errors, `achievements[${i}].name`, 'Nazwa odznaki nie może być pusta');
+      if (isEmpty(achievement.image))
+        setWith(errors, `achievements[${i}].image`, 'Prześlij obrazek odznaki');
+      if (achievement.courseElementConsidered === 'NOT SELECTED')
+        setWith(errors, `achievements[${i}].courseElementConsidered`, 'Wybierz element kursu');
+      if (!isInt(achievement.howMany, { min: 1 }))
+        setWith(errors, `achievements[${i}].howMany`, 'Podaj liczbę większą od 0', Object);
+      if (achievement.conditionType === 'NOT SELECTED')
+        setWith(errors, `achievements[${i}].conditionType`, 'Wybierz sprawdzany warunek');
+      if (!isInt(achievement.percentage, { min: 1 }))
+        setWith(errors, `achievements[${i}].percentage`, 'Podaj liczbę większą od 0', Object)
+    })
 
     await this.setState({ errors })
   }
@@ -154,6 +169,7 @@ export class AddCourse extends Component {
           <AddAchievements
             achievements={this.state.achievements}
             addNewAchievement={this.addNewAchievement}
+            errors={this.state.errors}
             handleAchievementChange={this.handleAchievementChange}
             handlePlotPartChange={this.handlePlotPartChange}
           />

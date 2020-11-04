@@ -16,8 +16,8 @@ export class PlotPart extends React.Component {
               <InputLabel className="label-class">Nazwa:</InputLabel>
             </div>
             <div className="col-75">
-              <TextField className="input-class" value={plotPart.name} type="text" name="name" 
-                error={get(errors, `plotParts[${index}].name`, false)} 
+              <TextField className="input-class" value={plotPart.name} type="text" 
+                error={get(errors, `plotParts[${index}].name`, false)} name="name"
                 helperText={get(errors, `plotParts[${index}].name`, '')} variant="outlined"
                 onChange={() => this.props.handleChange('name', index, event.target.value)} />
             </div>

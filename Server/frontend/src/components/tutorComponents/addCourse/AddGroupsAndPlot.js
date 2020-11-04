@@ -14,7 +14,7 @@ export class AddGroupsAndPlot extends Component {
       <>
         <div style={{ margin: '10px' }}>
           <Typography variant="h6" gutterBottom>
-            Napisz kiedy odbywają się zajęcia
+            Napisz kiedy odbywają się zajęcia:
           </Typography>
           {this.props.groups.map((group, index) =>
             <CourseGroup
@@ -32,7 +32,7 @@ export class AddGroupsAndPlot extends Component {
         </div>
         <div style={{ margin: '10px' }}>
           <Typography variant="h6" gutterBottom>
-            Dodaj części fabuły do kursu
+            Dodaj części fabuły do kursu:
           </Typography>
           {this.props.plotParts.map((plotPart, index) =>
             <PlotPart
