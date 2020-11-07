@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Tuple, Set, Union, Optional
 
 from .achievements import check_for_achievements
-from .grading import grade_answers, points_for_chapter
+from .grading import grade_answers, points_for_chapter, ScoreAggregator
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
     AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice
 
@@ -21,15 +21,20 @@ def process_answers(participant: Participant, adventure: Adventure, start_time: 
     next_stage = _get_next_stage(adventure)
     if not next_stage:
         current_chapter = adventure.chapter
-        current_chapter_acc_adventures = AccomplishedAdventure.objects.filter(student=participant,
-                                                                              adventure__chapter=current_chapter)
+        current_course_acc_adventures = AccomplishedAdventure.objects.filter(student=participant,
+                                                                             adventure__chapter__plot_part__course=
+                                                                             current_chapter.course)
+        current_chapter_acc_adventures = current_course_acc_adventures.filter(adventure__chapter=current_chapter)
         acc_chapter = AccomplishedChapter.objects.get(chapter=current_chapter, student=participant)
-        total_points = points_for_chapter(participant, current_chapter)
+        score_aggregator = ScoreAggregator(current_course_acc_adventures.values(
+            'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
+            'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
+        ))
+        total_points = score_aggregator.points_for_chapter(current_chapter)
         acc_chapter.complete(total_points)
         summary = _get_summary(current_chapter_acc_adventures)
         if all([acc_adventure.adventure.is_auto_checked for acc_adventure in current_chapter_acc_adventures]):
             acc_chapter.start_recalculating()
-            previous_chapters = current_chapter.previous_chapters
             check_for_achievements(participant, previous_chapters)
             # TODO update rank
     return next_stage or summary
