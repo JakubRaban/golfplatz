@@ -35,7 +35,7 @@ def process_answers(participant: Participant, adventure: Adventure, start_time: 
         summary = _get_summary(current_chapter_acc_adventures)
         if all([acc_adventure.adventure.is_auto_checked for acc_adventure in current_chapter_acc_adventures]):
             acc_chapter.start_recalculating()
-            check_for_achievements(participant, previous_chapters)
+            check_for_achievements(participant, current_chapter, acc_chapter, score_aggregator)
             # TODO update rank
     return next_stage or summary
 
