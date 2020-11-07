@@ -38,6 +38,10 @@ class Participant(AbstractUser):
     def __str__(self):
         return f'{self.get_full_name()} ({self.email})'
 
+    def update_score_in_course(self, course, points_scored, points_total):
+        CourseGroupStudents.objects.filter(student=self, course_group__course=course) \
+            .update(points_scored=points_scored, points_total=points_total)
+
 
 class Course(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -58,13 +62,20 @@ class Course(models.Model):
 class CourseGroup(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='course_groups')
     group_name = models.CharField(max_length=40)
-    students = models.ManyToManyField(settings.AUTH_USER_MODEL)
+    students = models.ManyToManyField(settings.AUTH_USER_MODEL, through='CourseGroupStudents')
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['course', 'group_name'], name='group_name_constraint')]
 
     def __str__(self):
         return self.group_name
+
+
+class CourseGroupStudents(models.Model):
+    student = models.ForeignKey(Participant, on_delete=models.CASCADE)
+    course_group = models.ForeignKey(CourseGroup, on_delete=models.CASCADE)
+    points_scored = models.DecimalField(max_digits=8, decimal_places=3)
+    points_total = models.DecimalField(max_digits=8, decimal_places=3)
 
 
 class Achievement(models.Model):

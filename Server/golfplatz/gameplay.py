@@ -36,7 +36,9 @@ def process_answers(participant: Participant, adventure: Adventure, start_time: 
         if all([acc_adventure.adventure.is_auto_checked for acc_adventure in current_chapter_acc_adventures]):
             acc_chapter.start_recalculating()
             check_for_achievements(participant, current_chapter, acc_chapter, score_aggregator)
-            # TODO update rank
+            acc_chapter.calculate_achievements()
+            participant.update_score_in_course(current_chapter.course, score_aggregator.points_for_all(), score_aggregator.max_points_for_all())
+            acc_chapter.recalculate_total_score()
     return next_stage or summary
 
 

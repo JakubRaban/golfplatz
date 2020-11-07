@@ -12,7 +12,6 @@ def check_for_achievements(student: Participant, last_chapter: Chapter, acc_chap
         if _check_for_achievement(achievement, last_chapter, score_aggregator):
             AccomplishedAchievement.objects.create(achievement=achievement, student=student,
                                                    accomplished_in_chapter=acc_chapter)
-    acc_chapter.calculate_achievements()
 
 
 def _check_for_achievement(achievement: Achievement, last_chapter: Chapter, score_aggregator: ScoreAggregator):

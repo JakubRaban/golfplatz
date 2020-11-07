@@ -142,8 +142,10 @@ class ScoreAggregator:
     def points_for_all(self):
         return sum(self.points_for_accomplished_adventure(acc_adventure) for acc_adventure in self.acc_adventures)
 
-    def points_for_course_percent(self, course: Course):
-        return self.points_for_all() / course.max_points_possible
+    def max_points_for_all(self):
+        return sum(
+            chapter.max_points_possible for chapter in Chapter.objects.filter(id__in=self.adventures_by_chapters.keys())
+        )
 
     @staticmethod
     def time_taken_in_accomplished_adventures(acc_adventures: List[Dict]):
