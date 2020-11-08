@@ -15,7 +15,7 @@ class AnswerList extends React.Component {
     const { classes } = this.props;
     return (
       <>
-        <div>Odpowiedzi:</div>
+        <div>{questionType === 'OPEN' ? 'Prawidłowe' : 'Warianty'} odpowiedzi:</div>
         <Table className={classes.table} size={'small'}>
           <TableHead>
             <TableRow>

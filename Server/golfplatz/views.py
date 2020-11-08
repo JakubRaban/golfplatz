@@ -305,20 +305,23 @@ class AdventureAnswerView(APIView):
         current_adventure = Adventure.objects.get(pk=adventure_id)
         closed_questions_data = data['closed_questions']
         open_questions_data = data['open_questions']
-        closed_questions = []
+        image_questions_data = data['image_questions']
+        closed_questions, open_questions, image_questions = ([],) * 3
         for question_data in closed_questions_data:
             closed_questions.append((Question.objects.get(pk=question_data['question_id']),
                                      set([Answer.objects.get(pk=answer_id)
                                           for answer_id in question_data['marked_answers']])))
-        open_questions = []
         for question_data in open_questions_data:
             open_questions.append((Question.objects.get(pk=question_data['question_id']),
                                    question_data['given_answer']))
+        for question_data in image_questions_data:
+            image_questions.append((Question.objects.get(pk=question_data['question_id']), question_data['image']))
         next_stage = process_answers(self.request.user,
                                      current_adventure,
                                      data['start_time'], data['answer_time'],
                                      closed_questions,
-                                     open_questions)
+                                     open_questions,
+                                     image_questions)
         if is_summary(next_stage):
             return Response({
                 'response_type': 'summary',

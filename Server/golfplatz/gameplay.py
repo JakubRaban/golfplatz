@@ -12,8 +12,8 @@ def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
     return chapter.initial_adventure
 
 
-def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]]):
-    points_gained = grade_answers(participant, closed_question_answers, open_question_answers)
+def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]], image_questions_answers: List[Tuple[Question, str]]):
+    points_gained = grade_answers(participant, closed_question_answers, open_question_answers, image_questions_answers)
     AccomplishedAdventure.objects.create(student=participant, adventure=adventure, adventure_started_time=start_time,
                                          time_elapsed_seconds=answer_time,
                                          total_points_for_questions_awarded=points_gained,

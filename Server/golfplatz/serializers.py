@@ -259,11 +259,17 @@ class OpenQuestionAnswerSerializer(serializers.Serializer):
     given_answer = serializers.CharField(allow_blank=True)
 
 
+class ImageQuestionAnswerSerializer(serializers.Serializer):
+    question_id = serializers.IntegerField()
+    image = Base64ImageField()
+
+
 class AdventureAnswerSerializer(serializers.Serializer):
     start_time = serializers.DateTimeField()
     answer_time = serializers.IntegerField()
     closed_questions = ClosedQuestionAnswerSerializer(many=True, allow_empty=True)
     open_questions = OpenQuestionAnswerSerializer(many=True, allow_empty=True)
+    image_question = ImageQuestionAnswerSerializer(many=True, allow_empty=True)
 
 
 class QuestionSummarySerializer(serializers.Serializer):

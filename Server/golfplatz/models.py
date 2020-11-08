@@ -397,6 +397,7 @@ class Question(models.Model):
     class InputType(models.TextChoices):
         TEXT_FIELD = 'TEXTFIELD', 'Small text field'
         TEXT_AREA = 'TEXTAREA', 'Large text area'
+        IMAGE = 'IMAGE', 'Image'
 
     point_source = models.ForeignKey('PointSource', on_delete=models.CASCADE, related_name='questions')
     text = models.CharField(max_length=250)
@@ -461,6 +462,18 @@ class Grade(models.Model):
     question = models.ForeignKey('Question', on_delete=models.PROTECT)
     points_scored = models.DecimalField(max_digits=6, decimal_places=3)
     awaiting_tutor_grading = models.BooleanField(default=False)
+
+
+class StudentAnswer(models.Model):
+    grade = models.ForeignKey('Grade', on_delete=models.CASCADE)
+
+
+class StudentTextAnswer(StudentAnswer):
+    text = models.TextField()
+
+
+class StudentImageAnswer(StudentAnswer):
+    image = models.ImageField()
 
 
 class PathChoice:
