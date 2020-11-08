@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Tuple, Set, Union, Optional
 
 from .achievements import check_for_achievements
-from .grading import grade_answers, points_for_chapter, ScoreAggregator
+from .grading import grade_answers, ScoreAggregator
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
     AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice
 
@@ -33,7 +33,7 @@ def process_answers(participant: Participant, adventure: Adventure, start_time: 
         total_points = score_aggregator.points_for_chapter(current_chapter)
         acc_chapter.complete(total_points)
         summary = _get_summary(current_chapter_acc_adventures)
-        if all([acc_adventure.adventure.is_auto_checked for acc_adventure in current_chapter_acc_adventures]):
+        if all(acc_adventure.adventure.is_auto_checked for acc_adventure in current_chapter_acc_adventures):
             acc_chapter.start_recalculating()
             check_for_achievements(participant, current_chapter, acc_chapter, score_aggregator)
             acc_chapter.calculate_achievements()

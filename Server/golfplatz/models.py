@@ -40,7 +40,25 @@ class Participant(AbstractUser):
 
     def update_score_in_course(self, course, points_scored, points_total):
         CourseGroupStudents.objects.filter(student=self, course_group__course=course) \
-            .update(points_scored=points_scored, points_total=points_total)
+            .update(points_scored=points_scored, max_score=points_total)
+
+    def get_score_in_course(self, course):
+        course_student_data = CourseGroupStudents.objects.get(student=self, course_group__course=course)
+        return course_student_data.points_scored, course_student_data.max_score
+
+    def get_score_in_course_percent(self, course):
+        points_scored, max_score = self.get_score_in_course(course)
+        return points_scored / max_score * 100 if max_score > 0 else 0
+
+    def get_rank_in_course(self, course):
+        score_percent = self.get_score_in_course_percent(course)
+        ranks = list(Rank.objects.filter(course=course))
+        if score_percent <= 0:
+            return ranks[0]
+        for index, rank in enumerate(ranks):
+            if rank.lower_threshold_percent >= score_percent:
+                return ranks[index - 1]
+        return ranks[-1]
 
 
 class Course(models.Model):
@@ -74,8 +92,8 @@ class CourseGroup(models.Model):
 class CourseGroupStudents(models.Model):
     student = models.ForeignKey(Participant, on_delete=models.CASCADE)
     course_group = models.ForeignKey(CourseGroup, on_delete=models.CASCADE)
-    points_scored = models.DecimalField(max_digits=8, decimal_places=3)
-    points_total = models.DecimalField(max_digits=8, decimal_places=3)
+    points_scored = models.DecimalField(max_digits=8, decimal_places=3, default=0)
+    max_score = models.DecimalField(max_digits=8, decimal_places=3, default=0)
 
 
 class Achievement(models.Model):
@@ -105,8 +123,18 @@ class AccomplishedAchievement(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
-class PlotPart(models.Model):
+class Rank(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+    lower_threshold_percent = models.PositiveSmallIntegerField()
+    image = models.ImageField(null=True)
+
+    class Meta:
+        ordering = ['lower_threshold_percent']
+
+
+class PlotPart(models.Model):
+    name = models.CharField(max_length=100)
     introduction = models.TextField()
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='plot_parts')
     position_in_course = models.PositiveSmallIntegerField()
@@ -138,7 +166,7 @@ class PlotPart(models.Model):
 
 
 class Chapter(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
     description = models.TextField()
     plot_part = models.ForeignKey('PlotPart', on_delete=models.CASCADE, related_name='chapters')
     points_for_max_grade = models.DecimalField(max_digits=7, decimal_places=3, default=0)
@@ -223,7 +251,7 @@ class Chapter(models.Model):
 
 
 class Adventure(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
     chapter = models.ForeignKey('Chapter', on_delete=models.CASCADE, related_name='adventures')
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
@@ -383,18 +411,6 @@ class PointSource(models.Model):
     category = models.CharField(max_length=10, choices=Category.choices)
 
 
-class SurpriseExercise(models.Model):
-    class SendMethod(models.TextChoices):
-        EMAIL = 'EMAIL', 'Email'
-        PHONE = 'PHONE', 'Phone'
-
-    point_source = models.OneToOneField(PointSource, on_delete=models.CASCADE, primary_key=True,
-                                        related_name='surprise_exercise')
-    earliest_possible_send_time = models.DateTimeField()
-    latest_possible_send_time = models.DateTimeField()
-    sending_method = models.CharField(max_length=5, choices=SendMethod.choices)
-
-
 class Answer(models.Model):
     question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
     text = models.CharField(max_length=250)
@@ -530,3 +546,13 @@ class AdventureSummary:
         self.answer_time = kwargs['answer_time']
         self.time_modifier = kwargs['time_modifier']
         self.question_summaries = kwargs['question_summaries']
+
+
+class StudentScore:
+    def __init__(self, student: Participant, course: Course):
+        points_scored, max_score = student.get_score_in_course(course)
+        rank = student.get_rank_in_course(course)
+        self.points_scored = points_scored
+        self.max_score = max_score
+        self.score_percent = points_scored / max_score * 100 if max_score > 0 else 0
+        self.rank = rank

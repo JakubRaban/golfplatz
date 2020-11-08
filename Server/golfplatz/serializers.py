@@ -4,8 +4,8 @@ from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, \
-    Question, Answer, PointSource, SurpriseExercise, Path, NextAdventureChoiceDescription, PathChoiceDescription, \
-    Achievement
+    Question, Answer, PointSource, Path, NextAdventureChoiceDescription, PathChoiceDescription, \
+    Achievement, Rank
 
 
 class LoginSerializer(serializers.Serializer):
@@ -46,6 +46,21 @@ class AchievementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Achievement
         exclude = ['accomplished_by_students', 'course']
+
+
+class RankSerializer(serializers.ModelSerializer):
+    image = Base64ImageField(allow_null=True, required=False)
+
+    class Meta:
+        model = Rank
+        exclude = ['course']
+
+
+class StudentScoreSerializer(serializers.Serializer):
+    points_scored = serializers.DecimalField(max_digits=8, decimal_places=3)
+    max_score = serializers.DecimalField(max_digits=8, decimal_places=3)
+    score_percent = serializers.DecimalField(max_digits=8, decimal_places=3)
+    rank = RankSerializer()
 
 
 class PathChoiceDescriptionSerializer(serializers.Serializer):
@@ -95,15 +110,8 @@ class QuestionSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class SurpriseExerciseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SurpriseExercise
-        exclude = ['point_source']
-
-
 class PointSourceSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
-    surprise_exercise = SurpriseExerciseSerializer(allow_null=True, required=False)
 
     class Meta:
         model = PointSource
@@ -269,7 +277,7 @@ class AdventureAnswerSerializer(serializers.Serializer):
     answer_time = serializers.IntegerField()
     closed_questions = ClosedQuestionAnswerSerializer(many=True, allow_empty=True)
     open_questions = OpenQuestionAnswerSerializer(many=True, allow_empty=True)
-    image_question = ImageQuestionAnswerSerializer(many=True, allow_empty=True)
+    image_questions = ImageQuestionAnswerSerializer(many=True, allow_empty=True)
 
 
 class QuestionSummarySerializer(serializers.Serializer):

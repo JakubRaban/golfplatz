@@ -114,7 +114,7 @@ class ScoreAggregator:
 
     @staticmethod
     def points_for_accomplished_adventure(acc_adventure: Dict):
-        return acc_adventure['total_points_for_questions_awarded'] * acc_adventure['applied_time_modifier'] / 100
+        return acc_adventure['total_points_for_questions_awarded'] * acc_adventure['applied_time_modifier_percent'] / 100
 
     def points_for_adventure(self, adventure: Adventure):
         acc_adventure = next(
