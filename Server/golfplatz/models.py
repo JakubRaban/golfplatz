@@ -144,7 +144,7 @@ class Chapter(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        if 'position_in_plot_part' not in kwargs:
+        if 'position_in_plot_part' not in kwargs and not self.position_in_plot_part:
             current_chapters = Chapter.objects.filter(plot_part=self.plot_part)
             last_part_index = current_chapters.aggregate(index=Max('position_in_plot_part'))['index'] or 0
             self.position_in_plot_part = last_part_index + 1
@@ -201,7 +201,7 @@ class Chapter(models.Model):
 
     def complete(self):
         self.creating_completed = True
-        self.save(position_in_plot_part=self.position_in_plot_part)
+        self.save()
 
     def uncomplete(self):
         self.creating_completed = False
