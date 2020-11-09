@@ -4,10 +4,10 @@ import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { isEmpty as empty } from 'lodash'
-import isEmpty from 'validator/lib/isEmpty.js'
-import isInt from 'validator/lib/isInt.js'
-import { setWith } from 'lodash'
+import { isEmpty as empty } from 'lodash';
+import isEmpty from 'validator/lib/isEmpty.js';
+import isInt from 'validator/lib/isInt.js';
+import { setWith } from 'lodash';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 

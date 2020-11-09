@@ -7,7 +7,7 @@ import Collapse from '@material-ui/core/Collapse';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Dialog from '@material-ui/core/Dialog';
 import IconButton from '@material-ui/core/IconButton';
-import { createMuiTheme, ThemeProvider as MuiThemeProvider, withStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -19,7 +19,9 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Form, NestedForm, Text } from 'react-form';
+import { isEmpty as empty } from 'lodash';
+import isEmpty from 'validator/lib/isEmpty.js';
+import { setWith } from 'lodash';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
@@ -28,58 +30,17 @@ import { logout } from '../../actions/auth.js';
 import { addChapters, getCourse } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import NavBar from '../common/NavBar.js';
-
-const Chapters = ({ i }) =>
-  <NestedForm field={['chapters', i]} key={`nested-chapters-${i}`}>
-    <Form>
-      {(formApi) =>
-        <div>
-          <Typography variant="subtitle2" gutterBottom>
-            Rozdział
-          </Typography>
-          <div className="row">
-            <div className="col-25">
-              <label className="label-class" htmlFor={`nested-chapters-first-${i}`}>Nazwa:</label>
-            </div>
-            <div className="col-75">
-              <Text className="input-class" field="name" id={`nested-chapters-first-${i}`} />
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-25">
-              <label className="label-class" htmlFor={`nested-chapters-last-${i}`}>Krótki opis:</label>
-            </div>
-            <div className="col-75">
-              <Text className="input-class" field="description" id={`nested-chapters-last-${i}`} />
-            </div>
-          </div>
-        </div>
-      }
-    </Form>
-  </NestedForm>;
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: '#42a5f5',
-      contrastText: '#fff',
-    },
-    secondary: {
-      main: '#f44336',
-    },
-  },
-});
+import AddChapter from './AddChapter.js';
 
 export class CourseDetails extends Component {
-  firstChapter = {};
-  currentPlotPartId = -1;
-
   constructor(props) {
     super(props);
     props.getCourse(props.match.params.id);
   }
 
   state = {
-    chapters: [],
+    chapters: [{ name: '', description: '' }],
+    errors: {},
     open: [],
     openDialog: false,
   };
@@ -98,26 +59,36 @@ export class CourseDetails extends Component {
     }
   }
 
-  onSubmit = (e) => {
-    // e.preventDefault();
-    this.state.chapters.pop();
-    this.state.chapters.unshift(this.firstChapter);
+  checkErrors = async () => {
+    const errors = {}
 
-    const { chapters } = this.state;
+    this.state.chapters.forEach((chapter, i) => {
+      if (isEmpty(chapter.name)) setWith(errors, `chapters[${i}].name`, 'Nazwa rozdziału nie może być pusta');
+      if (isEmpty(chapter.description)) setWith(errors, `chapters[${i}].description`, 'Opis rozdziału nie może być pusty');
+    });
 
-    // statyczne dodanie 100% punktow - tymczasowo!
-    chapters.forEach((x) => { x.pointsForMaxGrade = 100; });
+    await this.setState({ errors })
+  }
 
-    this.updateChapters(chapters);
-  };
+  onSubmit = async (plotPartId) => {
+    await this.checkErrors();
 
-  async updateChapters(chapters) {
-    await this.props.addChapters(chapters, this.currentPlotPartId);
-    this.setState({
+    if (empty(this.state.errors)) {
+      const { chapters } = this.state;
+      // statyczne dodanie 100% punktow - tymczasowo!
+      chapters.forEach((x) => { x.pointsForMaxGrade = 100; });
+
+      this.updateChapters(chapters, plotPartId);
+    }
+   };
+
+  async updateChapters(chapters, plotPartId) {
+    await this.props.addChapters(chapters, plotPartId);
+    await this.props.getCourse(this.props.match.params.id);
+    await this.setState({
       chapters: [],
       openDialog: false,
     });
-    this.props.getCourse(this.props.match.params.id);
   }
 
   handleClick = (i) => (e) => {
@@ -134,13 +105,16 @@ export class CourseDetails extends Component {
     });
   };
 
-  mapAllChapters(chapterValues, id) {
-    this.currentPlotPartId = id;
-    if (chapterValues.length === 1) {
-      [this.firstChapter] = chapterValues;
-    } else {
-      this.state.chapters = chapterValues;
-    }
+  addNewChapter = () => {
+    const { chapters } = this.state;
+    chapters.push({ name: '', description: '' });
+    this.setState({ chapters });
+  }
+
+  handleChapterChange = (input, index, value) => {
+    const { chapters } = this.state;
+    chapters[index][input] = value;
+    this.setState({ chapters });
   }
 
   render() {
@@ -226,47 +200,30 @@ export class CourseDetails extends Component {
                           <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
                         Dodaj rozdział
                           </Button>
-                          <MuiThemeProvider theme={theme}>
-                            <React.Fragment>
-                              <CssBaseline />
-                              <Dialog open={this.state.openDialog} fullWidth={true} maxWidth='sm'>
-                                <div style={{ margin: '10px' }}>
-                                  <Form onSubmit={this.onSubmit}>
-                                    {(formApi) =>
-                                      <form onSubmit={formApi.submitForm} id="chapter-form">
-                                        <div key={0}>
-                                          <Chapters i={0} />
-                                        </div>
-                                        {formApi.values.chapters &&
-                                formApi.values.chapters.slice(1).map((f, index) =>
-                                  <div key={index}>
-                                    <Chapters i={index} />
-                                  </div>
-                                , this.mapAllChapters(formApi.values.chapters, plotPart.id))}
-                                        <Button
-                                          color="secondary"
-                                          variant='outlined'
-                                          onClick={() =>
-                                            formApi.addValue('chapters', {
-                                              name: '',
-                                              description: '',
-                                            })
-                                          }
-                                        >Dodaj kolejny rozdział</Button>
-                                        <div style={{ float: 'right' }}>
-                                          <Button
-                                            color="primary"
-                                            variant="contained"
-                                            onClick={this.onSubmit}
-                                          >Dalej</Button>
-                                        </div>
-                                      </form>
-                                    }
-                                  </Form>
-                                </div>
-                              </Dialog>
-                            </React.Fragment>
-                          </MuiThemeProvider>
+                          <Dialog open={this.state.openDialog} fullWidth={true} maxWidth='sm'>
+                            <div style={{ margin: '10px' }}>
+                              { this.state.chapters.map((chapter, index) =>
+                                <AddChapter
+                                  errors={this.state.errors}
+                                  chapter={chapter}
+                                  handleChange={this.handleChapterChange}
+                                  index={index}
+                                  key={index} />,
+                              )}
+                              <Button
+                                color="secondary"
+                                variant='outlined'
+                                onClick={this.addNewChapter}
+                              >Dodaj kolejny rozdział</Button>
+                              <div style={{ float: 'right' }}>
+                                <Button
+                                  color="primary"
+                                  variant="contained"
+                                  onClick={() => this.onSubmit(plotPart.id)}
+                                >Dalej</Button>
+                              </div>
+                            </div>
+                          </Dialog>
                         </ListItem>
                       </List>
                     </Collapse>
