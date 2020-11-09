@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, \
     Question, Answer, PointSource, Path, NextAdventureChoiceDescription, PathChoiceDescription, \
-    Achievement, Rank
+    Achievement, Grade, StudentAnswer, StudentImageAnswer, StudentTextAnswer, Rank
 
 
 class LoginSerializer(serializers.Serializer):
@@ -202,11 +202,8 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
         return adventure
 
     def create_point_source(self, point_source_data, adventure):
-        surprise_exercise_data = point_source_data.pop('surprise_exercise', {})
         questions_data = point_source_data.pop('questions', [])
         point_source = PointSource.objects.create(**point_source_data, adventure=adventure)
-        if surprise_exercise_data:
-            SurpriseExercise.objects.create(**surprise_exercise_data, point_source=point_source)
         for question_data in questions_data:
             self.create_question(question_data, point_source)
 
@@ -292,3 +289,77 @@ class AdventureSummarySerializer(serializers.Serializer):
     answer_time = serializers.IntegerField()
     time_modifier = serializers.IntegerField()
     question_summaries = QuestionSummarySerializer(many=True)
+
+
+# Serializers for retrieving answers to be checked manually
+class StudentImageAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentImageAnswer
+        fields = ['image']
+
+
+class StudentTextAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentTextAnswer
+        fields = ['text']
+
+
+class StudentAnswerSerializer(serializers.ModelSerializer):
+    text_answer = StudentTextAnswerSerializer(allow_null=True, required=False)
+    image_answer = StudentImageAnswerSerializer(allow_null=True, required=False)
+
+
+class GradeSerializer(serializers.ModelSerializer):
+    student_answer = StudentAnswerSerializer(read_only=True)
+
+    class Meta:
+        model = Grade
+        fields = '__all__'
+
+
+class QuestionNameSerializer(serializers.ModelSerializer):
+    grades = GradeSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Question
+        fields = ['text', 'grades']
+
+
+class PointSourceNameSerializer(serializers.ModelSerializer):
+    questions = QuestionNameSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = PointSource
+        fields = ['questions']
+
+
+class AdventureNameSerializer(serializers.ModelSerializer):
+    point_source = PointSourceNameSerializer(read_only=True)
+
+    class Meta:
+        model = Adventure
+        fields = ['name', 'point_source']
+
+
+class ChapterNameSerializer(serializers.ModelSerializer):
+    adventures = AdventureNameSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Chapter
+        fields = ['name', 'adventures']
+
+
+class PlotPartNameSerializer(serializers.ModelSerializer):
+    chapters = ChapterNameSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = PlotPart
+        fields = ['name', 'chapters']
+
+
+class CourseNameSerializer(serializers.ModelSerializer):
+    plot_parts = PlotPartNameSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Course
+        fields = ['name', 'plot_parts']
