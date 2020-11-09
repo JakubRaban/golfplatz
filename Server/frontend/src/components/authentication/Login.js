@@ -1,17 +1,16 @@
-import '@material/react-text-field/dist/text-field.css';
-import '../../../style/login.css';
+import '../../styles/login.css';
 import '@material/react-button/dist/button.css';
 import 'typeface-roboto';
 
-import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Typography from '@material-ui/core/Typography';
+import { Breadcrumbs, TextField, Typography } from '@material-ui/core';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import Button from '@material/react-button';
-import TextField, { Input } from '@material/react-text-field';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
+import { isEmpty as empty } from 'lodash';
+import isEmpty from 'validator/lib/isEmpty.js';
 
 import { login } from '../../actions/auth.js';
 
@@ -20,6 +19,7 @@ export class Login extends Component {
   state = {
     email: '',
     password: '',
+    errors: {},
   };
 
   static propTypes = {
@@ -27,58 +27,79 @@ export class Login extends Component {
     isAuthenticated: PropTypes.bool,
   };
 
-  onSubmit = (e) => {
+  checkErrors = async () => {
+    const errors = {}
+
+    if (isEmpty(this.state.email)) errors.email = 'Podaj email';
+    if (isEmpty(this.state.password)) errors.password = 'Podaj hasło';
+
+    await this.setState({ errors });
+  }
+
+  onSubmit = async (e) => {
     e.preventDefault();
-    this.props.login(this.state.email, this.state.password);
+    await this.checkErrors();
+
+    if (empty(this.state.errors)) {
+      this.props.login(this.state.email, this.state.password);
+    }
   };
 
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
   render() {
     if (this.props.isAuthenticated) {
-      return <Redirect to="/" />;
+      return <Redirect to='/' />;
     }
-    const { email, password } = this.state;
+    const { email, password, errors } = this.state;
     return (
-      <div className="login-container">
-        <div className="box-container">
-          <Typography variant="h4" gutterBottom>
+      <div className='login-container'>
+        <div className='box-container'>
+          <Typography variant='h4' gutterBottom>
             Logowanie
           </Typography>
           <form onSubmit={this.onSubmit}>
-            <TextField className="mail" label="Adres e-mail:">
-              <Input
-                type="text"
-                name="email"
+            <div className='mail'>
+              <TextField 
+                error={errors.email}
+                fullWidth
+                helperText={errors.email || ''}
+                label='Adres e-mail:'
+                name='email'
                 onChange={this.onChange}
+                type='text'
                 value={email}
+                variant='filled'
               />
-            </TextField>
-
-            <TextField className="password" label="Hasło:">
-              <Input
-                type="password"
-                name="password"
+            </div>
+            <div className='password'>
+              <TextField
+                error={errors.password}
+                fullWidth
+                helperText={errors.password || ''}
+                label='Hasło:'
+                name='password'
                 onChange={this.onChange}
+                type='password'
                 value={password}
+                variant='filled'
               />
-            </TextField>
-
-            <div className="button-container">
-              <Button className="login-button" type="submit">
+            </div>
+            <div className='button-container'>
+              <Button className='login-button' type='submit'>
                 Zaloguj się
               </Button>
             </div>
             <Typography> Nie masz konta? </Typography>
 
-            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
-              <Typography color="textPrimary">Rejestracja studenta: </Typography>
-              <Link to="/register-student">Zarejestruj się!</Link>
+            <Breadcrumbs separator={<NavigateNextIcon fontSize='small' />} aria-label='breadcrumb'>
+              <Typography color='textPrimary'>Rejestracja studenta: </Typography>
+              <Link to='/register-student'>Zarejestruj się!</Link>
             </Breadcrumbs>
 
-            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
-              <Typography color="textPrimary">Rejestracja prowadzącego:</Typography>
-              <Link to="/register-tutor">Zarejestruj się!</Link>
+            <Breadcrumbs separator={<NavigateNextIcon fontSize='small' />} aria-label='breadcrumb'>
+              <Typography color='textPrimary'>Rejestracja prowadzącego:</Typography>
+              <Link to='/register-tutor'>Zarejestruj się!</Link>
             </Breadcrumbs>
 
           </form>

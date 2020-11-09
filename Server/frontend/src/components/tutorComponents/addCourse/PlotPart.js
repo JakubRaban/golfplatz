@@ -1,6 +1,6 @@
 import React from 'react';
 import { InputLabel, TextField, Typography } from '@material-ui/core';
-import { get } from 'lodash'
+import { get } from 'lodash';
 
 export class PlotPart extends React.Component {
   render() {
