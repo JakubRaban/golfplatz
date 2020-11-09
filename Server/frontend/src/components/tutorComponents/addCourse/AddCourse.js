@@ -4,6 +4,10 @@ import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { isEmpty as empty } from 'lodash';
+import isEmpty from 'validator/lib/isEmpty.js';
+import isInt from 'validator/lib/isInt.js';
+import { setWith } from 'lodash';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
@@ -12,29 +16,28 @@ import { addCourse } from '../../../actions/course.js';
 import { styles } from '../../../styles/style.js';
 import NavBar from '../../common/NavBar.js';
 import AddAchievements from './AddAchievements.js';
-import AddCourseConfirm from './AddCourseConfirm.js';
 import AddCourseInitialInfo from './AddCourseInitialInfo.js';
 import AddGroupsAndPlot from './AddGroupsAndPlot.js';
-
 
 export class AddCourse extends Component {
   state = {
     name: '',
     description: '',
-    courseGroups: [],
-    plotParts: [],
+    courseGroups: [''],
+    plotParts: [{ name: '', introduction: '' }],
     redirect: false,
     achievements: [],
+    errors: {},
   };
 
   emptyAchievement = {
     name: '',
     image: '',
     courseElementConsidered: 'NOT SELECTED',
-    howMany: 0,
+    howMany: '0',
     inARow: false,
     conditionType: 'NOT SELECTED',
-    percentage: 0,
+    percentage: '0',
   }
 
   static propTypes = {
@@ -45,10 +48,6 @@ export class AddCourse extends Component {
   handleChange = (input) => (e) => {
     this.setState({ [input]: e.target.value });
   };
-
-  handleObjectChange = (input, value) => {
-    this.setState({ [input]: value });
-  }
 
   addNewAchievement = () => {
     const { achievements } = this.state;
@@ -62,18 +61,73 @@ export class AddCourse extends Component {
     this.setState({ achievements });
   }
 
-  onSubmit = (e) => {
-    // e.preventDefault();
-    const { name, description, courseGroups, plotParts, achievements } = this.state;
-    const course = { name, description };
-    console.log(this.state);
-    this.props.addCourse(course, courseGroups, plotParts, achievements);
-    this.setState({ redirect: true });
+  addNewCourseGroup = () => {
+    const { courseGroups } = this.state;
+    courseGroups.push('');
+    this.setState({ courseGroups });
+  }
+
+  handleGroupChange = (index, value) => {
+    const { courseGroups } = this.state;
+    courseGroups[index] = value;
+    this.setState({ courseGroups });
+  }
+
+  addNewPlotPart = () => {
+    const { plotParts } = this.state;
+    plotParts.push({ name: '', introduction: '' });
+    this.setState({ plotParts });
+  }
+
+  handlePlotPartChange = (input, index, value) => {
+    const { plotParts } = this.state;
+    plotParts[index][input] = value;
+    this.setState({ plotParts });
+  }
+
+  checkErrors = async () => {
+    const errors = {}
+    if (isEmpty(this.state.name)) errors.name = 'Nazwa kursu nie może być pusta'
+    if (isEmpty(this.state.description)) errors.description = 'Opis kursu nie może być pusty'
+    this.state.courseGroups.forEach((group, i) => {
+      if (isEmpty(group)) setWith(errors, `groups[${i}]`, 'Nazwa grupy nie może być pusta');
+    });
+    this.state.plotParts.forEach((plotPart, i) => {
+      if (isEmpty(plotPart.name)) setWith(errors, `plotParts[${i}].name`, 'Nazwa części fabuły nie może być pusta');
+      if (isEmpty(plotPart.introduction)) setWith(errors, `plotParts[${i}].introduction`, 'Opis części fabuły nie może być pusty');
+    });
+    this.state.achievements.forEach((achievement, i) => {
+      if (isEmpty(achievement.name))
+        setWith(errors, `achievements[${i}].name`, 'Nazwa odznaki nie może być pusta');
+      if (isEmpty(achievement.image))
+        setWith(errors, `achievements[${i}].image`, 'Prześlij obrazek odznaki');
+      if (achievement.courseElementConsidered === 'NOT SELECTED')
+        setWith(errors, `achievements[${i}].courseElementConsidered`, 'Wybierz element kursu');
+      if (!isInt(achievement.howMany, { min: 1 }))
+        setWith(errors, `achievements[${i}].howMany`, 'Podaj liczbę większą od 0', Object);
+      if (achievement.conditionType === 'NOT SELECTED')
+        setWith(errors, `achievements[${i}].conditionType`, 'Wybierz sprawdzany warunek');
+      if (!isInt(achievement.percentage, { min: 1 }))
+        setWith(errors, `achievements[${i}].percentage`, 'Podaj liczbę większą od 0', Object)
+    })
+
+    await this.setState({ errors })
+  }
+
+  onSubmit = async () => {
+    await this.checkErrors();
+
+    if (empty(this.state.errors)) {
+      const { name, description, courseGroups, plotParts, achievements } = this.state;
+      const course = { name, description };
+      this.props.addCourse(course, courseGroups, plotParts, achievements);
+      this.setState({ redirect: true });
+    }
   };
 
   render() {
     const { name, description, courseGroups, plotParts } = this.state;
-    const values = { name, description, courseGroups, plotParts };
+    const values = { name, description };
     const { classes } = this.props;
 
     if (this.state.redirect) {
@@ -99,17 +153,25 @@ export class AddCourse extends Component {
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
           <AddCourseInitialInfo
+            errors={this.state.errors}
             handleChange={this.handleChange}
             values={values}
           />
           <AddGroupsAndPlot
-            handleChange={this.handleObjectChange}
-            values={values}
+            addNewCourseGroup={this.addNewCourseGroup}
+            addNewPlotPart={this.addNewPlotPart}
+            errors={this.state.errors}
+            groups={courseGroups}
+            handleGroupChange={this.handleGroupChange}
+            handlePlotPartChange={this.handlePlotPartChange}
+            plotParts={plotParts}
           />
           <AddAchievements
             achievements={this.state.achievements}
             addNewAchievement={this.addNewAchievement}
+            errors={this.state.errors}
             handleAchievementChange={this.handleAchievementChange}
+            handlePlotPartChange={this.handlePlotPartChange}
           />
           <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
             <Button

@@ -36,7 +36,7 @@ class CourseView(APIView):
         if not course_id:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         else:
-            Course.objects.get(pk=course_id).delete()
+            Course.objects.filter(pk=course_id).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 

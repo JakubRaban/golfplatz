@@ -14,12 +14,24 @@ import { addPathsWithDescriptions, deleteAdventure, updatePathsWithDescriptions 
 import { fromServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
 import graphStyle from '../styles/graphStyle.js';
 import ChoicesList from './ChoicesList.js';
+import { isEmpty as empty } from 'lodash';
+import isEmpty from 'validator/lib/isEmpty.js';
+import { setWith } from 'lodash';
 import contextMenuConfig from './common/graphConfig/ContextMenu.js';
 import edgesConfig from './common/graphConfig/Edges.js';
 import DeleteAdventureDialog from './DeleteAdventureDialog.js';
 
 class Graph extends React.Component {
-  state = { chosenAdventureId: -1, dialogOpen: false, elements: [], graphMode: true, layout: { name: 'breadthfirst' }, nodeToDelete: null };
+  state = { 
+    chosenAdventureId: -1,
+    dialogOpen: false,
+    elements: [],
+    errors: {},
+    graphMode: true,
+    layout: { name: 'breadthfirst' },
+    nodeToDelete: null,
+  };
+
   cy = null;
   edgeHandler = null;
   edgeContextMenu = null;
@@ -195,18 +207,35 @@ class Graph extends React.Component {
     return choices;
   }
 
-  handleSubmit = () => {
+  checkErrors = async () => {
+    const errors = {}
+
+    this.state.choices.forEach((choice, i) => {
+      if (isEmpty(choice.description)) setWith(errors, `choices[${i}].description`, 'Opis ścieżki nie może być pusty');
+      choice.pathChoices.forEach((pathChoice, j) => {
+        if (isEmpty(pathChoice.description)) setWith(errors, `choices[${i}].pathChoices[${j}].description`, 'Opis przejścia nie może być pusty');
+      })
+    });
+
+    await this.setState({ errors });
+  }
+
+  handleSubmit = async () => {
     if (this.state.graphMode) {
       const choices = this.validateChoices(this.mapChoices());
       this.edgeHandler.disable();
       this.setState({ choices, graphMode: false });
     } else {
-      const paths = this.formPaths();
-      const descriptions = this.state.choices;
-      const submit = { paths, descriptions };
+      await this.checkErrors();
 
-      this.props.paths.length > 0 ? this.props.updatePathsWithDescriptions(submit, this.props.chapter.id) :
-        this.props.addPathsWithDescriptions(submit, this.props.chapter.id);
+      if (empty(this.state.errors)) {
+        const paths = this.formPaths();
+        const descriptions = this.state.choices;
+        const submit = { paths, descriptions };
+
+        this.props.paths.length > 0 ? this.props.updatePathsWithDescriptions(submit, this.props.chapter.id) :
+          this.props.addPathsWithDescriptions(submit, this.props.chapter.id);
+      }
     }
   }
 
@@ -240,6 +269,7 @@ class Graph extends React.Component {
           <ChoicesList
             adventures={this.props.adventures}
             choices={this.state.choices}
+            errors={this.state.errors}
             handleChange={this.handleChoiceChange}/>
           <Button
             variant='outlined'
