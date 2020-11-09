@@ -132,6 +132,7 @@ export class ChapterPassing extends Component {
 
     const closedQuestions = [];
     const openQuestions = [];
+    const imageQuestions = [];
 
     this.state.closedQuestions.forEach((value, key) =>
       closedQuestions.push({ questionId: key, markedAnswers: value.filter((a) => a.marked).map((a) => a.id) }),
@@ -139,7 +140,8 @@ export class ChapterPassing extends Component {
     this.state.openQuestions.forEach((value, key) =>
       openQuestions.push({ questionId: key, givenAnswer: value }),
     );
-    this.adventureAnswer = { startTime: this.startTime.toISOString(), answerTime, closedQuestions, openQuestions };
+    // TODO support image questions
+    this.adventureAnswer = { startTime: this.startTime.toISOString(), answerTime, closedQuestions, openQuestions, imageQuestions };
     console.log(this.adventureAnswer);
 
     this.setState({

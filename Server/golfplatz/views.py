@@ -2,7 +2,7 @@ from django.db import transaction
 from knox.models import AuthToken
 from rest_framework import generics
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,7 +11,7 @@ from .gameplay import start_chapter, process_answers, is_adventure, is_summary, 
 from .graph_utils.chaptertograph import chapter_to_graph, get_most_points_possible_in_chapter
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
-from .models import AccomplishedChapter
+from .models import AccomplishedChapter, StudentScore
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 
@@ -93,9 +93,9 @@ class AchievementView(APIView):
         serializer = AchievementSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
         course = Course.objects.get(pk=course_id)
-        new_chievements = [Achievement.objects.create(course=course, **serialized_achievements)
+        new_achievements = [Achievement.objects.create(course=course, **serialized_achievements)
                           for serialized_achievements in serializer.validated_data]
-        return Response(AchievementSerializer(new_chievements, many=True).data)
+        return Response(AchievementSerializer(new_achievements, many=True).data)
 
 
 class NewAchievementsAfterChapterView(APIView):
@@ -126,13 +126,15 @@ class StudentAccomplishedAchievementsView(APIView):
     permission_classes = [IsStudent]
 
     def get(self, request, course_id):
+        all_course_achievements = Achievement.objects.filter(course_id=course_id)
+        student = self.request.user
         return Response(
             {
                 'accomplished': AchievementSerializer(
-                    Achievement.objects.filter(accomplished_by_students=self.request.user, course_id=course_id), many=True
+                    all_course_achievements.filter(accomplished_by_students=student)
                 ).data,
                 'not_accomplished': AchievementSerializer(
-                    Achievement.objects.filter(course_id=course_id).exclude(accomplished_by_students=self.request.user), many=True
+                    all_course_achievements.exclude(accomplished_by_students=student)
                 ).data
             }
         )
@@ -145,6 +147,42 @@ class StudentNotAccomplishedAchievementsView(APIView):
         return Response(AchievementSerializer(
             Achievement.objects.filter(course_id=course_id).exclude(accomplished_by_students=self.request.user)
         ).data)
+
+
+class RankView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        serializer = RankSerializer(Rank.objects.filter(course_id=course_id), many=True)
+        return Response(serializer.data)
+
+    def post(self, request, course_id):
+        serializer = RankSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        course = Course.objects.get(pk=course_id)
+        new_ranks = [Rank.objects.create(course=course, **serialized_rank)
+                     for serialized_rank in serializer.validated_data]
+        return Response(RankSerializer(new_ranks, many=True).data)
+
+
+class ScoreAfterChapterView(APIView):
+    permission_classes = [IsStudent]
+
+    def get(self, request, chapter_id):
+        student: Participant = self.request.user
+        chapter = Chapter.objects.get(pk=chapter_id)
+        course = chapter.course
+        acc_chapter = AccomplishedChapter.objects.get(student=student, chapter=chapter)
+        if acc_chapter.recalculating_score_started:
+            if acc_chapter.total_score_recalculated:
+                return Response({
+                    'status': 'calculated',
+                    'score': StudentScoreSerializer(StudentScore(student, course)).data
+                })
+            else:
+                return Response({'status': 'calculating_in_progress'})
+        else:
+            return Response({'status': 'not_calculating'})
 
 
 class PlotPartView(APIView):
@@ -300,13 +338,15 @@ class AdventureAnswerView(APIView):
 
     def post(self, request, adventure_id):
         serializer = AdventureAnswerSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            print(serializer.errors)
+            return Response(status=400)
         data = serializer.validated_data
         current_adventure = Adventure.objects.get(pk=adventure_id)
         closed_questions_data = data['closed_questions']
         open_questions_data = data['open_questions']
         image_questions_data = data['image_questions']
-        closed_questions, open_questions, image_questions = ([],) * 3
+        closed_questions, open_questions, image_questions = [], [], []
         for question_data in closed_questions_data:
             closed_questions.append((Question.objects.get(pk=question_data['question_id']),
                                      set([Answer.objects.get(pk=answer_id)
