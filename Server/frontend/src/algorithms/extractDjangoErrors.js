@@ -3,7 +3,7 @@ const isObject = (value) => value && typeof value === 'object' && value.construc
 const isArray = (value) => Array.isArray(value);
 const isString = (value) => typeof value === 'string' || value instanceof String;
 
-const extractDjangoErrors = (djangoErrors, outputErrors = []) => {
+export const extractDjangoErrors = (djangoErrors, outputErrors = []) => {
   if(isObject(djangoErrors)) {
     for(let value of Object.values(djangoErrors)) {
       extractDjangoErrors(value, outputErrors);
