@@ -8,7 +8,7 @@ import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
-import { addAdventureAnswer, chooseNextAdventure, startChapter } from '../../actions/course.js';
+import { addAdventureAnswer, chooseNextAdventure, startChapter, getAchievementsAfterChapter } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import NavBar from '../common/NavBar.js';
 import { Adventure } from './Adventure.js';
@@ -80,6 +80,7 @@ export class ChapterPassing extends Component {
           openQuestions: new Map(),
         });
       } else if (this.props.adventurePart.responseType === 'summary') {
+        this.props.getAchievementsAfterChapter(this.props.match.params.id);
         this.setState({
           choiceMode: false,
           answerMode: false,
@@ -193,28 +194,29 @@ export class ChapterPassing extends Component {
                   {this.props.adventurePart.chapterName}
                 </Typography>
                 {this.state.answerMode &&
-              <Adventure timeLimit={this.state.timeLimit}
-                closedQuestions={this.state.closedQuestions}
-                openQuestions={this.state.openQuestions}
-                submitted={this.state.submitted}
-                adventurePart={this.props.adventurePart}
-                onAnswerChange={this.onAnswerChange}
-                onOpenAnswerChange={this.onOpenAnswerChange}
-                onSubmit={this.onSubmitAnswer}
-                onNext={this.onNext}
-              />
+                  <Adventure timeLimit={this.state.timeLimit}
+                    closedQuestions={this.state.closedQuestions}
+                    openQuestions={this.state.openQuestions}
+                    submitted={this.state.submitted}
+                    adventurePart={this.props.adventurePart}
+                    onAnswerChange={this.onAnswerChange}
+                    onOpenAnswerChange={this.onOpenAnswerChange}
+                    onSubmit={this.onSubmitAnswer}
+                    onNext={this.onNext}
+                  />
                 }
                 {this.state.choiceMode &&
-              <NextAdventureChoice
-                adventurePart={this.props.adventurePart}
-                onSubmit={this.onSubmitPathChoice}
-              />
+                  <NextAdventureChoice
+                    adventurePart={this.props.adventurePart}
+                    onSubmit={this.onSubmitPathChoice}
+                  />
                 }
                 {this.state.summaryMode &&
-              <Summary
-                adventurePart={this.props.adventurePart}
-                endChapter={this.endChapter}
-              />
+                  <Summary
+                    achievements={this.props.achievements}
+                    adventurePart={this.props.adventurePart}
+                    endChapter={this.endChapter}
+                  />
                 }
               </React.Fragment>
             }
@@ -230,9 +232,10 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
   adventurePart: state.course.adventurePart,
+  achievements: state.course.achievements,
 });
 
 export default compose(
-  connect(mapStateToProps, { startChapter, addAdventureAnswer, chooseNextAdventure, logout }),
+  connect(mapStateToProps, { startChapter, addAdventureAnswer, chooseNextAdventure, logout, getAchievementsAfterChapter }),
   withStyles(styles),
 )(ChapterPassing);

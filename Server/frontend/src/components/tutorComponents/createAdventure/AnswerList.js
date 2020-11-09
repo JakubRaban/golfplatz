@@ -28,7 +28,8 @@ class AnswerList extends React.Component {
           <TableBody>
             {answers.map((answer, index) =>
               <Answer key={index} answer={answer} answerIndex={index} questionType={questionType} inputType={inputType}
-                questionIndex={this.props.questionIndex} updateAnswer={this.props.updateAnswer} deleteAnswer={this.props.deleteAnswer}/>,
+                questionIndex={this.props.questionIndex} updateAnswer={this.props.updateAnswer} deleteAnswer={this.props.deleteAnswer}
+                errors={this.props.errors}/>,
             )}
           </TableBody>
         </Table>
