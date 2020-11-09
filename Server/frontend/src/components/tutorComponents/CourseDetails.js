@@ -67,7 +67,7 @@ export class CourseDetails extends Component {
       if (isEmpty(chapter.description)) setWith(errors, `chapters[${i}].description`, 'Opis rozdziału nie może być pusty');
     });
 
-    await this.setState({ errors })
+    await this.setState({ errors });
   }
 
   onSubmit = async (plotPartId) => {
