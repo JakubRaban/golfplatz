@@ -22,11 +22,8 @@ export const loadUser = () => (dispatch, getState) => {
         type: USER_LOADED,
         payload: res.data,
       });
-    })
-    .catch((err) => {
     });
 };
-
 
 export const logout = () => (dispatch, getState) => {
   axios
@@ -36,8 +33,6 @@ export const logout = () => (dispatch, getState) => {
         type: LOGOUT_SUCCESS,
       });
       Alerts.success('Wylogowano pomyślnie');
-    })
-    .catch((err) => {
     });
 };
 
@@ -90,7 +85,9 @@ function postRegisterRequest(user, body, dispatch) {
     .catch((err) => {
       dispatch({
         type: REGISTER_FAIL,
+        payload: printError(err.response.data),
       });
+      Alerts.error('Błąd rejestracji');
     });
 }
 

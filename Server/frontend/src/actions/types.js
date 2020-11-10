@@ -7,7 +7,6 @@ export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 export const LOGIN_FAIL = 'LOGIN_FAIL';
 export const CREATE_MESSAGE = 'CREATE_MESSAGE';
 export const USER_LOADED = 'USER_LOADED';
-export const AUTH_ERROR = 'AUTH_ERROR';
 export const USER_LOADING = 'USER_LOADING';
 export const ADD_PLOT_PARTS = 'ADD_PLOT_PARTS';
 export const ADD_COURSE_GROUPS = 'ADD_COURSE_GROUPS';
