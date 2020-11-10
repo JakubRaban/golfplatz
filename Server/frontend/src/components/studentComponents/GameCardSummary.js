@@ -5,6 +5,12 @@ import { Card, CardContent, CardMedia, Typography } from '@material-ui/core';
 export class GameCardSummary extends Component {
   state = { loaded: false };
 
+  componentDidMount() {
+    if (this.props.achievements?.accomplished.length > 0 || this.props.achievements?.notAccomplished.length > 0) {
+      this.setState({ loaded: true });
+    }
+  }
+
   componentDidUpdate(prevProps) {
     if (this.props.achievements !== prevProps.achievements) {
       this.setState({ loaded: true });
@@ -60,6 +66,7 @@ export class GameCardSummary extends Component {
   }
 
   render() {
+    console.log(this.state.loaded);
     return (
       <>
         <Card style={{display: 'flex'}}>

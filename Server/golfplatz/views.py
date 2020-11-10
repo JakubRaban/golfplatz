@@ -131,10 +131,10 @@ class StudentAccomplishedAchievementsView(APIView):
         return Response(
             {
                 'accomplished': AchievementSerializer(
-                    all_course_achievements.filter(accomplished_by_students=student)
+                    all_course_achievements.filter(accomplished_by_students=student), many=True
                 ).data,
                 'not_accomplished': AchievementSerializer(
-                    all_course_achievements.exclude(accomplished_by_students=student)
+                    all_course_achievements.exclude(accomplished_by_students=student), many=True
                 ).data
             }
         )
