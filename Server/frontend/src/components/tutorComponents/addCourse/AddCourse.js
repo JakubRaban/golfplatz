@@ -18,6 +18,7 @@ import NavBar from '../../common/navbars/NavBar.js';
 import AddAchievements from './AddAchievements.js';
 import AddCourseInitialInfo from './AddCourseInitialInfo.js';
 import AddGroupsAndPlot from './AddGroupsAndPlot.js';
+import AddRanks from './AddRanks.js';
 
 export class AddCourse extends Component {
   state = {
@@ -27,6 +28,7 @@ export class AddCourse extends Component {
     plotParts: [{ name: '', introduction: '' }],
     redirect: false,
     achievements: [],
+    ranks: [],
     errors: {},
   };
 
@@ -85,6 +87,18 @@ export class AddCourse extends Component {
     this.setState({ plotParts });
   }
 
+  addNewRank = () => {
+    const { ranks } = this.state;
+    ranks.push({ name: '', image: '', lowerThresholdPercent: '0' });
+    this.setState({ ranks });
+  }
+
+  handleRankChange = (input, index, value) => {
+    const { ranks } = this.state;
+    ranks[index][input] = value;
+    this.setState({ ranks });
+  }
+
   checkErrors = async () => {
     const errors = {}
     if (isEmpty(this.state.name)) errors.name = 'Nazwa kursu nie może być pusta'
@@ -109,7 +123,13 @@ export class AddCourse extends Component {
         setWith(errors, `achievements[${i}].conditionType`, 'Wybierz sprawdzany warunek');
       if (!isInt(achievement.percentage, { min: 1 }))
         setWith(errors, `achievements[${i}].percentage`, 'Podaj liczbę większą od 0', Object)
-    })
+    });
+    this.state.ranks.forEach((rank, i) => {
+      if (isEmpty(rank.name))
+        setWith(errors, `ranks[${i}].name`, 'Nazwa rangi nie może być pusta');
+      if (isEmpty(rank.image))
+        setWith(errors, `ranks[${i}].image`, 'Prześlij obrazek rangi');
+    });
 
     await this.setState({ errors })
   }
@@ -118,9 +138,9 @@ export class AddCourse extends Component {
     await this.checkErrors();
 
     if (empty(this.state.errors)) {
-      const { name, description, courseGroups, plotParts, achievements } = this.state;
+      const { name, description, courseGroups, plotParts, achievements, ranks } = this.state;
       const course = { name, description };
-      this.props.addCourse(course, courseGroups, plotParts, achievements);
+      this.props.addCourse(course, courseGroups, plotParts, achievements, ranks);
       this.setState({ redirect: true });
     }
   };
@@ -171,7 +191,12 @@ export class AddCourse extends Component {
             addNewAchievement={this.addNewAchievement}
             errors={this.state.errors}
             handleAchievementChange={this.handleAchievementChange}
-            handlePlotPartChange={this.handlePlotPartChange}
+          />
+          <AddRanks
+            addNewRank={this.addNewRank}
+            errors={this.state.errors}
+            handleRankChange={this.handleRankChange}
+            ranks={this.state.ranks}
           />
           <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
             <Button
