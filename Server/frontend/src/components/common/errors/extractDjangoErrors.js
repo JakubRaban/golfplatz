@@ -15,5 +15,5 @@ export const extractDjangoErrors = (djangoErrors, outputErrors = []) => {
   } else if(isString(djangoErrors)) {
     outputErrors.push(djangoErrors);
   }
-  return outputErrors;
+  return outputErrors[0];
 }

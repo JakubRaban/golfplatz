@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import NavBar from '../common/NavBar.js';
+import NavBar from '../common/navbars/NavBar.js';
 import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';

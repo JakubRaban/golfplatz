@@ -14,7 +14,7 @@ import compose from 'recompose/compose';
 import { logout } from '../../../actions/auth.js';
 import { addCourse } from '../../../actions/course.js';
 import { styles } from '../../../styles/style.js';
-import NavBar from '../../common/NavBar.js';
+import NavBar from '../../common/navbars/NavBar.js';
 import AddAchievements from './AddAchievements.js';
 import AddCourseInitialInfo from './AddCourseInitialInfo.js';
 import AddGroupsAndPlot from './AddGroupsAndPlot.js';

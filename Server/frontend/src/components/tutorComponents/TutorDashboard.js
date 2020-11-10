@@ -14,7 +14,7 @@ import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
 import { styles } from '../../styles/style.js';
-import DashboardNavbar from '../common/DashboardNavbar.js';
+import DashboardNavbar from '../common/navbars/DashboardNavbar.js';
 
 function Copyright() {
   return (

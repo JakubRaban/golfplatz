@@ -29,7 +29,7 @@ import compose from 'recompose/compose';
 import { logout } from '../../actions/auth.js';
 import { addChapters, getCourse } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
-import NavBar from '../common/NavBar.js';
+import NavBar from '../common/navbars/NavBar.js';
 import AddChapter from './AddChapter.js';
 
 export class CourseDetails extends Component {

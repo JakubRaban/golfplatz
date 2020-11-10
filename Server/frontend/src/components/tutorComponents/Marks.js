@@ -8,7 +8,7 @@ import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
 import { styles } from '../../styles/style.js';
-import NavBar from '../common/NavBar.js';
+import NavBar from '../common/navbars/NavBar.js';
 
 
 export class Marks extends Component {

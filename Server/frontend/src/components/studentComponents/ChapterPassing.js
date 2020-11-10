@@ -10,7 +10,7 @@ import compose from 'recompose/compose';
 import { logout } from '../../actions/auth.js';
 import { addAdventureAnswer, chooseNextAdventure, startChapter, getAchievementsAfterChapter } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
-import NavBar from '../common/NavBar.js';
+import NavBar from '../common/navbars/NavBar.js';
 import { Adventure } from './Adventure.js';
 import { NextAdventureChoice } from './NextAdventureChoice.js';
 import { Summary } from './Summary.js';

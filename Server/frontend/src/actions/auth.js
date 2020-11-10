@@ -2,7 +2,6 @@ import axios from 'axios';
 
 import Alerts from '../components/common/alerts/Alerts.js';
 import {
-  AUTH_ERROR,
   LOGIN_FAIL,
   LOGIN_SUCCESS,
   LOGOUT_SUCCESS,
@@ -11,7 +10,7 @@ import {
   USER_LOADED,
   USER_LOADING,
 } from './types.js';
-
+import { printError } from '../components/common/errors/errorsMapper.js';
 
 export const loadUser = () => (dispatch, getState) => {
   dispatch({ type: USER_LOADING });
@@ -25,9 +24,6 @@ export const loadUser = () => (dispatch, getState) => {
       });
     })
     .catch((err) => {
-      dispatch({
-        type: AUTH_ERROR,
-      });
     });
 };
 
@@ -61,7 +57,9 @@ export const login = (email, password) => (dispatch) => {
     .catch((err) => {
       dispatch({
         type: LOGIN_FAIL,
+        payload: printError(err.response.data),
       });
+      Alerts.error('Błąd logowania');
     });
 };
 

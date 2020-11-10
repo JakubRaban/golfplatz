@@ -20,9 +20,9 @@ import { setWith } from 'lodash'
 
 import { logout } from '../../../actions/auth.js';
 import { addAdventure, updateAdventure } from '../../../actions/course.js';
-import { toServerForm } from '../../../clientServerTranscoders/adventureTranscoder.js';
+import { toServerForm } from '../../common/algorithms/clientServerTranscoders/adventureTranscoder.js';
 import { styles } from '../../../styles/style.js';
-import NavBar from '../../common/NavBar.js';
+import NavBar from '../../common/navbars/NavBar.js';
 import AdventureBasicDataForm from './AdventureBasicDataForm.js';
 import AdventureQuestionsFormList from './AdventureQuestionsFormList.js';
 import TimeLimitForm from './TimeLimitForm.js';

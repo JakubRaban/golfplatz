@@ -16,7 +16,7 @@ import compose from 'recompose/compose';
 import { logout } from '../../actions/auth.js';
 import { getCourses } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
-import DashboardNavbar from '../common/DashboardNavbar.js';
+import DashboardNavbar from '../common/navbars/DashboardNavbar.js';
 import ChooseCourseDialog from './ChooseCourseDialog.js';
 
 function Copyright() {

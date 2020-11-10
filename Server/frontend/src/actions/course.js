@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { toServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
+import { toServerForm } from '../components/common/algorithms/clientServerTranscoders/adventureTranscoder.js';
 import Alerts from '../components/common/alerts/Alerts.js';
 import { tokenConfig } from './auth.js';
 import { ADD_ACHIEVEMENTS,
