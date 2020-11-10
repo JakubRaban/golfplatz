@@ -10,7 +10,7 @@ import NavBar from '../common/navbars/NavBar.js';
 import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
-import { getAchievements } from '../../actions/course.js';
+import { getAchievements, getRanks } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import GameCardSummary from './GameCardSummary.js'
 import Ranking from './Ranking.js';
@@ -26,6 +26,7 @@ export class GameCard extends Component {
 
   componentDidMount() {
     this.props.getAchievements(this.props.match.params.id);
+    this.props.getRanks(this.props.match.params.id);
   }
 
   handleChange = (e, mode) => {
@@ -35,7 +36,7 @@ export class GameCard extends Component {
   renderTab() {
     switch(this.state.mode) {
       case 'summary':
-        return <GameCardSummary achievements={this.props.achievements}/>;
+        return <GameCardSummary achievements={this.props.achievements} ranks={this.props.ranks} />;
       case 'marks':
         return <StudentMarks/>;
       case 'ranking':
@@ -81,10 +82,11 @@ export class GameCard extends Component {
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
-  achievements: state.course.achievements
+  achievements: state.course.achievements,
+  ranks: state.course.ranks,
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getAchievements }),
+  connect(mapStateToProps, { logout, getAchievements, getRanks }),
   withStyles(styles),
 )(GameCard);

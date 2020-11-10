@@ -18,6 +18,7 @@ import { ADD_ACHIEVEMENTS,
   GET_CHAPTER,
   GET_COURSE,
   GET_COURSES,
+  GET_RANKS,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
@@ -170,6 +171,15 @@ export const getAchievements = (courseId) => (dispatch, getState) => {
   axios.get(`/api/courses/${courseId}/accomplished_achievements`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_ACHIEVEMENTS,
+      payload: res.data,
+    });
+  });
+}
+
+export const getRanks = (courseId) => (dispatch, getState) => {
+  axios.get(`/api/courses/${courseId}/ranks`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_RANKS,
       payload: res.data,
     });
   });
