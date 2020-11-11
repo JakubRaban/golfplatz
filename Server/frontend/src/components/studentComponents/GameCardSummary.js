@@ -1,19 +1,26 @@
 import React, { Component } from 'react';
 import { Card, CardContent, CardMedia, Typography } from '@material-ui/core';
+import { isEmpty } from 'lodash';
 
 
 export class GameCardSummary extends Component {
-  state = { achievementsLoaded: false, ranksLoaded: false };
+  state = { achievementsLoaded: false, rankLoaded: false };
 
   componentDidMount() {
     if (this.props.achievements?.accomplished.length > 0 || this.props.achievements?.notAccomplished.length > 0) {
       this.setState({ achievementsLoaded: true });
+    }
+    if (!isEmpty(this.props.studentRank)) {
+      this.setState({ rankLoaded: true });
     }
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.achievements !== prevProps.achievements) {
       this.setState({ achievementsLoaded: true });
+    }
+    if (this.props.studentRank !== prevProps.studentRank) {
+      this.setState({ rankLoaded: true });
     }
   }
 
@@ -62,23 +69,27 @@ export class GameCardSummary extends Component {
   }
 
   renderRank = () => {
-    // <Card style={{display: 'flex'}}>
-    //   <CardMedia style={{height: '140px', width: '140px'}}
-    //     image='/static/porg_better.png'
-    //     title='Rank image'
-    //   />
-    //   <CardContent>
-    //     <Typography component='h6' variant='h6'>
-    //       Twoja ranga w kursie to: {this.rankName}
-    //     </Typography>
-    //     <Typography variant='subtitle1' color='textSecondary'>
-    //       Oznacza to, że Twój wynik mieści się pomiędzy {this.rankScoreMin}, a {this.rankScoreMax} zdobytych punktów.
-    //     </Typography>
-    //   </CardContent>
-    // </Card>
+    return (
+      <Card style={{display: 'flex'}}>
+        <CardMedia style={{height: '140px', width: '140px'}}
+          image={this.props.studentRank.rank.image}
+          title='Rank image'
+        />
+        <CardContent>
+          <Typography component='h6' variant='h6'>
+            Twoja ranga w kursie to: {this.props.studentRank.rank.name}
+          </Typography>
+          <Typography variant='subtitle1' color='textSecondary'>
+            Oznacza to, że Twój wynik wynosi przynajmniej {this.props.studentRank.rank.lowerThresholdPercent}%.
+            Zdobądź minimum {this.props.nextRankThreshold}%, aby uzyskać wyższą rangę!
+          </Typography>
+        </CardContent>
+      </Card>
+    );
   }
 
   render() {
+    console.log(this.props);
     return (
       <>
         {this.state.rankLoaded && this.renderRank()}

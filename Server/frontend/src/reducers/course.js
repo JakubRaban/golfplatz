@@ -13,7 +13,8 @@ import {
   GET_CHAPTER,
   GET_COURSE,
   GET_COURSES,
-  GET_RANKS,
+  GET_ALL_RANKS,
+  GET_RANK,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
@@ -35,6 +36,7 @@ const initialState = {
   paths: [],
   pathsWithDescriptions: {},
   ranks: [],
+  studentRank: {},
 };
 
 export default function (state = initialState, action) {
@@ -86,10 +88,15 @@ export default function (state = initialState, action) {
         ...state,
         achievements: action.payload,
       };
-    case GET_RANKS:
+    case GET_ALL_RANKS:
       return {
         ...state,
         ranks: action.payload,
+      };
+    case GET_RANK:
+      return {
+        ...state,
+        studentRank: action.payload,
       };
     case ADD_ADVENTURES:
       return {

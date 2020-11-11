@@ -10,14 +10,14 @@ import NavBar from '../common/navbars/NavBar.js';
 import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
-import { getAchievements, getRanks } from '../../actions/course.js';
+import { getAchievements, getAllRanks, getStudentRank } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import GameCardSummary from './GameCardSummary.js'
 import Ranking from './Ranking.js';
 import StudentMarks from './StudentMarks.js';
 
 export class GameCard extends Component {
-  state = { loading: false, mode: 'summary' };
+  state = { loading: false, mode: 'summary', nextRankThreshold: 100 };
 
   static propTypes = {
     isAuthenticated: PropTypes.bool,
@@ -25,8 +25,21 @@ export class GameCard extends Component {
   };
 
   componentDidMount() {
-    this.props.getAchievements(this.props.match.params.id);
-    this.props.getRanks(this.props.match.params.id);
+    this.makeRequests();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.studentRank !== this.props.studentRank) {
+      const index = this.props.ranks.findIndex((rank) => this.props.studentRank.rank.id === rank.id);
+      if (index !== this.props.ranks.length - 1)
+        this.setState({ nextRankThreshold: this.props.ranks[index+1].lowerThresholdPercent });
+    }
+  }
+
+  makeRequests = async () => {
+    await this.props.getAchievements(this.props.match.params.id);
+    await this.props.getAllRanks(this.props.match.params.id);
+    await this.props.getStudentRank(this.props.match.params.id);
   }
 
   handleChange = (e, mode) => {
@@ -36,7 +49,11 @@ export class GameCard extends Component {
   renderTab() {
     switch(this.state.mode) {
       case 'summary':
-        return <GameCardSummary achievements={this.props.achievements} ranks={this.props.ranks} />;
+        return <GameCardSummary
+          achievements={this.props.achievements}
+          nextRankThreshold={this.state.nextRankThreshold}
+          studentRank={this.props.studentRank}
+        />;
       case 'marks':
         return <StudentMarks/>;
       case 'ranking':
@@ -84,9 +101,10 @@ const mapStateToProps = (state) => ({
   user: state.auth.user,
   achievements: state.course.achievements,
   ranks: state.course.ranks,
+  studentRank: state.course.studentRank,
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getAchievements, getRanks }),
+  connect(mapStateToProps, { logout, getAchievements, getAllRanks, getStudentRank }),
   withStyles(styles),
 )(GameCard);
