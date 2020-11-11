@@ -1,3 +1,6 @@
+from collections import OrderedDict
+from operator import itemgetter
+
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from drf_extra_fields.fields import Base64ImageField
@@ -305,24 +308,41 @@ class StudentTextAnswerSerializer(serializers.ModelSerializer):
 
 
 class StudentAnswerSerializer(serializers.ModelSerializer):
-    text_answer = StudentTextAnswerSerializer(allow_null=True, required=False)
-    image_answer = StudentImageAnswerSerializer(allow_null=True, required=False)
+    text_answer = StudentTextAnswerSerializer(source='studenttextanswer', allow_null=True, required=False, read_only=True)
+    image_answer = StudentImageAnswerSerializer(source='studentimageanswer', allow_null=True, required=False, read_only=True)
+
+    class Meta:
+        model = StudentAnswer
+        fields = '__all__'
+
+
+class FilterGradeListSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        data = data.filter(awaiting_tutor_grading=True)
+        return super(FilterGradeListSerializer, self).to_representation(data)
 
 
 class GradeSerializer(serializers.ModelSerializer):
-    student_answer = StudentAnswerSerializer(read_only=True)
+    student_answer = StudentAnswerSerializer(source='studentanswer', read_only=True)
+    student = serializers.StringRelatedField()
 
     class Meta:
+        list_serializer_class = FilterGradeListSerializer
         model = Grade
         fields = '__all__'
 
 
 class QuestionNameSerializer(serializers.ModelSerializer):
-    grades = GradeSerializer(many=True, read_only=True)
+    grades = GradeSerializer(source='grade_set', many=True, read_only=True)
 
     class Meta:
         model = Question
         fields = ['text', 'grades']
+    #
+    # def to_representation(self, instance):
+    #     ret = super(QuestionNameSerializer, self).to_representation(instance)
+    #     ret = [question for question in ]
+    #     return ret
 
 
 class PointSourceNameSerializer(serializers.ModelSerializer):
@@ -331,6 +351,12 @@ class PointSourceNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = PointSource
         fields = ['questions']
+
+    def to_representation(self, instance):
+        ret = super(PointSourceNameSerializer, self).to_representation(instance)
+        ret = OrderedDict([('questions', [question for question in ret['questions'] if len(question['grades']) > 0])])
+        ret = ret if len(ret['questions']) > 0 else None
+        return ret
 
 
 class AdventureNameSerializer(serializers.ModelSerializer):

@@ -494,7 +494,7 @@ class Grade(models.Model):
 
 
 class StudentAnswer(models.Model):
-    grade = models.ForeignKey('Grade', on_delete=models.CASCADE)
+    grade = models.OneToOneField('Grade', on_delete=models.CASCADE)
 
 
 class StudentTextAnswer(StudentAnswer):
