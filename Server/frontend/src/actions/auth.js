@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import Alerts from '../components/common/alerts/Alerts.js';
 import {
+  AUTH_ERROR,
   LOGIN_FAIL,
   LOGIN_SUCCESS,
   LOGOUT_SUCCESS,
@@ -22,7 +23,13 @@ export const loadUser = () => (dispatch, getState) => {
         type: USER_LOADED,
         payload: res.data,
       });
+    })
+    .catch((err) => {
+      dispatch({
+        type: AUTH_ERROR,
+      });
     });
+
 };
 
 export const logout = () => (dispatch, getState) => {

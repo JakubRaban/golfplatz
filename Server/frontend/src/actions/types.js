@@ -26,3 +26,4 @@ export const GET_ACHIEVEMENTS = 'GET_ACHIEVEMENTS';
 export const ERRORS = 'ERRORS';
 export const ADD_RANKS = 'ADD_RANKS';
 export const GET_RANKS = 'GET_RANKS';
+export const AUTH_ERROR = 'AUTH_ERROR';

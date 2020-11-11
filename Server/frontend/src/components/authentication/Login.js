@@ -2,7 +2,7 @@ import '../../styles/login.css';
 import '@material/react-button/dist/button.css';
 import 'typeface-roboto';
 
-import { Breadcrumbs, FormHelperText, TextField, Typography } from '@material-ui/core';
+import { Breadcrumbs, TextField, Typography } from '@material-ui/core';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import Button from '@material/react-button';
 import PropTypes from 'prop-types';
@@ -86,7 +86,6 @@ export class Login extends Component {
                 variant='filled'
               />
             </div>
-            { this.props.error && <FormHelperText error>{this.props.error}</FormHelperText>}
             <div className='button-container'>
               <Button className='login-button' type='submit'>
                 Zaloguj się
@@ -113,7 +112,6 @@ export class Login extends Component {
 
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
-  error: state.auth.error,
 });
 
 export default connect(mapStateToProps, { login })(Login);
