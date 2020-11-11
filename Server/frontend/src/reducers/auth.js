@@ -5,7 +5,6 @@ const initialState = {
   isAuthenticated: null,
   user: null,
   loading: false,
-  error: '',
 };
 
 export default function (state = initialState, action) {
@@ -16,7 +15,6 @@ export default function (state = initialState, action) {
       return {
         ...state,
         ...action.payload,
-        error: '',
         isAuthenticated: true,
         loading: false,
       };
@@ -24,7 +22,6 @@ export default function (state = initialState, action) {
       localStorage.removeItem('token');
       return {
         ...state,
-        error: '',
         isAuthenticated: false,
         token: null,
         user: null,
@@ -35,7 +32,6 @@ export default function (state = initialState, action) {
       localStorage.removeItem('token');
       return {
         ...state,
-        error: action.payload,
         isAuthenticated: false,
         token: null,
         user: null,
@@ -44,7 +40,6 @@ export default function (state = initialState, action) {
     case USER_LOADED:
       return {
         ...state,
-        error: '',
         isAuthenticated: true,
         user: action.payload,
         loading: false,
@@ -52,7 +47,6 @@ export default function (state = initialState, action) {
     case USER_LOADING:
       return {
         ...state,
-        error: '',
         loading: true,
       };
     default:

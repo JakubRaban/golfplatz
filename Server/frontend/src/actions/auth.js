@@ -52,9 +52,8 @@ export const login = (email, password) => (dispatch) => {
     .catch((err) => {
       dispatch({
         type: LOGIN_FAIL,
-        payload: printError(err.response.data),
       });
-      Alerts.error('Błąd logowania');
+      Alerts.error(printError(err.response.data));
     });
 };
 
@@ -85,9 +84,8 @@ function postRegisterRequest(user, body, dispatch) {
     .catch((err) => {
       dispatch({
         type: REGISTER_FAIL,
-        payload: printError(err.response.data),
       });
-      Alerts.error('Błąd rejestracji');
+      Alerts.error(printError(err.response.data));
     });
 }
 

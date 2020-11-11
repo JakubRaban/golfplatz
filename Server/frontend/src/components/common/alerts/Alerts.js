@@ -1,18 +1,24 @@
 import { toast } from 'react-toastify';
 
-const notificationConfig = {
+const successNotificationConfig = {
   position: toast.POSITION.BOTTOM_CENTER,
   autoClose: 3000,
   pauseOnFocusLoss: false,
 };
 
+const errorNotificationConfig = {
+  position: toast.POSITION.BOTTOM_CENTER,
+  autoClose: 5000,
+  pauseOnFocusLoss: true,
+};
+
 class Alert {
   success(content) {
-    toast.success(content, notificationConfig);
+    toast.success(content, successNotificationConfig);
   }
 
   error(content) {
-    toast.error(content, notificationConfig);
+    toast.error(content, errorNotificationConfig);
   }
 }
 
