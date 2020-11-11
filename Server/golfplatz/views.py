@@ -191,7 +191,7 @@ class ParticipantScoreView(APIView):
     def get(self, request, course_id):
         student: Participant = self.request.user
         course = Course.objects.get(pk=course_id)
-        return StudentScoreSerializer(StudentScore(student, course)).data
+        return Response(StudentScoreSerializer(StudentScore(student, course)).data)
 
 
 class PlotPartView(APIView):
