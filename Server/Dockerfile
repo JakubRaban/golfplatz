@@ -11,10 +11,14 @@ FROM python:3.8
 ENV PYTHONBUFFERED 1
 RUN mkdir /code
 WORKDIR /code
-COPY requirements.txt ./
+COPY requirements.txt manage.py ./
 RUN pip install -r requirements.txt
-COPY golfplatz Server templates /code/
+COPY golfplatz /code/golfplatz
+COPY Server /code/Server
+COPY templates /code/templates
 RUN mkdir frontend
 WORKDIR ./frontend
-COPY --from=frontend app/static/frontend/main.js .
-#ENTRYPOINT python /code/manage.py migrate && python /code/manage.py runserver 0.0.0.0:8000
+COPY frontend/apps.py frontend/views.py frontend/urls.py ./
+COPY --from=frontend app/static/frontend/main.js ./static/frontend/
+WORKDIR /code
+ENTRYPOINT python /code/manage.py migrate && python /code/manage.py runserver 0.0.0.0:8000
