@@ -62,9 +62,15 @@ class Participant(AbstractUser):
 
 
 class Course(models.Model):
+    class RankingVisibilityStrategy(models.TextChoices):
+        RANKS_ONLY = 'RANKS_ONLY', 'Ranks only'
+
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
+    student_ranking_visibility_strategy = models.CharField(
+        max_length=20, choices=RankingVisibilityStrategy.choices, default=RankingVisibilityStrategy.RANKS_ONLY
+    )
 
     def add_course_groups(self, names: List[str]):
         return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]
@@ -72,6 +78,12 @@ class Course(models.Model):
     @property
     def max_points_possible(self):
         return sum([plot_part.max_points_possible for plot_part in self.plot_parts.all()])
+
+    def generate_ranking(self):
+        student_results = [StudentScore(course_group_student.student, self) for course_group_student in
+                           CourseGroupStudents.objects.filter(course_group__course=self)]
+        student_results.sort(key=lambda result: result.score_percent, reverse=True)
+        return student_results
 
     def __str__(self):
         return f'Course {self.name}'
