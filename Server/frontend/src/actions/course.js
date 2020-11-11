@@ -195,6 +195,15 @@ export const getStudentRank = (courseId) => (dispatch, getState) => {
   });
 }
 
+export const getRankAfterChapter = (chapterId) => (dispatch, getState) => {
+  axios.get(`/api/chapters/${chapterId}/new_score`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_RANK,
+      payload: res.data,
+    });
+  });
+}
+
 export const getAchievementsAfterChapter = (chapterId) => (dispatch, getState) => {
   axios.get(`/api/chapters/${chapterId}/new_achievements`, tokenConfig(getState)).then((res) => {
     dispatch({

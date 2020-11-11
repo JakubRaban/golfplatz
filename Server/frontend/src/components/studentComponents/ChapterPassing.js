@@ -8,7 +8,8 @@ import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
-import { addAdventureAnswer, chooseNextAdventure, startChapter, getAchievementsAfterChapter } from '../../actions/course.js';
+import { addAdventureAnswer, chooseNextAdventure, startChapter,
+  getAchievementsAfterChapter, getRankAfterChapter } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import NavBar from '../common/navbars/NavBar.js';
 import { Adventure } from './Adventure.js';
@@ -81,6 +82,7 @@ export class ChapterPassing extends Component {
         });
       } else if (this.props.adventurePart.responseType === 'summary') {
         this.props.getAchievementsAfterChapter(this.props.match.params.id);
+        this.props.getRankAfterChapter(this.props.match.params.id);
         this.setState({
           choiceMode: false,
           answerMode: false,
@@ -216,6 +218,7 @@ export class ChapterPassing extends Component {
                     achievements={this.props.achievements}
                     adventurePart={this.props.adventurePart}
                     endChapter={this.endChapter}
+                    rank={this.props.rank}
                   />
                 }
               </React.Fragment>
@@ -233,9 +236,10 @@ const mapStateToProps = (state) => ({
   user: state.auth.user,
   adventurePart: state.course.adventurePart,
   achievements: state.course.achievements,
+  rank: state.course.rank,
 });
 
 export default compose(
-  connect(mapStateToProps, { startChapter, addAdventureAnswer, chooseNextAdventure, logout, getAchievementsAfterChapter }),
+  connect(mapStateToProps, { startChapter, addAdventureAnswer, chooseNextAdventure, logout, getAchievementsAfterChapter, getRankAfterChapter }),
   withStyles(styles),
 )(ChapterPassing);
