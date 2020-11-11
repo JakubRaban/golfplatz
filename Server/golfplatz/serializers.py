@@ -60,6 +60,7 @@ class StudentScoreSerializer(serializers.Serializer):
     points_scored = serializers.DecimalField(max_digits=8, decimal_places=3)
     max_score = serializers.DecimalField(max_digits=8, decimal_places=3)
     score_percent = serializers.DecimalField(max_digits=8, decimal_places=3)
+    chapters_done = serializers.IntegerField()
     rank = RankSerializer()
 
 

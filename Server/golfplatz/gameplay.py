@@ -34,11 +34,11 @@ def process_answers(participant: Participant, adventure: Adventure, start_time: 
         acc_chapter.complete(total_points)
         summary = _get_summary(current_chapter_acc_adventures)
         if all(acc_adventure.adventure.is_auto_checked for acc_adventure in current_chapter_acc_adventures):
-            acc_chapter.start_recalculating()
+            acc_chapter.mark_recalculating_started()
             check_for_achievements(participant, current_chapter, acc_chapter, score_aggregator)
-            acc_chapter.calculate_achievements()
+            acc_chapter.mark_achievements_calculated()
             participant.update_score_in_course(current_chapter.course, score_aggregator.points_for_all(), score_aggregator.max_points_for_all())
-            acc_chapter.recalculate_total_score()
+            acc_chapter.mark_total_score_recalculated()
     return next_stage or summary
 
 

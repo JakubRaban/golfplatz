@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Max
+from django.db.models import Max, F
 from django.utils.timezone import now
 from knox.models import AuthToken
 
@@ -40,14 +40,14 @@ class Participant(AbstractUser):
 
     def update_score_in_course(self, course, points_scored, points_total):
         CourseGroupStudents.objects.filter(student=self, course_group__course=course) \
-            .update(points_scored=points_scored, max_score=points_total)
+            .update(points_scored=points_scored, max_score=points_total, chapters_done=F('chapters_done')+1)
 
     def get_score_in_course(self, course):
         course_student_data = CourseGroupStudents.objects.get(student=self, course_group__course=course)
-        return course_student_data.points_scored, course_student_data.max_score
+        return course_student_data.points_scored, course_student_data.max_score, course_student_data.chapters_done
 
     def get_score_in_course_percent(self, course):
-        points_scored, max_score = self.get_score_in_course(course)
+        points_scored, max_score, _ = self.get_score_in_course(course)
         return points_scored / max_score * 100 if max_score > 0 else 0
 
     def get_rank_in_course(self, course):
@@ -62,9 +62,15 @@ class Participant(AbstractUser):
 
 
 class Course(models.Model):
+    class RankingVisibilityStrategy(models.TextChoices):
+        RANKS_ONLY = 'RANKS_ONLY', 'Ranks only'
+
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
+    student_ranking_visibility_strategy = models.CharField(
+        max_length=20, choices=RankingVisibilityStrategy.choices, default=RankingVisibilityStrategy.RANKS_ONLY
+    )
 
     def add_course_groups(self, names: List[str]):
         return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]
@@ -72,6 +78,12 @@ class Course(models.Model):
     @property
     def max_points_possible(self):
         return sum([plot_part.max_points_possible for plot_part in self.plot_parts.all()])
+
+    def generate_ranking(self):
+        student_results = [StudentScore(course_group_student.student, self) for course_group_student in
+                           CourseGroupStudents.objects.filter(course_group__course=self)]
+        student_results.sort(key=lambda result: result.score_percent, reverse=True)
+        return student_results
 
     def __str__(self):
         return f'Course {self.name}'
@@ -94,6 +106,7 @@ class CourseGroupStudents(models.Model):
     course_group = models.ForeignKey(CourseGroup, on_delete=models.CASCADE)
     points_scored = models.DecimalField(max_digits=8, decimal_places=3, default=0)
     max_score = models.DecimalField(max_digits=8, decimal_places=3, default=0)
+    chapters_done = models.PositiveSmallIntegerField(default=0)
 
 
 class Achievement(models.Model):
@@ -385,15 +398,15 @@ class AccomplishedChapter(models.Model):
         self.time_completed = now()
         self.save()
 
-    def start_recalculating(self):
+    def mark_recalculating_started(self):
         self.recalculating_score_started = True
         self.save()
 
-    def calculate_achievements(self):
+    def mark_achievements_calculated(self):
         self.achievements_calculated = True
         self.save()
 
-    def recalculate_total_score(self):
+    def mark_total_score_recalculated(self):
         self.total_score_recalculated = True
         self.save()
 
@@ -550,9 +563,10 @@ class AdventureSummary:
 
 class StudentScore:
     def __init__(self, student: Participant, course: Course):
-        points_scored, max_score = student.get_score_in_course(course)
+        points_scored, max_score, chapters_done = student.get_score_in_course(course)
         rank = student.get_rank_in_course(course)
         self.points_scored = points_scored
         self.max_score = max_score
+        self.chapters_done = chapters_done
         self.score_percent = points_scored / max_score * 100 if max_score > 0 else 0
         self.rank = rank

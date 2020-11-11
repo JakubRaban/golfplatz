@@ -185,6 +185,15 @@ class ScoreAfterChapterView(APIView):
             return Response({'status': 'not_calculating'})
 
 
+class ParticipantScoreView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        student: Participant = self.request.user
+        course = Course.objects.get(pk=course_id)
+        return Response(StudentScoreSerializer(StudentScore(student, course)).data)
+
+
 class PlotPartView(APIView):
     permission_classes = [IsTutor]
 

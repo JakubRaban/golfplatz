@@ -37,5 +37,6 @@ urlpatterns = [
     path('courses/<int:course_id>/accomplished_achievements/', StudentAccomplishedAchievementsView.as_view()),
     path('courses/<int:course_id>/ranks/', RankView.as_view()),
     path('chapters/<int:chapter_id>/new_score/', ScoreAfterChapterView.as_view()),
+    path('courses/<int:course_id>/score/', ParticipantScoreView.as_view()),
 
 ]
