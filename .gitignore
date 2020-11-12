@@ -98,3 +98,4 @@ db.sqlite3
 
 # Auto-generated main.js
 # Server/frontend/static/frontend/main.js
+.env
