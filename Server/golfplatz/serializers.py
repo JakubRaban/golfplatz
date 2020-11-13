@@ -241,7 +241,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 class CreateChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
-        fields = ['name', 'description', 'points_for_max_grade']
+        fields = ['name', 'description']
 
 
 class PlotPartSerializer(serializers.ModelSerializer):
