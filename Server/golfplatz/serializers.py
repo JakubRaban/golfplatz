@@ -338,7 +338,7 @@ class QuestionNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ['text', 'grades']
-    #
+
     # def to_representation(self, instance):
     #     ret = super(QuestionNameSerializer, self).to_representation(instance)
     #     ret = [question for question in ]
@@ -352,11 +352,11 @@ class PointSourceNameSerializer(serializers.ModelSerializer):
         model = PointSource
         fields = ['questions']
 
-    def to_representation(self, instance):
-        ret = super(PointSourceNameSerializer, self).to_representation(instance)
-        ret = OrderedDict([('questions', [question for question in ret['questions'] if len(question['grades']) > 0])])
-        ret = ret if len(ret['questions']) > 0 else None
-        return ret
+    # def to_representation(self, instance):
+    #     ret = super(PointSourceNameSerializer, self).to_representation(instance)
+    #     ret = OrderedDict([('questions', [question for question in ret['questions'] if len(question['grades']) > 0])])
+    #     ret = ret if len(ret['questions']) > 0 else None
+    #     return ret
 
 
 class AdventureNameSerializer(serializers.ModelSerializer):
