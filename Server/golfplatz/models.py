@@ -80,10 +80,10 @@ class Course(models.Model):
         return sum([plot_part.max_points_possible for plot_part in self.plot_parts.all()])
 
     def generate_ranking(self):
-        student_results = [StudentScore(course_group_student.student, self) for course_group_student in
-                           CourseGroupStudents.objects.filter(course_group__course=self)]
-        student_results.sort(key=lambda result: result.score_percent, reverse=True)
-        return student_results
+        ranking_elements = [RankingElement(course_group_student.student, self) for course_group_student in
+                            CourseGroupStudents.objects.filter(course_group__course=self)]
+        ranking_elements.sort(key=lambda element: element.student_score.score_percent, reverse=True)
+        return ranking_elements
 
     def __str__(self):
         return f'Course {self.name}'
@@ -570,3 +570,10 @@ class StudentScore:
         self.chapters_done = chapters_done
         self.score_percent = points_scored / max_score * 100 if max_score > 0 else 0
         self.rank = rank
+
+
+class RankingElement:
+    def __init__(self, student: Participant, course: Course):
+        self.student_score = StudentScore(student, course)
+        self.student = student
+        self.course_group_name = CourseGroup.objects.get(course=course, students=student).group_name
