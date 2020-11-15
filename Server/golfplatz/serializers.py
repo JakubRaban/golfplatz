@@ -337,7 +337,7 @@ class QuestionNameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['text', 'grades']
+        fields = ['id', 'text', 'points_per_correct_answer', 'points_per_incorrect_answer', 'grades']
 
     # def to_representation(self, instance):
     #     ret = super(QuestionNameSerializer, self).to_representation(instance)
