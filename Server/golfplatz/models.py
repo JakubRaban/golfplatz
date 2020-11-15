@@ -401,7 +401,6 @@ class AccomplishedChapter(models.Model):
 class PointSource(models.Model):
     class Category(models.TextChoices):
         QUIZ = 'QUIZ', 'Quiz'
-        SURPRISE_EXERCISE = 'SURPRISE', 'Surprise exercise'
         GENERIC = 'GENERIC', 'Generic lab exercise'
         ACTIVENESS = 'ACTIVENESS', 'Activeness'
         TEST = 'TEST', 'Test'
