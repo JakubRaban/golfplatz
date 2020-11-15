@@ -1,8 +1,9 @@
 from datetime import datetime
+from threading import Thread
 from typing import List, Tuple, Set, Union, Optional
 
 from .achievements import check_for_achievements
-from .grading import grade_answers, ScoreAggregator
+from .grading import grade_answers_automatically, ScoreAggregator
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
     AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice
 
@@ -13,33 +14,46 @@ def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
 
 
 def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]], image_questions_answers: List[Tuple[Question, str]]):
-    points_gained = grade_answers(participant, closed_question_answers, open_question_answers, image_questions_answers)
+    points_gained = grade_answers_automatically(participant, closed_question_answers, open_question_answers, image_questions_answers)
     AccomplishedAdventure.objects.create(student=participant, adventure=adventure, adventure_started_time=start_time,
                                          time_elapsed_seconds=answer_time,
                                          total_points_for_questions_awarded=points_gained,
-                                         applied_time_modifier_percent=adventure.get_time_modifier(answer_time))
+                                         applied_time_modifier_percent=adventure.get_time_modifier(answer_time),
+                                         is_fully_graded=adventure.is_auto_checked)
     next_stage = _get_next_stage(adventure)
     if not next_stage:
-        current_chapter = adventure.chapter
-        current_course_acc_adventures = AccomplishedAdventure.objects.filter(student=participant,
-                                                                             adventure__chapter__plot_part__course=
-                                                                             current_chapter.course)
-        current_chapter_acc_adventures = current_course_acc_adventures.filter(adventure__chapter=current_chapter)
-        summary = _get_summary(current_chapter_acc_adventures)
-        if all(acc_adventure.adventure.is_auto_checked for acc_adventure in current_chapter_acc_adventures):
-            acc_chapter = AccomplishedChapter.objects.get(chapter=current_chapter, student=participant)
-            score_aggregator = ScoreAggregator(current_course_acc_adventures.values(
-                'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
-                'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
-            ))
-            total_points = score_aggregator.points_for_chapter(current_chapter)
-            acc_chapter.complete(total_points)
-            acc_chapter.mark_recalculating_started()
-            check_for_achievements(participant, current_chapter, acc_chapter, score_aggregator)
-            acc_chapter.mark_achievements_calculated()
-            participant.update_score_in_course(current_chapter.course, score_aggregator.points_for_all(), score_aggregator.max_points_for_all())
-            acc_chapter.mark_total_score_recalculated()
+        summary = do_post_chapter_operations(adventure, student=participant)
     return next_stage or summary
+
+
+def do_post_chapter_operations(adventure: Adventure, student: Participant, calculate_summary: bool = True):
+    current_chapter = adventure.chapter
+    current_course_acc_adventures = AccomplishedAdventure.objects.filter(student=student,
+                                                                         adventure__chapter__plot_part__course=
+                                                                         current_chapter.course)
+    current_chapter_acc_adventures = current_course_acc_adventures.filter(adventure__chapter=current_chapter)
+    Thread(target=calculate_score_and_achievements,
+           args=(current_chapter_acc_adventures, current_course_acc_adventures, current_chapter, student)
+           ).start()
+    if calculate_summary:
+        return _get_summary(current_chapter_acc_adventures)
+
+
+def calculate_score_and_achievements(current_chapter_acc_adventures: Set[AccomplishedAdventure], current_course_acc_adventures: Set[AccomplishedAdventure], current_chapter: Chapter, student: Participant):
+    if all(acc_adventure.is_fully_graded for acc_adventure in current_chapter_acc_adventures):
+        acc_chapter = AccomplishedChapter.objects.get(chapter=current_chapter, student=student)
+        score_aggregator = ScoreAggregator(current_course_acc_adventures.values(
+            'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
+            'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
+        ))
+        total_points = score_aggregator.points_for_chapter(current_chapter)
+        acc_chapter.complete(total_points)
+        acc_chapter.mark_recalculating_started()
+        check_for_achievements(student, current_chapter, acc_chapter, score_aggregator)
+        acc_chapter.mark_achievements_calculated()
+        student.update_score_in_course(current_chapter.course, score_aggregator.points_for_all(),
+                                       score_aggregator.max_points_for_all())
+        acc_chapter.mark_total_score_recalculated()
 
 
 def _get_next_stage(adventure: Adventure) -> Optional[Union[NextAdventureChoice, Adventure]]:

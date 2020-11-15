@@ -366,6 +366,7 @@ class AccomplishedAdventure(models.Model):
     time_elapsed_seconds = models.PositiveSmallIntegerField()
     total_points_for_questions_awarded = models.DecimalField(max_digits=7, decimal_places=3)
     applied_time_modifier_percent = models.PositiveSmallIntegerField()
+    is_fully_graded = models.BooleanField()
 
     @property
     def points_after_applying_modifier(self):
@@ -503,6 +504,11 @@ class Grade(models.Model):
     question = models.ForeignKey('Question', on_delete=models.PROTECT)
     points_scored = models.DecimalField(max_digits=6, decimal_places=3)
     awaiting_tutor_grading = models.BooleanField(default=False)
+
+    def grade_manually(self, points: float):
+        self.points_scored = points
+        self.awaiting_tutor_grading = False
+        self.save()
 
 
 class StudentAnswer(models.Model):
