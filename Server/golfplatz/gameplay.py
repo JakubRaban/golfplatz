@@ -25,15 +25,15 @@ def process_answers(participant: Participant, adventure: Adventure, start_time: 
                                                                              adventure__chapter__plot_part__course=
                                                                              current_chapter.course)
         current_chapter_acc_adventures = current_course_acc_adventures.filter(adventure__chapter=current_chapter)
-        acc_chapter = AccomplishedChapter.objects.get(chapter=current_chapter, student=participant)
-        score_aggregator = ScoreAggregator(current_course_acc_adventures.values(
-            'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
-            'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
-        ))
-        total_points = score_aggregator.points_for_chapter(current_chapter)
-        acc_chapter.complete(total_points)
         summary = _get_summary(current_chapter_acc_adventures)
         if all(acc_adventure.adventure.is_auto_checked for acc_adventure in current_chapter_acc_adventures):
+            acc_chapter = AccomplishedChapter.objects.get(chapter=current_chapter, student=participant)
+            score_aggregator = ScoreAggregator(current_course_acc_adventures.values(
+                'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
+                'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
+            ))
+            total_points = score_aggregator.points_for_chapter(current_chapter)
+            acc_chapter.complete(total_points)
             acc_chapter.start_recalculating()
             check_for_achievements(participant, current_chapter, acc_chapter, score_aggregator)
             acc_chapter.calculate_achievements()
