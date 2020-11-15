@@ -3,11 +3,14 @@ import { Button, Card, CardContent, CardMedia, Typography } from '@material-ui/c
 
 
 export class Summary extends Component {
-  state = { achievementsLoaded: false };
+  state = { achievementsLoaded: false, rankLoaded: false };
 
   componentDidUpdate(prevProps) {
     if (prevProps.achievements !== this.props.achievements && this.props.achievements.status === 'calculated') {
       this.setState({ achievementsLoaded: true });
+    }
+    if (prevProps.rank !== this.props.rank && this.props.rank.status === 'calculated') {
+      this.setState({ rankLoaded: true });
     }
   }
 
@@ -86,6 +89,27 @@ export class Summary extends Component {
               </Card>
             </>
           ) 
+        }
+        {
+          this.state.rankLoaded &&
+            <>
+              <Typography variant="h5" gutterBottom>Zaktualizowano rangę!</Typography>
+
+              <Card style={{display: 'flex'}}>
+                <CardMedia style={{height: '140px', width: '140px'}}
+                  image={this.props.rank.rank.image}
+                  title='Rank image'
+                />
+                <CardContent>
+                  <Typography component='h6' variant='h6'>
+                    Twoja ranga w kursie to: {this.props.rank.rank.name}
+                  </Typography>
+                  <Typography variant='subtitle1' color='textSecondary'>
+                    Oznacza to, że Twój wynik wynosi przynajmniej {this.props.rank.rank.lowerThresholdPercent}%.
+                  </Typography>
+                </CardContent>
+              </Card>
+            </>
         }
         <Button variant="contained" onClick={this.props.endChapter}>
           Zakończ rozdział

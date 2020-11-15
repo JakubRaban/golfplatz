@@ -52,6 +52,7 @@ export class Login extends Component {
       return <Redirect to='/' />;
     }
     const { email, password, errors } = this.state;
+
     return (
       <div className='login-container'>
         <div className='box-container'>

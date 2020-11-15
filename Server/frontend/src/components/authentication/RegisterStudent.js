@@ -24,7 +24,6 @@ export class RegisterStudent extends Component {
     password: '',
     password2: '',
     studentNumber: '',
-    phoneNumber: '',
     errors: {},
   };
 
@@ -53,7 +52,7 @@ export class RegisterStudent extends Component {
     await this.checkErrors();
 
     if (empty(this.state.errors)) {  
-      const { firstName, lastName, email, password, password2, studentNumber, phoneNumber } = this.state;
+      const { firstName, lastName, email, password, password2, studentNumber } = this.state;
       const newStudent = {
         firstName,
         lastName,
@@ -61,7 +60,6 @@ export class RegisterStudent extends Component {
         password,
         password2,
         studentNumber,
-        phoneNumber,
       };
       this.props.registerStudent(newStudent);
     }
@@ -71,7 +69,7 @@ export class RegisterStudent extends Component {
 
   render() {
     const { 
-      firstName, lastName, email, password, password2, studentNumber, phoneNumber, errors
+      firstName, lastName, email, password, password2, studentNumber, errors
     } = this.state;
     if (this.props.isAuthenticated) {
       return <Redirect to="/" />;
@@ -158,17 +156,6 @@ export class RegisterStudent extends Component {
                 onChange={this.onChange}
                 type='text'
                 value={studentNumber}
-                variant='filled'
-              />
-            </div>
-            <div className='phoneNumber'>
-              <TextField 
-                fullWidth
-                label='Numer telefonu:'
-                name='phoneNumber'
-                onChange={this.onChange}
-                type='text'
-                value={phoneNumber}
                 variant='filled'
               />
             </div>

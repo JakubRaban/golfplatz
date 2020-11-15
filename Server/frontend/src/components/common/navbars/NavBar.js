@@ -11,7 +11,7 @@ import clsx from 'clsx';
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-import { styles } from '../../styles/style.js';
+import { styles } from '../../../styles/style.js';
 
 class NavBar extends Component {
   render() {

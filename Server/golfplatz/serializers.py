@@ -31,6 +31,12 @@ class ParticipantSerializer(serializers.ModelSerializer):
         return Participant.objects.create_user(**validated_data)
 
 
+class ParticipantBasicDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participant
+        fields = ['first_name', 'last_name', 'email']
+
+
 class CreateCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
@@ -63,7 +69,14 @@ class StudentScoreSerializer(serializers.Serializer):
     points_scored = serializers.DecimalField(max_digits=8, decimal_places=3)
     max_score = serializers.DecimalField(max_digits=8, decimal_places=3)
     score_percent = serializers.DecimalField(max_digits=8, decimal_places=3)
+    chapters_done = serializers.IntegerField()
     rank = RankSerializer()
+
+
+class RankingElementSerializer(serializers.Serializer):
+    student_score = StudentScoreSerializer()
+    course_group_name = serializers.CharField()
+    student = ParticipantBasicDataSerializer()
 
 
 class PathChoiceDescriptionSerializer(serializers.Serializer):
@@ -231,7 +244,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 class CreateChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
-        fields = ['name', 'description', 'points_for_max_grade']
+        fields = ['name', 'description']
 
 
 class PlotPartSerializer(serializers.ModelSerializer):

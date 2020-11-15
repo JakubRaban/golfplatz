@@ -131,10 +131,10 @@ class StudentAccomplishedAchievementsView(APIView):
         return Response(
             {
                 'accomplished': AchievementSerializer(
-                    all_course_achievements.filter(accomplished_by_students=student)
+                    all_course_achievements.filter(accomplished_by_students=student), many=True
                 ).data,
                 'not_accomplished': AchievementSerializer(
-                    all_course_achievements.exclude(accomplished_by_students=student)
+                    all_course_achievements.exclude(accomplished_by_students=student), many=True
                 ).data
             }
         )
@@ -183,6 +183,27 @@ class ScoreAfterChapterView(APIView):
                 return Response({'status': 'calculating_in_progress'})
         else:
             return Response({'status': 'not_calculating'})
+
+
+class ParticipantScoreView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        student: Participant = self.request.user
+        course = Course.objects.get(pk=course_id)
+        return Response(StudentScoreSerializer(StudentScore(student, course)).data)
+
+
+class CourseRankingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        course = Course.objects.get(pk=course_id)
+        ranking = course.generate_ranking()
+        return Response({
+            'student_ranking_visibility': course.student_ranking_visibility_strategy,
+            'ranking': RankingElementSerializer(ranking, many=True).data
+        })
 
 
 class PlotPartView(APIView):

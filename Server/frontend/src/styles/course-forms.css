@@ -43,6 +43,7 @@
   margin-top: 6px;
 }
 
+.ranks-wrapper,
 .achievements-wrapper {
   flex-basis: 100%;
 }

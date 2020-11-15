@@ -29,7 +29,7 @@ import compose from 'recompose/compose';
 import { logout } from '../../actions/auth.js';
 import { addChapters, getCourse } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
-import NavBar from '../common/NavBar.js';
+import NavBar from '../common/navbars/NavBar.js';
 import AddChapter from './AddChapter.js';
 
 export class CourseDetails extends Component {
@@ -54,7 +54,9 @@ export class CourseDetails extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.course !== this.props.course) {
       this.setState({
+        chapters: [{ name: '', description: '' }],
         open: new Array(this.props.course.plotParts.length).fill(false),
+        openDialog: false,
       });
     }
   }
@@ -75,9 +77,6 @@ export class CourseDetails extends Component {
 
     if (empty(this.state.errors)) {
       const { chapters } = this.state;
-      // statyczne dodanie 100% punktow - tymczasowo!
-      chapters.forEach((x) => { x.pointsForMaxGrade = 100; });
-
       this.updateChapters(chapters, plotPartId);
     }
    };
@@ -85,10 +84,6 @@ export class CourseDetails extends Component {
   async updateChapters(chapters, plotPartId) {
     await this.props.addChapters(chapters, plotPartId);
     await this.props.getCourse(this.props.match.params.id);
-    await this.setState({
-      chapters: [],
-      openDialog: false,
-    });
   }
 
   handleClick = (i) => (e) => {

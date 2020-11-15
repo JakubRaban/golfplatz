@@ -11,7 +11,7 @@ import {
   USER_LOADED,
   USER_LOADING,
 } from './types.js';
-
+import { printError } from '../components/common/errors/errorsMapper.js';
 
 export const loadUser = () => (dispatch, getState) => {
   dispatch({ type: USER_LOADING });
@@ -29,8 +29,8 @@ export const loadUser = () => (dispatch, getState) => {
         type: AUTH_ERROR,
       });
     });
-};
 
+};
 
 export const logout = () => (dispatch, getState) => {
   axios
@@ -40,8 +40,6 @@ export const logout = () => (dispatch, getState) => {
         type: LOGOUT_SUCCESS,
       });
       Alerts.success('Wylogowano pomyślnie');
-    })
-    .catch((err) => {
     });
 };
 
@@ -62,6 +60,7 @@ export const login = (email, password) => (dispatch) => {
       dispatch({
         type: LOGIN_FAIL,
       });
+      Alerts.error(printError(err.response.data));
     });
 };
 
@@ -93,6 +92,7 @@ function postRegisterRequest(user, body, dispatch) {
       dispatch({
         type: REGISTER_FAIL,
       });
+      Alerts.error(printError(err.response.data));
     });
 }
 

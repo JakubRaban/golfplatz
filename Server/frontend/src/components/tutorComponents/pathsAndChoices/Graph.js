@@ -2,7 +2,7 @@
 /* eslint-disable radix */
 /* eslint-disable quotes */
 /* eslint-disable prefer-template */
-import '../styles/graph.css';
+import '../../../styles/graph.css';
 
 import { Button } from '@material-ui/core';
 import React from 'react';
@@ -10,15 +10,15 @@ import CytoscapeComponent from 'react-cytoscapejs';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 
-import { addPathsWithDescriptions, deleteAdventure, updatePathsWithDescriptions } from '../actions/course.js';
-import { fromServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
-import graphStyle from '../styles/graphStyle.js';
+import { addPathsWithDescriptions, deleteAdventure, updatePathsWithDescriptions } from '../../../actions/course.js';
+import { fromServerForm } from '../../common/algorithms/clientServerTranscoders/adventureTranscoder.js';
+import graphStyle from '../../../styles/graphStyle.js';
 import ChoicesList from './ChoicesList.js';
 import { isEmpty as empty } from 'lodash';
 import isEmpty from 'validator/lib/isEmpty.js';
 import { setWith } from 'lodash';
-import contextMenuConfig from './common/graphConfig/ContextMenu.js';
-import edgesConfig from './common/graphConfig/Edges.js';
+import contextMenuConfig from '../../common/graphConfig/ContextMenu.js';
+import edgesConfig from '../../common/graphConfig/Edges.js';
 import DeleteAdventureDialog from './DeleteAdventureDialog.js';
 
 class Graph extends React.Component {

@@ -5,9 +5,9 @@ import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
-import { deleteAdventure } from '../actions/course.js';
-import { fromServerForm } from '../clientServerTranscoders/adventureTranscoder.js';
-import { styles } from '../styles/style.js';
+import { deleteAdventure } from '../../../actions/course.js';
+import { fromServerForm } from '../../common/algorithms/clientServerTranscoders/adventureTranscoder.js';
+import { styles } from '../../../styles/style.js';
 
 export class AdventuresList extends Component {
   state = { chosenAdventureId: -1 };

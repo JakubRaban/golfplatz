@@ -13,7 +13,7 @@ import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import clsx from 'clsx';
 import React, { Component } from 'react';
 
-import { styles } from '../../styles/style.js';
+import { styles } from '../../../styles/style.js';
 
 class DashboardNavbar extends Component {
   render() {
