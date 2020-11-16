@@ -1,3 +1,4 @@
+from django.core.files.base import ContentFile
 from django.db import transaction
 from knox.models import AuthToken
 from rest_framework import generics
@@ -7,11 +8,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .gameplay import start_chapter, process_answers, is_adventure, is_summary, is_choice
+from .gameplay import start_chapter, process_answers, is_adventure, is_summary, is_choice, grade_answers_manually
 from .graph_utils.chaptertograph import chapter_to_graph, get_most_points_possible_in_chapter
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
-from .models import AccomplishedChapter, StudentScore, StudentGrade
+from .models import AccomplishedChapter, StudentScore, StudentGrade, CourseGroupStudents
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 
@@ -80,6 +81,18 @@ class CourseGroupView(APIView):
         course = Course.objects.get(pk=course_id)
         created_groups = course.add_course_groups(request.data)
         return Response(CourseGroupSerializer(created_groups, many=True).data)
+
+
+class CourseGroupEnrollmentView(APIView):
+    permission_classes = [IsStudent]
+
+    def post(self, request, access_code):
+        course_group = CourseGroup.objects.filter(access_code=access_code)
+        if not course_group:
+            return Response(status=400)
+        student = self.request.user
+        CourseGroupStudents.objects.create(student=student, course_group=course_group[0])
+        return Response()
 
 
 class AchievementView(APIView):
@@ -421,6 +434,19 @@ class NextAdventureChoiceView(APIView):
             'response_type': 'adventure',
             'adventure': AdventureSerializer(Adventure.objects.get(pk=to_adventure_id)).data
         })
+
+
+class ManualGradingView(APIView):
+    permission_classes = [IsTutor]
+
+    def post(self, request, adventure_id):
+        serializer = AnswerScoreSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        adventure = Adventure.objects.get(pk=adventure_id)
+        grade_data = serializer.validated_data
+        grade_dict = {data['grade']: data['points'] for data in grade_data}
+        grade_answers_manually(adventure, grade_dict)
+        return Response()
 
 
 class WhoAmIView(generics.RetrieveAPIView):

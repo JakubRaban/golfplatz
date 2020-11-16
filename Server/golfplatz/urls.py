@@ -14,6 +14,7 @@ urlpatterns = [
     path('courses/', CourseView.as_view()),
     path('courses/<int:course_id>/', CourseView.as_view()),
     path('courses/<int:course_id>/course_groups/', CourseGroupView.as_view()),
+    path('course_groups/enroll/<str:access_code>/', CourseGroupEnrollmentView.as_view()),
     path('courses/<int:course_id>/plot_parts/', PlotPartView.as_view()),
 
     path('plot_parts/<int:plot_part_id>/', SpecificPlotPartView.as_view()),
@@ -23,7 +24,7 @@ urlpatterns = [
     path('chapters/<int:chapter_id>/adventures/', AdventureView.as_view()),
     path('adventures/<int:pk>/', UpdateAdventureView.as_view()),
     path('chapters/<int:chapter_id>/submit/', ChapterSubmissionView.as_view()),
-    path('chapters/<int:chapter_id>/submit-draft', ChapterDraftSubmissionView.as_view()),
+    path('chapters/<int:chapter_id>/submit-draft/', ChapterDraftSubmissionView.as_view()),
 
     path('play/start/<int:chapter_id>/', ChapterStartView.as_view()),
     path('play/answer/<int:adventure_id>/', AdventureAnswerView.as_view()),
@@ -40,5 +41,7 @@ urlpatterns = [
     path('courses/<int:course_id>/score/', ParticipantScoreView.as_view()),
     path('courses/<int:course_id>/ranking/', CourseRankingView.as_view()),
     path('courses/<int:course_id>/student_grades/', StudentGradesView.as_view()),
+
+    path('manual_grading/<adventure_id>/', ManualGradingView.as_view()),
 
 ]
