@@ -1,6 +1,7 @@
 import functools
 import re
 from decimal import Decimal
+from random import randint
 from typing import List, Tuple, Set
 
 from django.conf import settings
@@ -12,6 +13,14 @@ from django.utils.timezone import now
 from knox.models import AuthToken
 
 from .managers import ParticipantManager
+
+
+def get_random_access_code(length=8):
+    result = ""
+    for i in range(length):
+        gen = randint(0, 35)
+        result += str(gen) if gen < 10 else chr(gen + 87)
+    return result
 
 
 class Participant(AbstractUser):
@@ -93,6 +102,7 @@ class CourseGroup(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='course_groups')
     group_name = models.CharField(max_length=40)
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, through='CourseGroupStudents')
+    access_code = models.CharField(max_length=8, default=get_random_access_code)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['course', 'group_name'], name='group_name_constraint')]

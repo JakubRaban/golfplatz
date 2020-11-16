@@ -12,7 +12,7 @@ from .gameplay import start_chapter, process_answers, is_adventure, is_summary, 
 from .graph_utils.chaptertograph import chapter_to_graph, get_most_points_possible_in_chapter
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
-from .models import AccomplishedChapter, StudentScore
+from .models import AccomplishedChapter, StudentScore, CourseGroupStudents
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 
@@ -81,6 +81,18 @@ class CourseGroupView(APIView):
         course = Course.objects.get(pk=course_id)
         created_groups = course.add_course_groups(request.data)
         return Response(CourseGroupSerializer(created_groups, many=True).data)
+
+
+class CourseGroupEnrollmentView(APIView):
+    permission_classes = [IsStudent]
+
+    def post(self, request, access_code):
+        course_group = CourseGroup.objects.filter(access_code=access_code)
+        if not course_group:
+            return Response(status=400)
+        student = self.request.user
+        CourseGroupStudents.objects.create(student=student, course_group=course_group[0])
+        return Response()
 
 
 class AchievementView(APIView):
