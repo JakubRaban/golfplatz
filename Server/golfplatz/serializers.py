@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, \
     Question, Answer, PointSource, Path, NextAdventureChoiceDescription, PathChoiceDescription, \
-    Achievement, Grade, StudentAnswer, StudentImageAnswer, StudentTextAnswer, Rank
+    Achievement, Grade, StudentAnswer, StudentImageAnswer, StudentTextAnswer, Rank, AccomplishedChapter
 
 
 class LoginSerializer(serializers.Serializer):
@@ -68,6 +68,13 @@ class StudentScoreSerializer(serializers.Serializer):
     score_percent = serializers.DecimalField(max_digits=8, decimal_places=3)
     chapters_done = serializers.IntegerField()
     rank = RankSerializer()
+
+
+class StudentGradesSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    points_for_max_grade = serializers.DecimalField(max_digits=7, decimal_places=3)
+    points_scored = serializers.DecimalField(max_digits=7, decimal_places=3)
+    time_completed = serializers.DateTimeField()
 
 
 class RankingElementSerializer(serializers.Serializer):
