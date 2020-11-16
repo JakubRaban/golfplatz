@@ -5,6 +5,7 @@ from typing import List, Tuple, Set, Union, Optional, Dict
 from django.db import transaction
 
 from .achievements import check_for_achievements
+from .chapters import get_accomplished_adventures_for_student
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
     AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice, StudentImageAnswer, StudentTextAnswer
 from .scoring import ScoreAggregator
@@ -30,27 +31,26 @@ def process_answers(participant: Participant, adventure: Adventure, start_time: 
 
 def do_post_chapter_operations(adventure: Adventure, student: Participant, calculate_summary: bool = True):
     current_chapter = adventure.chapter
-    current_course_acc_adventures = AccomplishedAdventure.objects.filter(student=student,
-                                                                         adventure__chapter__plot_part__course=
-                                                                         current_chapter.course)
-    current_chapter_acc_adventures = current_course_acc_adventures.filter(adventure__chapter=current_chapter)
+    current_chapter_acc_adventures = AccomplishedAdventure.objects.filter(student=student,
+                                                                          adventure__chapter=current_chapter)
     # Thread(target=calculate_score_and_achievements,
     #        args=(current_chapter_acc_adventures, current_course_acc_adventures, current_chapter, student)
     #        ).start()
-    calculate_score_and_achievements(current_chapter_acc_adventures, current_course_acc_adventures, current_chapter, student)
+    calculate_score_and_achievements(current_chapter_acc_adventures, current_chapter, student)
     if calculate_summary:
         return _get_summary(current_chapter_acc_adventures)
 
 
-def calculate_score_and_achievements(current_chapter_acc_adventures: Set[AccomplishedAdventure], current_course_acc_adventures: Set[AccomplishedAdventure], current_chapter: Chapter, student: Participant):
+def calculate_score_and_achievements(current_chapter_acc_adventures: Set[AccomplishedAdventure], current_chapter: Chapter, student: Participant):
     if all(acc_adventure.is_fully_graded for acc_adventure in current_chapter_acc_adventures):
         acc_chapter = AccomplishedChapter.objects.get(chapter=current_chapter, student=student)
-        score_aggregator = ScoreAggregator(current_course_acc_adventures.values(
+        acc_chapter.complete()
+        score_aggregator = ScoreAggregator(get_accomplished_adventures_for_student(student, current_chapter.course).values(
             'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
             'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
         ))
         total_points = score_aggregator.points_for_chapter(current_chapter)
-        acc_chapter.complete(total_points)
+        acc_chapter.save_points_scored(total_points)
         acc_chapter.mark_recalculating_started()
         check_for_achievements(student, current_chapter, acc_chapter, score_aggregator)
         acc_chapter.mark_achievements_calculated()
@@ -67,7 +67,10 @@ def _get_next_stage(adventure: Adventure) -> Optional[Union[NextAdventureChoice,
     elif next_adventures_count == 1:
         return next_adventures[0]
     else:
-        return NextAdventureChoice.for_adventure(adventure)
+        next_adventure_choice = NextAdventureChoice.for_adventure(adventure)
+        if not next_adventure_choice:
+            raise ValueError(f"Could not retrieve NextAdventureChoice for adventure {adventure}")
+        return next_adventure_choice
 
 
 def _get_summary(accomplished_adventures: Set[AccomplishedAdventure]) -> List[AdventureSummary]:

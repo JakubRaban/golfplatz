@@ -1,6 +1,7 @@
 from itertools import chain
 from typing import List, Dict
 
+from golfplatz.chapters import get_plot_part_to_done_chapters_dict_for_student
 from golfplatz.scoring import ScoreAggregator
 from golfplatz.models import Participant, Achievement, Chapter, AccomplishedChapter, AccomplishedAchievement, \
     PlotPart
@@ -9,13 +10,13 @@ from golfplatz.models import Participant, Achievement, Chapter, AccomplishedChap
 def check_for_achievements(student: Participant, last_chapter: Chapter, acc_chapter: AccomplishedChapter, score_aggregator: ScoreAggregator):
     not_collected_achievements = Achievement.objects.filter(course=last_chapter.course).exclude(accomplished_by_students=student)
     for achievement in not_collected_achievements:
-        if _check_for_achievement(achievement, last_chapter, score_aggregator):
+        if _check_for_achievement(achievement, last_chapter, score_aggregator, student):
             AccomplishedAchievement.objects.create(achievement=achievement, student=student,
                                                    accomplished_in_chapter=acc_chapter)
 
 
-def _check_for_achievement(achievement: Achievement, last_chapter: Chapter, score_aggregator: ScoreAggregator):
-    previous_chapters = last_chapter.previous_chapters
+def _check_for_achievement(achievement: Achievement, last_chapter: Chapter, score_aggregator: ScoreAggregator, student: Participant):
+    previous_chapters = get_plot_part_to_done_chapters_dict_for_student(student, last_chapter.course)
     if achievement.course_element_considered == Achievement.CourseElementChoice.PLOT_PART:
         if not last_chapter.is_last_in_plot_part:
             return False

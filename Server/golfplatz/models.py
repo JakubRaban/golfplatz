@@ -393,10 +393,13 @@ class AccomplishedChapter(models.Model):
     class Meta:
         ordering = ['time_started']
 
-    def complete(self, points_scored):
-        self.points_scored = points_scored
+    def complete(self):
         self.is_completed = True
         self.time_completed = now()
+        self.save()
+
+    def save_points_scored(self, points):
+        self.points_scored = points
         self.save()
 
     def mark_recalculating_started(self):
