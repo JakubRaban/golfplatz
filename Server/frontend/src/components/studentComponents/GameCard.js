@@ -57,7 +57,7 @@ export class GameCard extends Component {
           studentRank={this.props.studentRank}
         />;
       case 'marks':
-        return <StudentMarks/>;
+        return <StudentMarks marks={this.props.studentMarks} />;
       case 'ranking':
         return <Ranking ranking={this.props.ranking} />;
     }
