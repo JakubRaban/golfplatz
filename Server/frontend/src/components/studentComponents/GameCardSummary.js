@@ -6,7 +6,7 @@ export class GameCardSummary extends Component {
   state = { achievementsLoaded: false, rankLoaded: false };
 
   componentDidMount() {
-    if (this.props.achievements?.accomplished.length > 0 || this.props.achievements?.notAccomplished.length > 0) {
+    if (this.props.achievements?.accomplished?.length > 0 || this.props.achievements?.notAccomplished?.length > 0) {
       this.setState({ achievementsLoaded: true });
     }
     if (!isEmpty(this.props.studentRank)) {

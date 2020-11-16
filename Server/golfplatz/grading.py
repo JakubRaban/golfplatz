@@ -88,7 +88,7 @@ def grade_answers(participant: Participant, closed_question_answers: List[Tuple[
                 new_grade = Grade.objects.create(student=participant, question=question, points_scored=0,
                                                  awaiting_tutor_grading=True)
                 if question_answer in image_question_answers:
-                    StudentImageAnswer.objects.create(grade=new_grade, image=base64.b64decode(given_answer))
+                    StudentImageAnswer.objects.create(grade=new_grade, image=given_answer)
                 else:
                     StudentTextAnswer.objects.create(grade=new_grade, text=given_answer)
             else:
