@@ -1,7 +1,7 @@
 from itertools import chain
 from typing import List, Dict
 
-from golfplatz.grading import ScoreAggregator
+from golfplatz.scoring import ScoreAggregator
 from golfplatz.models import Participant, Achievement, Chapter, AccomplishedChapter, AccomplishedAchievement, \
     PlotPart
 

@@ -308,13 +308,8 @@ class AdventureSummarySerializer(serializers.Serializer):
 
 
 class AnswerScoreSerializer(serializers.Serializer):
-    grade = serializers.IntegerField()
+    grade = serializers.PrimaryKeyRelatedField(queryset=Grade.objects.all())
     points = serializers.DecimalField(max_digits=6, decimal_places=3)
-
-
-class ManualGradingSerializer(serializers.Serializer):
-    question = serializers.IntegerField()
-    answers = AnswerScoreSerializer(many=True)
 
 
 # Serializers for retrieving answers to be checked manually

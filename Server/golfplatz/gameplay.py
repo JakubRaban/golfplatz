@@ -1,11 +1,13 @@
+from collections import defaultdict
 from datetime import datetime
-from threading import Thread
-from typing import List, Tuple, Set, Union, Optional
+from typing import List, Tuple, Set, Union, Optional, Dict
+
+from django.db import transaction
 
 from .achievements import check_for_achievements
-from .grading import grade_answers_automatically, ScoreAggregator
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
-    AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice
+    AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice, StudentImageAnswer, StudentTextAnswer
+from .scoring import ScoreAggregator
 
 
 def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
@@ -32,9 +34,10 @@ def do_post_chapter_operations(adventure: Adventure, student: Participant, calcu
                                                                          adventure__chapter__plot_part__course=
                                                                          current_chapter.course)
     current_chapter_acc_adventures = current_course_acc_adventures.filter(adventure__chapter=current_chapter)
-    Thread(target=calculate_score_and_achievements,
-           args=(current_chapter_acc_adventures, current_course_acc_adventures, current_chapter, student)
-           ).start()
+    # Thread(target=calculate_score_and_achievements,
+    #        args=(current_chapter_acc_adventures, current_course_acc_adventures, current_chapter, student)
+    #        ).start()
+    calculate_score_and_achievements(current_chapter_acc_adventures, current_course_acc_adventures, current_chapter, student)
     if calculate_summary:
         return _get_summary(current_chapter_acc_adventures)
 
@@ -87,6 +90,48 @@ def _get_summary(accomplished_adventures: Set[AccomplishedAdventure]) -> List[Ad
             question_summaries=question_summaries
         ))
     return adventure_summaries
+
+
+def grade_answers_automatically(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]],
+                                open_question_answers: List[Tuple[Question, str]],
+                                image_question_answers: List[Tuple[Question, str]]) -> float:
+    sum_of_points = 0.0
+    for question_answer_type in (closed_question_answers, open_question_answers, image_question_answers):
+        for question_answer in question_answer_type:
+            question = question_answer[0]
+            given_answer = question_answer[1]
+            if not question.is_auto_checked:
+                new_grade = Grade.objects.create(student=participant, question=question, points_scored=0,
+                                                 awaiting_tutor_grading=True)
+                if question_answer in image_question_answers:
+                    StudentImageAnswer.objects.create(grade=new_grade, image=given_answer)
+                else:
+                    StudentTextAnswer.objects.create(grade=new_grade, text=given_answer)
+            else:
+                if question_answer in closed_question_answers:
+                    question_points_scored = question.score_for_closed_question(given_answer)
+                else:
+                    question_points_scored = question.score_for_open_question(given_answer)
+                Grade.objects.create(student=participant, question=question, points_scored=question_points_scored)
+                sum_of_points += float(question_points_scored)
+    return sum_of_points
+
+
+def grade_answers_manually(adventure: Adventure, points_scored: Dict[Grade, float]):
+    student_to_grades = defaultdict(lambda: [])
+    with transaction.atomic():
+        for grade, points in points_scored.items():
+            student_to_grades[grade.student].append(grade)
+            grade.grade_manually(points)
+        students = student_to_grades.keys()
+        acc_adventures = AccomplishedAdventure.objects.filter(adventure=adventure, student__in=students)
+        for acc_adventure in acc_adventures:
+            current_points = acc_adventure.total_points_for_questions_awarded
+            acc_adventure.total_points_for_questions_awarded = current_points + sum(grade.points_scored for grade in student_to_grades[acc_adventure.student])
+            acc_adventure.is_fully_graded = True
+            acc_adventure.save()
+    for student in students:
+        do_post_chapter_operations(adventure, student, calculate_summary=False)
 
 
 def is_adventure(adventure_stage: Optional[Union[NextAdventureChoice, Adventure]]) -> bool:

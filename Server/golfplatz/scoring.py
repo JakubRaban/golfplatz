@@ -1,44 +1,7 @@
-import base64
 from collections import defaultdict
-from typing import Set, List, Tuple, Dict
+from typing import List, Dict
 
-from .gameplay import do_post_chapter_operations
-from .models import Participant, Adventure, Chapter, PlotPart, Question, \
-    Grade, Answer, StudentImageAnswer, StudentTextAnswer, AccomplishedAdventure
-
-
-def grade_answers_automatically(participant: Participant, closed_question_answers: List[Tuple[Question, Set[Answer]]],
-                                open_question_answers: List[Tuple[Question, str]],
-                                image_question_answers: List[Tuple[Question, str]]) -> float:
-    sum_of_points = 0.0
-    for question_answer_type in (closed_question_answers, open_question_answers, image_question_answers):
-        for question_answer in question_answer_type:
-            question = question_answer[0]
-            given_answer = question_answer[1]
-            if not question.is_auto_checked:
-                new_grade = Grade.objects.create(student=participant, question=question, points_scored=0,
-                                                 awaiting_tutor_grading=True)
-                if question_answer in image_question_answers:
-                    StudentImageAnswer.objects.create(grade=new_grade, image=base64.b64decode(given_answer))
-                else:
-                    StudentTextAnswer.objects.create(grade=new_grade, text=given_answer)
-            else:
-                if question_answer in closed_question_answers:
-                    question_points_scored = question.score_for_closed_question(given_answer)
-                else:
-                    question_points_scored = question.score_for_open_question(given_answer)
-                Grade.objects.create(student=participant, question=question, points_scored=question_points_scored)
-                sum_of_points += float(question_points_scored)
-    return sum_of_points
-
-
-def grade_answers_manually(adventure: Adventure, points_scored: Dict[Grade, float]):
-    for grade, points in points_scored.items():
-        grade.grade_manually(points)
-    graded_students = {grade.student for grade in points_scored.keys()}
-    AccomplishedAdventure.objects.filter(adventure=adventure, student__in=graded_students).update(is_fully_graded=True)
-    for student in graded_students:
-        do_post_chapter_operations(adventure, student, calculate_summary=False)
+from .models import Adventure, Chapter, PlotPart
 
 
 class ScoreAggregator:
