@@ -13,11 +13,11 @@ class ChooseCourseDialog extends React.Component {
 
     return (
       <Dialog open={this.props.open} onClose={this.props.onClose}>
-        <DialogTitle id='alert-dialog-title'>{'Wybierz kurs, którego kartę gry chcesz zobaczyć'}</DialogTitle>
+        <DialogTitle id='alert-dialog-title'>{this.props.title}</DialogTitle>
         <DialogContent>
           <List component='nav' aria-label='secondary courses'>
             {this.props.courses.map((course) =>
-              <ListItemLink key={course.id} href={`/#/game-card/${course.id}`}>
+              <ListItemLink key={course.id} href={`/#/${this.props.link}/${course.id}`}>
                 <ListItemText primary={course.name} />
               </ListItemLink>
             )}

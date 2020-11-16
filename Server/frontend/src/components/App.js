@@ -14,6 +14,7 @@ import RegisterTutor from './authentication/RegisterTutor.js';
 import PrivateRoute from './common/PrivateRoute.js';
 import ChapterPassing from './studentComponents/ChapterPassing.js';
 import GameCard from './studentComponents/GameCard.js';
+import CourseStructure from './studentComponents/CourseStructure.js';
 import StudentDashboard from './studentComponents/StudentDashboard.js';
 import TurboAdventure from './tutorComponents/pathsAndChoices/TurboAdventure.js';
 import AddCourse from './tutorComponents/addCourse/AddCourse.js';
@@ -35,20 +36,21 @@ class App extends React.Component {
           <Router>
             <ToastContainer />
             <Switch>
-              <PrivateRoute exact path="/" component={TutorDashboard}/>
-              <Route exact path="/student" component = {StudentDashboard}/>
-              <Route exact path="/login" component={Login}/>
-              <Route exact path="/add-courses" component={AddCourse}/>
-              <Route exact path="/courses" component={GetCourses}/>
-              <Route exact path="/courses/:id" component={CourseDetails}/>
-              <Route exact path="/chapters/:id" component = {TurboAdventure} />
-              <Route exact path="/adventure/add" component = {Adventure}/>
-              <Route exact path="/adventure/:id" render={(props) => <Adventure {...props}/>}/>
-              <Route exact path="/register-student" component={RegisterStudent}/>
-              <Route exact path="/register-tutor" component={RegisterTutor}/>
-              <Route exact path="/marks" component={Marks}/>
-              <Route exact path="/game-card/:id" component = {GameCard}/>
-              <Route exact path="/open-chapter/:id" component = {ChapterPassing}/>
+              <PrivateRoute exact path='/' component={TutorDashboard} />
+              <Route exact path='/student' component={StudentDashboard} />
+              <Route exact path='/login' component={Login} />
+              <Route exact path='/add-courses' component={AddCourse} />
+              <Route exact path='/courses' component={GetCourses} />
+              <Route exact path='/courses/:id' component={CourseDetails} />
+              <Route exact path='/chapters/:id' component={TurboAdventure} />
+              <Route exact path='/adventure/add' component={Adventure} />
+              <Route exact path='/adventure/:id' render={(props) => <Adventure {...props}/>} />
+              <Route exact path='/register-student' component={RegisterStudent} />
+              <Route exact path='/register-tutor' component={RegisterTutor} />
+              <Route exact path='/marks' component={Marks} />
+              <Route exact path='/game-card/:id' component={GameCard} />
+              <Route exact path='/course-structure/:id' component={CourseStructure} />
+              <Route exact path='/open-chapter/:id' component={ChapterPassing} />
             </Switch>
           </Router>
         </PersistGate>

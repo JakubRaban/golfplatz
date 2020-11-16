@@ -42,6 +42,7 @@ export class StudentDashboard extends Component {
   state = {
     drawerOpen: false,
     dialogOpen: false,
+    dialogOpen2: false,
     loaded: false,
   };
 
@@ -73,6 +74,14 @@ export class StudentDashboard extends Component {
 
   handleDialogOpen = () => {
     this.setState({ dialogOpen: true });
+  }
+
+  handleDialog2Close = () => {
+    this.setState({ dialogOpen2: false });
+  }
+
+  handleDialog2Open = () => {
+    this.setState({ dialogOpen2: true });
   }
 
   render() {
@@ -107,10 +116,12 @@ export class StudentDashboard extends Component {
                     </Button>
                   </Paper>
                 </Grid>
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <div> To będzie dostępne tylko o określonym czasie</div>
-                    <Link to="/open-chapter/16">Podejmij wyzwanie!</Link>
+                <Grid item xs={12} md={8} lg={9}>
+                  <Paper className={fixedHeightPaper}>
+                    <Button color="primary" onClick={this.handleDialog2Open}>
+                      Podejmij wyzwanie!
+                    </Button>
+                    {/* <Link to="/open-chapter/16"></Link> */}
                   </Paper>
                 </Grid>
               </Grid>
@@ -118,7 +129,8 @@ export class StudentDashboard extends Component {
                 <Copyright />
               </Box>
             </Container>
-            <ChooseCourseDialog courses={this.props.courses} onClose={this.handleDialogClose} open={this.state.dialogOpen} />
+            <ChooseCourseDialog courses={this.props.courses} link='game-card' onClose={this.handleDialogClose} open={this.state.dialogOpen} title='Wybierz kurs, którego kartę gry chcesz zobaczyć'/>
+            <ChooseCourseDialog courses={this.props.courses} link='course-structure' onClose={this.handleDialog2Close} open={this.state.dialogOpen2} title='Wybierz kurs, którego rozdział chcesz przejść'/>
           </>
           }
         </main>
