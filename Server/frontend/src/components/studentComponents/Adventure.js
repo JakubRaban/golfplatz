@@ -10,26 +10,6 @@ import TextField, { Input } from '@material/react-text-field';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-
-class Timer extends React.Component {
-  format(time) {
-    let seconds = time % 60;
-    let minutes = Math.floor(time / 60);
-    minutes = minutes.toString().length === 1 ? `0${minutes}` : minutes;
-    seconds = seconds.toString().length === 1 ? `0${seconds}` : seconds;
-    return `${minutes}:${seconds}`;
-  }
-
-  render() {
-    const { time } = this.props;
-    return (
-      <div>
-        <h1>{this.format(time)}</h1>
-      </div>
-    );
-  }
-}
-
 export class Adventure extends Component {
   handleImage = (id) => (e) => {
     const file = e.target.files[0];
@@ -40,6 +20,47 @@ export class Adventure extends Component {
       this.props.onImageAnswerChange(id, reader.result);
     };
     reader.readAsDataURL(file);
+  }
+
+  renderImageQuestion = (id) => {
+    return (
+      <>
+        <InputLabel>Prześlij odpowiedź:</InputLabel>
+        <input type="file" name="image" accept="image/*" onChange={this.handleImage(id)}/>
+      </>
+    );
+  }
+
+  renderOpenQuestion = (id) => {
+    return (
+      <TextField label="Twoja odpowiedź:" variant="outlined" style = {{ width: 500 }}>
+        <Input
+          type="answer"
+          name="answer"
+          onChange={this.props.onOpenAnswerChange(id)}
+          value={this.props.openQuestions.get(id)}
+        />
+      </TextField> 
+    );
+  }
+
+  renderClosedQuestion = (question, i) => {
+    return (
+      <FormControl component="fieldset">
+        <FormGroup>
+          {question.answers.map((answer, j) =>
+            <FormControlLabel key={i * j}
+              control={
+                <Checkbox
+                  checked={this.props.closedQuestions.get(question.id)[j].marked}
+                  onChange={this.props.onAnswerChange(question.id, j, i)} name="answer"
+                />
+              }
+              label={<Box component="div" fontSize={13}> {answer.text} </Box>} />,
+          )}
+        </FormGroup>
+      </FormControl>
+    );
   }
 
   render() {
@@ -61,37 +82,12 @@ export class Adventure extends Component {
                 </Typography>
                 {question.questionType === 'OPEN' ?
                   <>
-                    {question.inputType === 'IMAGE' ? 
-                      <>
-                        <InputLabel>Prześlij odpowiedź:</InputLabel>
-                        <input type="file" name="image" accept="image/*" onChange={this.handleImage(question.id)}/>
-                      </>:
-                      <>
-                        <TextField label="Twoja odpowiedź:" variant="outlined" style = {{ width: 500 }}>
-                          <Input
-                            type="answer"
-                            name="answer"
-                            onChange={this.props.onOpenAnswerChange(question.id)}
-                            value={this.props.openQuestions.get(question.id)}
-                          />
-                        </TextField> 
-                      </>
-                      }
+                    {
+                      question.inputType === 'IMAGE' ?
+                        this.renderImageQuestion(question.id) : this.renderOpenQuestion(question.id)
+                    }
                   </>:
-                  <FormControl component="fieldset">
-                    <FormGroup>
-                      {question.answers.map((answer, j) =>
-                        <FormControlLabel key={i * j}
-                          control={
-                            <Checkbox
-                              checked={this.props.closedQuestions.get(question.id)[j].marked}
-                              onChange={this.props.onAnswerChange(question.id, j, i)} name="answer"
-                            />
-                          }
-                          label={<Box component="div" fontSize={13}> {answer.text} </Box>} />,
-                      )}
-                    </FormGroup>
-                  </FormControl>
+                  this.renderClosedQuestion(question, i)
                 }
               </React.Fragment>,
             )}
@@ -126,7 +122,7 @@ export class Adventure extends Component {
                     </FormGroup>
                   </FormControl> :
                   <Typography variant="subtitle2" gutterBottom>
-                Twoja odpowiedź: {this.props.openQuestions.get(question.id)}
+                    Twoja odpowiedź: {this.props.openQuestions.get(question.id)}
                   </Typography>
                 }
               </React.Fragment>,
