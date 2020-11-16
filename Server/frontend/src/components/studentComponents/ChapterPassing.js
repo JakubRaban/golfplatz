@@ -32,6 +32,7 @@ export class ChapterPassing extends Component {
     submitted: false,
     closedQuestions: new Map(),
     openQuestions: new Map(),
+    imageQuestions: new Map(),
     timeLimit: 90,
     ended: false,
   }
@@ -47,6 +48,7 @@ export class ChapterPassing extends Component {
       if (this.props.adventurePart.responseType === 'adventure') {
         const tmpClosedQuestions = new Map();
         const tmpOpenQuestions = new Map();
+        const tmpImgQuestions = new Map();
         const { questions } = this.props.adventurePart.adventure.pointSource;
         for (let i = 0; i < questions.length; i++) {
           if (questions[i].questionType === 'CLOSED') {
@@ -56,7 +58,11 @@ export class ChapterPassing extends Component {
             }
             tmpClosedQuestions.set(questions[i].id, answers);
           } else {
-            tmpOpenQuestions.set(questions[i].id, '');
+            if (questions[i].inputType === 'IMAGE'){
+              tmpImgQuestions.set(questions[i].id, '');
+            } else {
+              tmpOpenQuestions.set(questions[i].id, '');
+            }
           }
         }
         this.setState({
@@ -64,6 +70,7 @@ export class ChapterPassing extends Component {
           submitted: false,
           closedQuestions: tmpClosedQuestions,
           openQuestions: tmpOpenQuestions,
+          imageQuestions: tmpImgQuestions,
         });
 
         this.startTime = new Date();
@@ -79,6 +86,7 @@ export class ChapterPassing extends Component {
           loading: false,
           closedQuestions: new Map(),
           openQuestions: new Map(),
+          imageQuestions: new Map(),
         });
       } else if (this.props.adventurePart.responseType === 'summary') {
         this.props.getAchievementsAfterChapter(this.props.match.params.id);
@@ -91,6 +99,7 @@ export class ChapterPassing extends Component {
           loading: false,
           closedQuestions: new Map(),
           openQuestions: new Map(),
+          imageQuestions: new Map(),
         });
       }
     }
@@ -121,13 +130,23 @@ export class ChapterPassing extends Component {
 
   onAnswerChange = (id, j, i) => (e) => {
     const tmpQuestions = this.state.closedQuestions;
-    if (!this.props.adventurePart.adventure.pointSource.questions[i].isMultipleChoice) tmpQuestions.get(id).map((x) => x.marked = false);
+    if (!this.props.adventurePart.adventure.pointSource.questions[i].isMultipleChoice)
+      tmpQuestions.get(id).map((x) => x.marked = false);
 
     tmpQuestions.get(id)[j].marked = e.target.checked;
     this.setState({
       closedQuestions: tmpQuestions,
     });
   };
+
+  onImageAnswerChange = (id, result) => {
+    const tmpQuestions = this.state.imageQuestions;
+    tmpQuestions.set(id, result);
+
+    this.setState({
+      imageQuestions: tmpQuestions,
+    });
+  }
 
   onSubmitAnswer = (e) => {
     const answerTime = 16; /* tymczasowo:*/
@@ -142,7 +161,10 @@ export class ChapterPassing extends Component {
     this.state.openQuestions.forEach((value, key) =>
       openQuestions.push({ questionId: key, givenAnswer: value }),
     );
-    // TODO support image questions
+    this.state.imageQuestions.forEach((value, key) => {
+      imageQuestions.push({ questionId: key, image: value})
+    })
+
     this.adventureAnswer = { startTime: this.startTime.toISOString(), answerTime, closedQuestions, openQuestions, imageQuestions };
     console.log(this.adventureAnswer);
 
@@ -199,10 +221,12 @@ export class ChapterPassing extends Component {
                   <Adventure timeLimit={this.state.timeLimit}
                     closedQuestions={this.state.closedQuestions}
                     openQuestions={this.state.openQuestions}
+                    imageQuestions={this.state.imageQuestions}
                     submitted={this.state.submitted}
                     adventurePart={this.props.adventurePart}
                     onAnswerChange={this.onAnswerChange}
                     onOpenAnswerChange={this.onOpenAnswerChange}
+                    onImageAnswerChange={this.onImageAnswerChange}
                     onSubmit={this.onSubmitAnswer}
                     onNext={this.onNext}
                   />

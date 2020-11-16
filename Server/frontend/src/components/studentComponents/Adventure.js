@@ -1,6 +1,7 @@
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
+import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
@@ -30,6 +31,17 @@ class Timer extends React.Component {
 }
 
 export class Adventure extends Component {
+  handleImage = (id) => (e) => {
+    const file = e.target.files[0];
+    console.log(e);
+    console.log(e.target.files);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      this.props.onImageAnswerChange(id, reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
   render() {
     return (
       <div>
@@ -48,14 +60,24 @@ export class Adventure extends Component {
                   {question.text}
                 </Typography>
                 {question.questionType === 'OPEN' ?
-                  <TextField label="Twoja odpowiedź:" variant="outlined" style = {{ width: 500 }}>
-                    <Input
-                      type="answer"
-                      name="answer"
-                      onChange={this.props.onOpenAnswerChange(question.id)}
-                      value={this.props.openQuestions.get(question.id)}
-                    />
-                  </TextField> :
+                  <>
+                    {question.inputType === 'IMAGE' ? 
+                      <>
+                        <InputLabel>Prześlij odpowiedź:</InputLabel>
+                        <input type="file" name="image" accept="image/*" onChange={this.handleImage(question.id)}/>
+                      </>:
+                      <>
+                        <TextField label="Twoja odpowiedź:" variant="outlined" style = {{ width: 500 }}>
+                          <Input
+                            type="answer"
+                            name="answer"
+                            onChange={this.props.onOpenAnswerChange(question.id)}
+                            value={this.props.openQuestions.get(question.id)}
+                          />
+                        </TextField> 
+                      </>
+                      }
+                  </>:
                   <FormControl component="fieldset">
                     <FormGroup>
                       {question.answers.map((answer, j) =>
