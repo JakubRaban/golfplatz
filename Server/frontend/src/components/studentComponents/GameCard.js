@@ -10,7 +10,7 @@ import NavBar from '../common/navbars/NavBar.js';
 import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
-import { getAchievements, getAllRanks, getStudentRank } from '../../actions/course.js';
+import { getAchievements, getAllRanks, getStudentRank, getRanking } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import GameCardSummary from './GameCardSummary.js'
 import Ranking from './Ranking.js';
@@ -40,6 +40,7 @@ export class GameCard extends Component {
     await this.props.getAchievements(this.props.match.params.id);
     await this.props.getAllRanks(this.props.match.params.id);
     await this.props.getStudentRank(this.props.match.params.id);
+    await this.props.getRanking(this.props.match.params.id);
   }
 
   handleChange = (e, mode) => {
@@ -57,7 +58,7 @@ export class GameCard extends Component {
       case 'marks':
         return <StudentMarks/>;
       case 'ranking':
-        return <Ranking/>;
+        return <Ranking ranking={this.props.ranking} />;
     }
   }
 
@@ -102,9 +103,10 @@ const mapStateToProps = (state) => ({
   achievements: state.course.achievements,
   ranks: state.course.ranks,
   studentRank: state.course.studentRank,
+  ranking: state.course.ranking,
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getAchievements, getAllRanks, getStudentRank }),
+  connect(mapStateToProps, { logout, getAchievements, getAllRanks, getStudentRank, getRanking }),
   withStyles(styles),
 )(GameCard);

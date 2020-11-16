@@ -19,6 +19,7 @@ import { ADD_ACHIEVEMENTS,
   GET_COURSE,
   GET_COURSES,
   GET_RANK,
+  GET_RANKING,
   GET_ALL_RANKS,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
@@ -184,6 +185,15 @@ export const getAllRanks = (courseId) => (dispatch, getState) => {
       payload: res.data,
     });
   });
+}
+
+export const getRanking = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/ranking`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_RANKING,
+      payload: res.data,
+    })
+  })
 }
 
 export const getStudentRank = (courseId) => (dispatch, getState) => {

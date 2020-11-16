@@ -1,36 +1,84 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { NavLink, Redirect } from 'react-router-dom';
-
+import MaterialTable from 'material-table';
+import { Typography } from '@material-ui/core';
+import { isEmpty } from 'lodash';
 
 export class Ranking extends Component {
-  static propTypes = {
-    isAuthenticated: PropTypes.bool,
-    user: PropTypes.any,
-  };
+  state = { data: [], loaded: false };
+  columns = [
+    { title: 'Student', field: 'studentName' },
+    { title: 'Grupa', field: 'courseGroupName' },
+    { title: 'Ranga', field: 'rank' },
+    { title: 'Aktualny wynik procentowy', field: 'scorePercent' },
+    { title: 'Przebyte rozdziały', field: 'chaptersDone' },
+  ];
+
+  componentDidMount() {
+    if (!isEmpty(this.props.ranking)) {
+      this.mapToColumns();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.ranking !== prevProps.ranking) {
+      this.mapToColumns();
+    }
+  }
+
+  mapToColumns = () => {
+    const data = [];
+    this.props.ranking.ranking.map((r) => {
+      data.push({
+        studentName: `${r.student.firstName} ${r.student.lastName}`,
+        courseGroupName: r.courseGroupName,
+        scorePercent: r.studentScore.scorePercent,
+        chaptersDone: r.studentScore.chaptersDone,
+        rank: <img alt={r.studentScore.rank.name} src={r.studentScore.rank.image} style={{ height: '50px', width: '50px' }} title={r.studentScore.rank.name} />,
+      })
+    });
+    this.setState({ data, loaded: true });
+  }
 
   render() {
-    if (!this.props.isAuthenticated) {
-      return <Redirect to="/login" />;
-    }
-    if (this.props.user.groups[0] === 2) {
-      return (
-        <Redirect to="/"/>
-      );
-    }
     return (
-      <div>
-        <h3>Tutaj pojawi się ranking walczących</h3>
-      </div>
-
+      <>
+        {this.state.loaded &&
+        <>
+          {this.props.ranking.ranking.length === 0 ?
+          <Typography component='h6' variant='h6'>Tutaj pojawi się ranking walczących</Typography> :
+          <MaterialTable
+              title="Bohaterowie minionych epok"
+              columns={this.columns}
+              data={this.state.data}
+              options={{
+                actionsColumnIndex: -1,
+              }}
+              localization={{
+                pagination: {
+                  labelDisplayedRows: '{from}-{to} z {count}',
+                  labelRowsSelect: 'wyników',
+                },
+                toolbar: {
+                  nRowsSelected: 'Wybrano {0} pozycji',
+                  searchPlaceholder: 'Wyszukaj',
+                },
+                header: {
+                  actions: 'Opcje',
+                },
+                body: {
+                  emptyDataSourceMessage: 'Brak danych',
+                  filterRow: {
+                    filterTooltip: 'Filtruj',
+                  },
+                },
+              }}
+            />
+          }
+        </>
+      }
+      </>
     );
   }
 }
 
-const mapStateToProps = (state) => ({
-  isAuthenticated: state.auth.isAuthenticated,
-  user: state.auth.user,
-});
-
-export default connect(mapStateToProps)(Ranking);
+export default Ranking;

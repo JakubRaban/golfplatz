@@ -107,12 +107,6 @@ export class StudentDashboard extends Component {
                     </Button>
                   </Paper>
                 </Grid>
-                <Grid item xs={12} md={4} lg={3}>
-                  <Paper className={fixedHeightPaper.paper}>
-                    <div>można go wyrenderować tutaj</div>
-                    <Link to="/ranking">Podgląd rankingu</Link>
-                  </Paper>
-                </Grid>
                 <Grid item xs={12}>
                   <Paper className={classes.paper}>
                     <div> To będzie dostępne tylko o określonym czasie</div>

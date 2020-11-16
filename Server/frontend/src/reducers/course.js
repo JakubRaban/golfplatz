@@ -15,6 +15,7 @@ import {
   GET_COURSES,
   GET_ALL_RANKS,
   GET_RANK,
+  GET_RANKING,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
@@ -36,6 +37,7 @@ const initialState = {
   paths: [],
   pathsWithDescriptions: {},
   ranks: [],
+  ranking: {},
   studentRank: {},
 };
 
@@ -97,6 +99,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         studentRank: action.payload,
+      };
+    case GET_RANKING:
+      return {
+        ...state,
+        ranking: action.payload,
       };
     case ADD_ADVENTURES:
       return {

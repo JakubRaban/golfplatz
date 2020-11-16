@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Card, CardContent, CardMedia, Typography } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 
-
 export class GameCardSummary extends Component {
   state = { achievementsLoaded: false, rankLoaded: false };
 
@@ -89,7 +88,6 @@ export class GameCardSummary extends Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <>
         {this.state.rankLoaded && this.renderRank()}

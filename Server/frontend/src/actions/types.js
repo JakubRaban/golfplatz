@@ -27,4 +27,5 @@ export const ERRORS = 'ERRORS';
 export const ADD_RANKS = 'ADD_RANKS';
 export const GET_ALL_RANKS = 'GET_ALL_RANKS';
 export const GET_RANK = 'GET_RANK';
+export const GET_RANKING = 'GET_RANKING';
 export const AUTH_ERROR = 'AUTH_ERROR';
