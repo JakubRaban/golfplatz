@@ -595,3 +595,11 @@ class RankingElement:
         self.student_score = StudentScore(student, course)
         self.student = student
         self.course_group_name = CourseGroup.objects.get(course=course, students=student).group_name
+
+
+class StudentGrade:
+    def __init__(self, chapter_zipped: Tuple[AccomplishedChapter, Chapter]):
+        self.name = chapter_zipped[1].name
+        self.points_for_max_grade = chapter_zipped[1].points_for_max_grade
+        self.points_scored = chapter_zipped[0].points_scored
+        self.time_completed = chapter_zipped[0].time_completed

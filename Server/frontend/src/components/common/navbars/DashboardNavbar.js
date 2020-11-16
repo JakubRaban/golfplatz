@@ -35,11 +35,6 @@ class DashboardNavbar extends Component {
             <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
               {this.props.title}
             </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
             <IconButton color="inherit" onClick={this.props.logout.bind(this)}>
               <Badge color="secondary">
                 <PowerSettingsNewIcon />

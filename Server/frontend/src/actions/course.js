@@ -20,6 +20,7 @@ import { ADD_ACHIEVEMENTS,
   GET_COURSES,
   GET_RANK,
   GET_RANKING,
+  GET_STUDENT_MARKS,
   GET_ALL_RANKS,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
@@ -191,6 +192,15 @@ export const getRanking = (courseId) => (dispatch, getState) => {
   axios.get(`api/courses/${courseId}/ranking`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_RANKING,
+      payload: res.data,
+    })
+  })
+}
+
+export const getStudentMarks = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/student_grades`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_STUDENT_MARKS,
       payload: res.data,
     })
   })

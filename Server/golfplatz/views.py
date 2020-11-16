@@ -12,7 +12,7 @@ from .gameplay import start_chapter, process_answers, is_adventure, is_summary, 
 from .graph_utils.chaptertograph import chapter_to_graph, get_most_points_possible_in_chapter
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
-from .models import AccomplishedChapter, StudentScore, CourseGroupStudents
+from .models import AccomplishedChapter, StudentScore, StudentGrade, CourseGroupStudents
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 
@@ -217,6 +217,19 @@ class CourseRankingView(APIView):
             'student_ranking_visibility': course.student_ranking_visibility_strategy,
             'ranking': RankingElementSerializer(ranking, many=True).data
         })
+
+
+class StudentGradesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        student: Participant = self.request.user
+        course = Course.objects.get(pk=course_id)
+        acc_chapters = list(AccomplishedChapter.objects.filter(student=student, chapter__plot_part__course=course))
+        chapters = [acc_chapter.chapter for acc_chapter in acc_chapters]
+        chapters_zipped = zip(acc_chapters, chapters)
+        student_grades = [StudentGrade(chapter_zipped) for chapter_zipped in chapters_zipped]
+        return Response(StudentGradesSerializer(student_grades, many=True).data)
 
 
 class PlotPartView(APIView):
