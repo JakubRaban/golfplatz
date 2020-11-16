@@ -21,9 +21,4 @@ class Migration(migrations.Migration):
             name='chapters_done',
             field=models.PositiveSmallIntegerField(default=0),
         ),
-        migrations.AlterField(
-            model_name='studentanswer',
-            name='grade',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='golfplatz.grade'),
-        ),
     ]

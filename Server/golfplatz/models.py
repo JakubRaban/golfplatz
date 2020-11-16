@@ -1,6 +1,7 @@
 import functools
 import re
 from decimal import Decimal
+from random import randint
 from typing import List, Tuple, Set
 
 from django.conf import settings
@@ -12,6 +13,14 @@ from django.utils.timezone import now
 from knox.models import AuthToken
 
 from .managers import ParticipantManager
+
+
+def get_random_access_code(length=8):
+    result = ""
+    for i in range(length):
+        gen = randint(0, 35)
+        result += str(gen) if gen < 10 else chr(gen + 87)
+    return result
 
 
 class Participant(AbstractUser):
@@ -93,6 +102,7 @@ class CourseGroup(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='course_groups')
     group_name = models.CharField(max_length=40)
     students = models.ManyToManyField(settings.AUTH_USER_MODEL, through='CourseGroupStudents')
+    access_code = models.CharField(max_length=8, default=get_random_access_code)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['course', 'group_name'], name='group_name_constraint')]
@@ -366,6 +376,7 @@ class AccomplishedAdventure(models.Model):
     time_elapsed_seconds = models.PositiveSmallIntegerField()
     total_points_for_questions_awarded = models.DecimalField(max_digits=7, decimal_places=3)
     applied_time_modifier_percent = models.PositiveSmallIntegerField()
+    is_fully_graded = models.BooleanField()
 
     @property
     def points_after_applying_modifier(self):
@@ -392,10 +403,13 @@ class AccomplishedChapter(models.Model):
     class Meta:
         ordering = ['time_started']
 
-    def complete(self, points_scored):
-        self.points_scored = points_scored
+    def complete(self):
         self.is_completed = True
         self.time_completed = now()
+        self.save()
+
+    def save_points_scored(self, points):
+        self.points_scored = points
         self.save()
 
     def mark_recalculating_started(self):
@@ -414,7 +428,6 @@ class AccomplishedChapter(models.Model):
 class PointSource(models.Model):
     class Category(models.TextChoices):
         QUIZ = 'QUIZ', 'Quiz'
-        SURPRISE_EXERCISE = 'SURPRISE', 'Surprise exercise'
         GENERIC = 'GENERIC', 'Generic lab exercise'
         ACTIVENESS = 'ACTIVENESS', 'Activeness'
         TEST = 'TEST', 'Test'
@@ -505,9 +518,14 @@ class Grade(models.Model):
     points_scored = models.DecimalField(max_digits=6, decimal_places=3)
     awaiting_tutor_grading = models.BooleanField(default=False)
 
+    def grade_manually(self, points: float):
+        self.points_scored = points
+        self.awaiting_tutor_grading = False
+        self.save()
+
 
 class StudentAnswer(models.Model):
-    grade = models.ForeignKey('Grade', on_delete=models.CASCADE)
+    grade = models.OneToOneField('Grade', on_delete=models.CASCADE)
 
 
 class StudentTextAnswer(StudentAnswer):
