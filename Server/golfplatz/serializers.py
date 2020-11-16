@@ -270,6 +270,20 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GameCardChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapter
+        fields = '__all__'
+
+
+class GameCardPlotPartSerializer(serializers.ModelSerializer):
+    chapters = GameCardChapterSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = PlotPart
+        fields = '__all__'
+
+
 class ClosedQuestionAnswerSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
     marked_answers = serializers.ListField(child=serializers.IntegerField(), allow_empty=True)
