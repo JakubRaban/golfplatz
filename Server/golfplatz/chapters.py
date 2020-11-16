@@ -10,9 +10,10 @@ def get_plot_part_to_chapters_dict(course: Course) -> Dict[PlotPart, List[Chapte
 
 def get_plot_part_to_done_chapters_dict_for_student(student: Participant, course: Course) -> Dict[PlotPart, List[Chapter]]:
     result = {}
-    for plot_part, chapters in get_plot_part_to_chapters_dict(course):
+    for plot_part, chapters in get_plot_part_to_chapters_dict(course).items():
         done_chapters = [acc_chapter.chapter for acc_chapter in AccomplishedChapter.objects.filter(chapter__in=chapters, student=student, is_completed=True)]
-        result[plot_part] = done_chapters
+        if done_chapters:
+            result[plot_part] = done_chapters
     return result
 
 

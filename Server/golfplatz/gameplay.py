@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import datetime
+from threading import Thread
 from typing import List, Tuple, Set, Union, Optional, Dict
 
 from django.db import transaction
@@ -33,18 +34,19 @@ def do_post_chapter_operations(adventure: Adventure, student: Participant, calcu
     current_chapter = adventure.chapter
     current_chapter_acc_adventures = AccomplishedAdventure.objects.filter(student=student,
                                                                           adventure__chapter=current_chapter)
-    # Thread(target=calculate_score_and_achievements,
-    #        args=(current_chapter_acc_adventures, current_course_acc_adventures, current_chapter, student)
-    #        ).start()
-    calculate_score_and_achievements(current_chapter_acc_adventures, current_chapter, student)
+    acc_chapter = AccomplishedChapter.objects.get(chapter=current_chapter, student=student)
+    acc_chapter.complete()
+    Thread(target=calculate_score_and_achievements,
+           args=(student, current_chapter, acc_chapter, current_chapter_acc_adventures)
+           ).start()
+    # calculate_score_and_achievements(student, current_chapter, acc_chapter, current_chapter_acc_adventures)
     if calculate_summary:
         return _get_summary(current_chapter_acc_adventures)
 
 
-def calculate_score_and_achievements(current_chapter_acc_adventures: Set[AccomplishedAdventure], current_chapter: Chapter, student: Participant):
+def calculate_score_and_achievements(student: Participant, current_chapter: Chapter, acc_chapter: AccomplishedChapter, current_chapter_acc_adventures: Set[AccomplishedAdventure]):
     if all(acc_adventure.is_fully_graded for acc_adventure in current_chapter_acc_adventures):
-        acc_chapter = AccomplishedChapter.objects.get(chapter=current_chapter, student=student)
-        acc_chapter.complete()
+
         score_aggregator = ScoreAggregator(get_accomplished_adventures_for_student(student, current_chapter.course).values(
             'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
             'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
