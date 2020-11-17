@@ -269,7 +269,6 @@ class CreatePlotPartSerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    course_groups = serializers.StringRelatedField(many=True)
     plot_parts = PlotPartSerializer(many=True, read_only=True)
 
     class Meta:
@@ -288,6 +287,15 @@ class GameCardPlotPartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PlotPart
+        fields = '__all__'
+
+
+class GameCardCourseSerializer(serializers.ModelSerializer):
+    course_groups = serializers.StringRelatedField(many=True)
+    plot_parts = GameCardPlotPartSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Course
         fields = '__all__'
 
 

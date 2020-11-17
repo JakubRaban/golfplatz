@@ -41,6 +41,7 @@ urlpatterns = [
     path('courses/<int:course_id>/score/', ParticipantScoreView.as_view()),
     path('courses/<int:course_id>/ranking/', CourseRankingView.as_view()),
     path('courses/<int:course_id>/student_grades/', StudentGradesView.as_view()),
+    path('courses/<int:course_id>/course_structure/', CourseStructureView.as_view()),
 
     path('manual_grading/<adventure_id>/', ManualGradingView.as_view()),
 

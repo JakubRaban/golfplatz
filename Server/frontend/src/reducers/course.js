@@ -12,6 +12,7 @@ import {
   GET_ADVENTURES,
   GET_CHAPTER,
   GET_COURSE,
+  GET_COURSE_STRUCTURE,
   GET_COURSES,
   GET_ALL_RANKS,
   GET_RANK,
@@ -29,6 +30,7 @@ const initialState = {
   plotParts: [],
   courseGroups: [],
   courseDetailed: {},
+  courseStructure: {},
   chapters: [],
   chapterDetailed: {},
   errors: {},
@@ -69,6 +71,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         courseDetailed: action.payload,
+      };
+    case GET_COURSE_STRUCTURE:
+      return {
+        ...state,
+        courseStructure: action.payload,
       };
     case GET_CHAPTER:
       return {

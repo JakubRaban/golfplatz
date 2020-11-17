@@ -219,6 +219,14 @@ class CourseRankingView(APIView):
         })
 
 
+class CourseStructureView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        serializer = GameCardCourseSerializer(Course.objects.get(pk=course_id))
+        return Response(serializer.data)
+
+
 class StudentGradesView(APIView):
     permission_classes = [IsAuthenticated]
 

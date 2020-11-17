@@ -17,6 +17,7 @@ import { ADD_ACHIEVEMENTS,
   GET_ADVENTURES,
   GET_CHAPTER,
   GET_COURSE,
+  GET_COURSE_STRUCTURE,
   GET_COURSES,
   GET_RANK,
   GET_RANKING,
@@ -109,6 +110,15 @@ export const addChapters = (chapters, plotPartId) => (dispatch, getState) => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });
 };
+
+export const getCourseStructure = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/course_structure`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_COURSE_STRUCTURE,
+      payload: res.data,
+    })
+  })
+}
 
 export const addCourse = (course, courseGroups, plotParts, achievements, ranks) => (dispatch, getState) => {
   makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, dispatch, getState);
