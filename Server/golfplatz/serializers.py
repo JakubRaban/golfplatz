@@ -276,10 +276,25 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GameCardAccomplishedChapterListSerializer(serializers.ListSerializer):
+    def to_representation(self, instance):
+        instance = instance.filter(student=self.context['request'].user)
+        return super(GameCardAccomplishedChapterListSerializer, self).to_representation(instance)
+
+
+class GameCardAccomplishedChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        list_serializer_class = GameCardAccomplishedChapterListSerializer
+        model = AccomplishedChapter
+        fields = ['is_completed']
+
+
 class GameCardChapterSerializer(serializers.ModelSerializer):
+    accomplished_chapters = GameCardAccomplishedChapterSerializer(source='accomplishedchapter_set', many=True, read_only=True)
+
     class Meta:
         model = Chapter
-        fields = '__all__'
+        exclude = ['done_by_students']
 
 
 class GameCardPlotPartSerializer(serializers.ModelSerializer):
