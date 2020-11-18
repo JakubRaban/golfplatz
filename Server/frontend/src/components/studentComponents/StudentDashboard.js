@@ -17,7 +17,7 @@ import { logout } from '../../actions/auth.js';
 import { getCourses } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import DashboardNavbar from '../common/navbars/DashboardNavbar.js';
-import ChooseCourseDialog from './ChooseCourseDialog.js';
+import ChooseCourseDialog from '../common/ChooseCourseDialog.js';
 
 function Copyright() {
   return (

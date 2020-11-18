@@ -26,6 +26,7 @@ export const GET_ACHIEVEMENTS = 'GET_ACHIEVEMENTS';
 export const ERRORS = 'ERRORS';
 export const ADD_RANKS = 'ADD_RANKS';
 export const GET_ALL_RANKS = 'GET_ALL_RANKS';
+export const GET_COURSE_GRADES = 'GET_COURSE_GRADES';
 export const GET_COURSE_STRUCTURE = 'GET_COURSE_STRUCTURE';
 export const GET_RANK = 'GET_RANK';
 export const GET_RANKING = 'GET_RANKING';

@@ -17,6 +17,7 @@ import { ADD_ACHIEVEMENTS,
   GET_ADVENTURES,
   GET_CHAPTER,
   GET_COURSE,
+  GET_COURSE_GRADES,
   GET_COURSE_STRUCTURE,
   GET_COURSES,
   GET_RANK,
@@ -115,6 +116,15 @@ export const getCourseStructure = (courseId) => (dispatch, getState) => {
   axios.get(`api/courses/${courseId}/course_structure`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_COURSE_STRUCTURE,
+      payload: res.data,
+    })
+  })
+}
+
+export const getCourseGrades = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/course_grades`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_COURSE_GRADES,
       payload: res.data,
     })
   })

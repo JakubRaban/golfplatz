@@ -444,6 +444,14 @@ class NextAdventureChoiceView(APIView):
         })
 
 
+class CourseNameView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, course_id):
+        serializer = CourseNameSerializer(Course.objects.get(pk=course_id))
+        return Response(serializer.data)
+
+
 class ManualGradingView(APIView):
     permission_classes = [IsTutor]
 

@@ -4,17 +4,19 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
+import { getCourses } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import DashboardNavbar from '../common/navbars/DashboardNavbar.js';
+import ChooseCourseDialog from '../common/ChooseCourseDialog.js';
 
 function Copyright() {
   return (
@@ -31,13 +33,20 @@ function Copyright() {
 
 
 export class TutorDashboard extends Component {
-  static propTypes = {
-    logout: PropTypes.func.isRequired,
-  };
-
   state = {
+    dialogOpen: false,
     open: false,
   };
+
+  componentDidMount() {
+    this.props.getCourses();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.courses !== this.props.courses) {
+      this.setState({ loaded: true });
+    }
+  }
 
   handleDrawerOpen = () => {
     this.setState({
@@ -49,6 +58,14 @@ export class TutorDashboard extends Component {
     this.setState({
       open: false,
     });
+  }
+
+  handleDialogClose = () => {
+    this.setState({ dialogOpen: false });
+  }
+
+  handleDialogOpen = () => {
+    this.setState({ dialogOpen: true });
   }
 
   render() {
@@ -77,7 +94,9 @@ export class TutorDashboard extends Component {
               </Grid>
               <Grid item xs={12}>
                 <Paper className={classes.paper}>
-                  <Link to="/marks">Podgląd ocen</Link>
+                  <Button color="primary" onClick={this.handleDialogOpen}>
+                    Podgląd ocen
+                  </Button>
                 </Paper>
               </Grid>
             </Grid>
@@ -85,13 +104,18 @@ export class TutorDashboard extends Component {
               <Copyright />
             </Box>
           </Container>
+          <ChooseCourseDialog courses={this.props.courses} link='marks' onClose={this.handleDialogClose} open={this.state.dialogOpen} title='Wybierz kurs, z którego oceny chcesz zobaczyć'/>
         </main>
       </div>
     );
   }
 }
 
+const mapStateToProps = (state) => ({
+  courses: state.course.courses,
+});
+
 export default compose(
-  connect(null, { logout }),
+  connect(mapStateToProps, { logout, getCourses }),
   withStyles(styles),
 )(TutorDashboard);
