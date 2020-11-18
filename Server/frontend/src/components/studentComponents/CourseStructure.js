@@ -5,11 +5,15 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import NavBar from '../common/navbars/NavBar.js';
 import compose from 'recompose/compose';
-import { CssBaseline, List, ListSubheader, Typography } from '@material-ui/core';
+import { CssBaseline, List, ListItem, ListItemText, ListSubheader, Typography } from '@material-ui/core';
 
 import { getCourseStructure } from '../../actions/course.js';
 import { logout } from '../../actions/auth.js';
 import { styles } from '../../styles/style.js';
+
+function ListItemLink(props) {
+  return <ListItem button component="a" {...props} />;
+}
 
 export class CourseStructure extends Component {
   state = { loaded: false };
@@ -31,16 +35,28 @@ export class CourseStructure extends Component {
 
   getCourseName() {
     const name = this.props.courseStructure?.name || '';
-    return `Wirok kursu ${name}`;
+    return `Widok kursu ${name}`;
+  }
+
+  renderChapter = (chapter) => {
+    return chapter.accomplishedChapters.length > 0 && chapter.accomplishedChapters[0].isCompleted ?
+      (<ListItem>
+        <ListItemText secondary={
+          `${chapter.name} - Ukończono: ${new Date(chapter.accomplishedChapters[0].timeCompleted).toLocaleString('pl-PL')}`
+        }/>
+      </ListItem>) :
+      (<ListItemLink href={`/#/open-chapter/${chapter.id}`}>
+        <ListItemText secondary={chapter.name} secondaryTypographyProps={{ color: 'primary' }} />
+      </ListItemLink>);
   }
 
   render() {
     if (!this.props.isAuthenticated) {
-      return <Redirect to="/login" />;
+      return <Redirect to='/login' />;
     }
     if (this.props.user.groups[0] === 2) {
       return (
-        <Redirect to="/"/>
+        <Redirect to='/'/>
       );
     }
     const { classes } = this.props;
@@ -57,33 +73,34 @@ export class CourseStructure extends Component {
                 <Typography component='h6' variant='h6'>
                   {this.props.courseStructure.description}
                 </Typography>
-                {this.props.courseStructure.plotParts.map((plotPart, index) => {
+                {this.props.courseStructure.plotParts.map((plotPart, index) =>
                   <List
-                    component="nav"
-                    aria-labelledby="nested-list-subheader"
+                    key={index}
+                    component='nav'
+                    aria-labelledby='nested-list-subheader'
                     subheader={
-                      <ListSubheader component="div" id="nested-list-subheader">
-                        {index + 1} część fabuły kursu.
+                      <ListSubheader component='div' id='nested-list-subheader'>
+                        {index + 1} część fabuły kursu:
                       </ListSubheader>
                     }
                   >
-                    {/* <ListItem button onClick={handleClick}>
-
-                      <ListItemText primary="Inbox" />
-                      {open ? <ExpandLess /> : <ExpandMore />}
+                    <Typography component='h6' variant='subtitle1'>
+                      {plotPart.name}
+                    </Typography>
+                    <hr />
+                    <Typography component='h6' variant='body2'>
+                      {plotPart.introduction}
+                    </Typography>
+                    <ListItem>
+                      <ListItemText primary='Rozdziały:' />
                     </ListItem>
-                    <Collapse in={open} timeout="auto" unmountOnExit>
-                      <List component="div" disablePadding>
-                        <ListItem button className={classes.nested}>
-                          <ListItemIcon>
-                            <StarBorder />
-                          </ListItemIcon>
-                          <ListItemText primary="Starred" />
-                        </ListItem>
-                      </List>
-                    </Collapse> */}
+                    {plotPart.chapters.map((chapter, i)=> 
+                      <List key={100+i} component='div' disablePadding>
+                        {this.renderChapter(chapter)}
+                      </List> 
+                    )}
                   </List>
-                })}
+                )}
               </>
             }
           </div>

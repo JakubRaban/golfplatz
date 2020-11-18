@@ -286,7 +286,7 @@ class GameCardAccomplishedChapterSerializer(serializers.ModelSerializer):
     class Meta:
         list_serializer_class = GameCardAccomplishedChapterListSerializer
         model = AccomplishedChapter
-        fields = ['is_completed']
+        fields = ['is_completed', 'time_completed']
 
 
 class GameCardChapterSerializer(serializers.ModelSerializer):
