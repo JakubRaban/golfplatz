@@ -29,7 +29,10 @@ class CourseView(APIView):
 
     def post(self, request, format=None):
         serializer = CreateCourseSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            print(serializer.errors)
+            print(serializer.data)
+            return Response(status=400)
         course = Course.objects.create(**serializer.validated_data)
         return Response(CourseSerializer(course).data)
 

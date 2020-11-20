@@ -19,6 +19,7 @@ import AddAchievements from './AddAchievements.js';
 import AddCourseInitialInfo from './AddCourseInitialInfo.js';
 import AddGroupsAndPlot from './AddGroupsAndPlot.js';
 import AddRanks from './AddRanks.js';
+import ColorPicker from "./ColorPicker";
 
 export class AddCourse extends Component {
   state = {
@@ -29,6 +30,7 @@ export class AddCourse extends Component {
     redirect: false,
     achievements: [],
     ranks: [],
+    themeColor: '#3f51b5',
     errors: {},
   };
 
@@ -99,6 +101,10 @@ export class AddCourse extends Component {
     this.setState({ ranks });
   }
 
+  changeColor = (color) => {
+    this.setState({ themeColor: color.hex }, () => console.log(this.state.themeColor));
+  }
+
   checkErrors = async () => {
     const errors = {}
     if (isEmpty(this.state.name)) errors.name = 'Nazwa kursu nie może być pusta'
@@ -138,8 +144,8 @@ export class AddCourse extends Component {
     await this.checkErrors();
 
     if (empty(this.state.errors)) {
-      const { name, description, courseGroups, plotParts, achievements, ranks } = this.state;
-      const course = { name, description };
+      const { name, description, courseGroups, plotParts, achievements, ranks, themeColor } = this.state;
+      const course = { name, description, themeColor };
       this.props.addCourse(course, courseGroups, plotParts, achievements, ranks);
       this.setState({ redirect: true });
     }
@@ -197,6 +203,10 @@ export class AddCourse extends Component {
             errors={this.state.errors}
             handleRankChange={this.handleRankChange}
             ranks={this.state.ranks}
+          />
+          <ColorPicker
+            color={this.state.themeColor}
+            changeColor={this.changeColor}
           />
           <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
             <Button
