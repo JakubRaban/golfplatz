@@ -40,10 +40,13 @@ def _check_for_chapter_achievement(previous_chapters: Dict[PlotPart, List[Chapte
 
 def _check_for_plot_part_achievement(previous_chapters: Dict[PlotPart, List[Chapter]], achievement: Achievement, score_aggregator: ScoreAggregator):
     plot_parts = list(previous_chapters.keys())
-    if len(plot_parts) < achievement.how_many:
+    fully_done_plot_parts = [plot_part for plot_part in plot_parts
+                             if len(previous_chapters[plot_part]) == len(plot_part.chapters.all())
+                             ]
+    if len(fully_done_plot_parts) < achievement.how_many:
         return False
     counter = 0
-    for plot_part in plot_parts:
+    for plot_part in fully_done_plot_parts:
         if _check_plot_part_meets_condition(plot_part, achievement, score_aggregator):
             counter += 1
         elif achievement.in_a_row:

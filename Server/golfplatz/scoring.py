@@ -17,6 +17,10 @@ class ScoreAggregator:
             self.adventures_by_chapters[chapter].append(acc_adventure)
         self.weights = {weight.category: weight.weight for weight in weights}
 
+    @property
+    def chapters(self):
+        return self.adventures_by_chapters.keys()
+
     def _get_weight(self, acc_adventure: Dict):
         return self.weights[acc_adventure['adventure__point_source__category']]
 
@@ -52,19 +56,16 @@ class ScoreAggregator:
         return self.points_for_chapter(chapter) / chapter.max_points_possible * 100
 
     def points_for_plot_part(self, plot_part: PlotPart):
-        acc_adventures = self.adventures_by_plot_parts[plot_part.id]
-        return sum(self.points_for_accomplished_adventure(acc_adventure) for acc_adventure in acc_adventures)
+        return sum(self.points_for_chapter(chapter) for chapter in plot_part.chapters.all())
 
     def points_for_plot_part_percent(self, plot_part: PlotPart):
         return self.points_for_plot_part(plot_part) / plot_part.max_points_possible * 100
 
     def points_for_all(self):
-        return sum(self.points_for_accomplished_adventure(acc_adventure) for acc_adventure in self.acc_adventures)
+        return sum(self.points_for_chapter(chapter) for chapter in Chapter.objects.filter(id__in=self.chapters))
 
     def max_points_for_all(self):
-        return sum(
-            chapter.max_points_possible for chapter in Chapter.objects.filter(id__in=self.adventures_by_chapters.keys())
-        )
+        return sum(chapter.max_points_possible for chapter in Chapter.objects.filter(id__in=self.chapters))
 
     @staticmethod
     def time_taken_in_accomplished_adventures(acc_adventures: List[Dict]):
