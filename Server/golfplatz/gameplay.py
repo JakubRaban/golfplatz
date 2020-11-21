@@ -8,7 +8,7 @@ from django.db import transaction
 from .achievements import check_for_achievements
 from .chapters import get_accomplished_adventures_for_student
 from .models import Participant, Adventure, AccomplishedAdventure, Question, Answer, Grade, QuestionSummary, \
-    AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice, StudentImageAnswer, StudentTextAnswer
+    AdventureSummary, Chapter, AccomplishedChapter, NextAdventureChoice, StudentImageAnswer, StudentTextAnswer, Weight
 from .scoring import ScoreAggregator
 
 
@@ -50,7 +50,8 @@ def calculate_score_and_achievements(student: Participant, current_chapter: Chap
         score_aggregator = ScoreAggregator(get_accomplished_adventures_for_student(student, current_chapter.course).values(
             'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
             'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
-        ))
+            'adventure__point_source__category'
+        ), Weight.objects.filter(course=current_chapter.course))
         total_points = score_aggregator.points_for_chapter(current_chapter)
         acc_chapter.save_points_scored(total_points)
         acc_chapter.mark_recalculating_started()
