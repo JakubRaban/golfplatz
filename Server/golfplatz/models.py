@@ -156,6 +156,19 @@ class Rank(models.Model):
         ordering = ['lower_threshold_percent']
 
 
+class Weight(models.Model):
+    class Category(models.TextChoices):
+        QUIZ = 'QUIZ', 'Quiz'
+        GENERIC = 'GENERIC', 'Generic lab exercise'
+        ACTIVENESS = 'ACTIVENESS', 'Activeness'
+        TEST = 'TEST', 'Test'
+        HOMEWORK = 'HOMEWORK', 'Homework or project'
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    category = models.CharField(max_length=10, choices=Category.choices)
+    weight = models.PositiveIntegerField()
+
+
 class PlotPart(models.Model):
     name = models.CharField(max_length=100)
     introduction = models.TextField()
@@ -426,15 +439,8 @@ class AccomplishedChapter(models.Model):
 
 
 class PointSource(models.Model):
-    class Category(models.TextChoices):
-        QUIZ = 'QUIZ', 'Quiz'
-        GENERIC = 'GENERIC', 'Generic lab exercise'
-        ACTIVENESS = 'ACTIVENESS', 'Activeness'
-        TEST = 'TEST', 'Test'
-        HOMEWORK = 'HOMEWORK', 'Homework or project'
-
     adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True, related_name='point_source')
-    category = models.CharField(max_length=10, choices=Category.choices)
+    category = models.CharField(max_length=10, choices=Weight.Category.choices)
 
 
 class Answer(models.Model):
