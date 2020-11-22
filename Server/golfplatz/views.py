@@ -12,7 +12,7 @@ from .gameplay import start_chapter, process_answers, is_adventure, is_summary, 
 from .graph_utils.chaptertograph import chapter_to_graph, get_most_points_possible_in_chapter
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
-from .models import AccomplishedChapter, StudentScore, StudentGrade, CourseGroupStudents
+from .models import AccomplishedChapter, StudentScore, StudentGrade, CourseGroupStudents, Weight
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 
@@ -238,6 +238,18 @@ class StudentGradesView(APIView):
         chapters_zipped = zip(acc_chapters, chapters)
         student_grades = [StudentGrade(chapter_zipped) for chapter_zipped in chapters_zipped]
         return Response(StudentGradesSerializer(student_grades, many=True).data)
+
+
+class WeightsView(APIView):
+    permission_classes = [IsTutor]
+
+    def post(self, request, course_id):
+        serializer = WeightsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        Weight.objects.bulk_create([
+            Weight(category=category, weight=weight, course_id=course_id)
+            for category, weight in serializer.validated_data.items()
+        ])
 
 
 class PlotPartView(APIView):

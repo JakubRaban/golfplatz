@@ -65,6 +65,14 @@ class RankSerializer(serializers.ModelSerializer):
         exclude = ['course']
 
 
+class WeightsSerializer(serializers.Serializer):
+    QUIZ = serializers.IntegerField()
+    TEST = serializers.IntegerField()
+    GENERIC = serializers.IntegerField()
+    HOMEWORK = serializers.IntegerField()
+    ACTIVENESS = serializers.IntegerField()
+
+
 class StudentScoreSerializer(serializers.Serializer):
     points_scored = serializers.DecimalField(max_digits=8, decimal_places=3)
     max_score = serializers.DecimalField(max_digits=8, decimal_places=3)
