@@ -154,9 +154,9 @@ export class AddCourse extends Component {
     await this.checkErrors();
 
     if (empty(this.state.errors)) {
-      const { name, description, courseGroups, plotParts, achievements, ranks } = this.state;
+      const { name, description, courseGroups, plotParts, achievements, ranks, weights } = this.state;
       const course = { name, description };
-      this.props.addCourse(course, courseGroups, plotParts, achievements, ranks);
+      this.props.addCourse(course, courseGroups, plotParts, achievements, ranks, weights);
       this.setState({ redirect: true });
     }
   };
