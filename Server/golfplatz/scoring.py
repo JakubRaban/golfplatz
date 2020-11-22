@@ -50,7 +50,7 @@ class ScoreAggregator:
         acc_adventures = self.adventures_by_chapters[chapter.id]
         points = [self.points_for_accomplished_adventure(acc_adventure) for acc_adventure in acc_adventures]
         weights = [self._get_weight(acc_adventure) for acc_adventure in acc_adventures]
-        return sum(point * weight for point, weight in zip(points, weights)) / mean(weights)
+        return sum(points) / mean(weights)
 
     def points_for_chapter_percent(self, chapter: Chapter):
         return self.points_for_chapter(chapter) / chapter.max_points_possible * 100

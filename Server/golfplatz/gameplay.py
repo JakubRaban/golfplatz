@@ -46,7 +46,6 @@ def do_post_chapter_operations(adventure: Adventure, student: Participant, calcu
 
 def calculate_score_and_achievements(student: Participant, current_chapter: Chapter, acc_chapter: AccomplishedChapter, current_chapter_acc_adventures: Set[AccomplishedAdventure]):
     if all(acc_adventure.is_fully_graded for acc_adventure in current_chapter_acc_adventures):
-
         score_aggregator = ScoreAggregator(get_accomplished_adventures_for_student(student, current_chapter.course).values(
             'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
             'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
