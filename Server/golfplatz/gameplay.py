@@ -56,8 +56,6 @@ def calculate_score_and_achievements(student: Participant, current_chapter: Chap
         acc_chapter.mark_recalculating_started()
         check_for_achievements(student, current_chapter, acc_chapter, score_aggregator)
         acc_chapter.mark_achievements_calculated()
-        student.update_score_in_course(current_chapter.course, score_aggregator.points_for_all(),
-                                       score_aggregator.max_points_for_all())
         acc_chapter.mark_total_score_recalculated()
 
 

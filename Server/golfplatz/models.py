@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Max, F
+from django.db.models import Max, F, Sum
 from django.utils.timezone import now
 from knox.models import AuthToken
 
@@ -47,13 +47,13 @@ class Participant(AbstractUser):
     def __str__(self):
         return f'{self.get_full_name()} ({self.email})'
 
-    def update_score_in_course(self, course, points_scored, points_total):
-        CourseGroupStudents.objects.filter(student=self, course_group__course=course) \
-            .update(points_scored=points_scored, max_score=points_total, chapters_done=F('chapters_done')+1)
-
     def get_score_in_course(self, course):
-        course_student_data = CourseGroupStudents.objects.get(student=self, course_group__course=course)
-        return course_student_data.points_scored, course_student_data.max_score, course_student_data.chapters_done
+        accomplished_chapters = AccomplishedChapter.objects.filter(
+            student=self, is_completed=True, chapter__plot_part__course=course
+        )
+        sum_of_points = accomplished_chapters.aggregate(pts=Sum('points_scored'))['pts']
+        max_score = accomplished_chapters.aggregate(pts=Sum('chapter__points_for_max_grade'))['pts']
+        return sum_of_points, max_score, accomplished_chapters.count()
 
     def get_score_in_course_percent(self, course):
         points_scored, max_score, _ = self.get_score_in_course(course)
@@ -114,9 +114,6 @@ class CourseGroup(models.Model):
 class CourseGroupStudents(models.Model):
     student = models.ForeignKey(Participant, on_delete=models.CASCADE)
     course_group = models.ForeignKey(CourseGroup, on_delete=models.CASCADE)
-    points_scored = models.DecimalField(max_digits=8, decimal_places=3, default=0)
-    max_score = models.DecimalField(max_digits=8, decimal_places=3, default=0)
-    chapters_done = models.PositiveSmallIntegerField(default=0)
 
 
 class Achievement(models.Model):
