@@ -40,7 +40,7 @@ class ParticipantBasicDataSerializer(serializers.ModelSerializer):
 class CreateCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'theme_color']
 
 
 class CourseGroupSerializer(serializers.ModelSerializer):
