@@ -80,6 +80,7 @@ class Course(models.Model):
     student_ranking_visibility_strategy = models.CharField(
         max_length=20, choices=RankingVisibilityStrategy.choices, default=RankingVisibilityStrategy.RANKS_ONLY
     )
+    theme_color = models.CharField(max_length=7, validators=[RegexValidator(regex=r'^#[0-9a-f]{6}$')])
 
     def add_course_groups(self, names: List[str]):
         return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]

@@ -20,6 +20,7 @@ import AddCourseInitialInfo from './AddCourseInitialInfo.js';
 import AddGroupsAndPlot from './AddGroupsAndPlot.js';
 import AddRanks from './AddRanks.js';
 import AddWeights from './AddWeights.js';
+import ColorPicker from "./ColorPicker";
 
 export class AddCourse extends Component {
   state = {
@@ -37,6 +38,7 @@ export class AddCourse extends Component {
     },
     achievements: [],
     ranks: [],
+    themeColor: '#3f51b5',
     errors: {},
   };
 
@@ -108,9 +110,13 @@ export class AddCourse extends Component {
   }
 
   handleWeightChange = (categoryName, value) => {
-    const { weights } = this.state;
+    const {weights} = this.state;
     weights[categoryName] = value;
-    this.setState({ weights }, () => console.log(this.state.weights));
+    this.setState({weights}, () => console.log(this.state.weights));
+  }
+
+  changeColor = (color) => {
+    this.setState({ themeColor: color.hex }, () => console.log(this.state.themeColor));
   }
 
   checkErrors = async () => {
@@ -154,8 +160,8 @@ export class AddCourse extends Component {
     await this.checkErrors();
 
     if (empty(this.state.errors)) {
-      const { name, description, courseGroups, plotParts, achievements, ranks, weights } = this.state;
-      const course = { name, description };
+      const { name, description, courseGroups, plotParts, achievements, ranks, weights, themeColor } = this.state;
+      const course = { name, description, themeColor };
       this.props.addCourse(course, courseGroups, plotParts, achievements, ranks, weights);
       this.setState({ redirect: true });
     }
@@ -218,6 +224,10 @@ export class AddCourse extends Component {
             errors={this.state.errors}
             handleRankChange={this.handleRankChange}
             ranks={this.state.ranks}
+          />
+          <ColorPicker
+            color={this.state.themeColor}
+            changeColor={this.changeColor}
           />
           <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
             <Button
