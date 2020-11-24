@@ -33,3 +33,5 @@ export const GET_RANK = 'GET_RANK';
 export const GET_RANKING = 'GET_RANKING';
 export const GET_STUDENT_MARKS = 'GET_STUDENT_MARKS';
 export const AUTH_ERROR = 'AUTH_ERROR';
+export const SET_PALETTE = 'SET_PALETTE';
+export const SET_THEME_COLOR = 'SET_THEME_COLOR';

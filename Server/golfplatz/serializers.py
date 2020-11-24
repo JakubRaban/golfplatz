@@ -275,6 +275,7 @@ class CreatePlotPartSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     plot_parts = PlotPartSerializer(many=True, read_only=True)
+    course_groups = CourseGroupSerializer(many=True, read_only=True)
 
     class Meta:
         model = Course

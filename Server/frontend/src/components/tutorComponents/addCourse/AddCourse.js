@@ -10,6 +10,7 @@ import isInt from 'validator/lib/isInt.js';
 import { setWith } from 'lodash';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import { logout } from '../../../actions/auth.js';
 import { addCourse } from '../../../actions/course.js';
@@ -167,6 +168,17 @@ export class AddCourse extends Component {
     }
   };
 
+  theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: this.props.themeColors[0],
+      },
+      secondary: {
+        main: this.props.themeColors[1],
+      },
+    },
+  });
+
   render() {
     const { name, description, courseGroups, plotParts } = this.state;
     const values = { name, description };
@@ -189,55 +201,52 @@ export class AddCourse extends Component {
     }
 
     return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <NavBar logout={this.props.logout} title={'Dodaj kurs'} returnLink={'/'} />
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
-          <AddCourseInitialInfo
-            errors={this.state.errors}
-            handleChange={this.handleChange}
-            values={values}
-          />
-          <AddGroupsAndPlot
-            addNewCourseGroup={this.addNewCourseGroup}
-            addNewPlotPart={this.addNewPlotPart}
-            errors={this.state.errors}
-            groups={courseGroups}
-            handleGroupChange={this.handleGroupChange}
-            handlePlotPartChange={this.handlePlotPartChange}
-            plotParts={plotParts}
-          />
-          <AddWeights
-            weights={this.state.weights}
-            handleWeightChange={this.handleWeightChange}
-            errors={this.state.errors}
+      <ThemeProvider theme={this.theme}>
+        <div className={classes.root}>
+          <CssBaseline />
+          <NavBar logout={this.props.logout} title={'Dodaj kurs'} returnLink={'/'} />
+          <main className={classes.content}>
+            <div className={classes.appBarSpacer} />
+            <AddCourseInitialInfo
+              errors={this.state.errors}
+              handleChange={this.handleChange}
+              values={values}
             />
-          <AddAchievements
-            achievements={this.state.achievements}
-            addNewAchievement={this.addNewAchievement}
-            errors={this.state.errors}
-            handleAchievementChange={this.handleAchievementChange}
-          />
-          <AddRanks
-            addNewRank={this.addNewRank}
-            errors={this.state.errors}
-            handleRankChange={this.handleRankChange}
-            ranks={this.state.ranks}
-          />
-          <ColorPicker
-            color={this.state.themeColor}
-            changeColor={this.changeColor}
-          />
-          <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
-            <Button
-              color="primary"
-              variant="contained"
-              onClick={this.onSubmit}
-            >Potwierdź i wyślij</Button>
-          </div>
-        </main>
-      </div>
+            <AddGroupsAndPlot
+              addNewCourseGroup={this.addNewCourseGroup}
+              addNewPlotPart={this.addNewPlotPart}
+              errors={this.state.errors}
+              groups={courseGroups}
+              handleGroupChange={this.handleGroupChange}
+              handlePlotPartChange={this.handlePlotPartChange}
+              plotParts={plotParts}
+            />
+            <AddAchievements
+              achievements={this.state.achievements}
+              addNewAchievement={this.addNewAchievement}
+              errors={this.state.errors}
+              handleAchievementChange={this.handleAchievementChange}
+            />
+            <AddRanks
+              addNewRank={this.addNewRank}
+              errors={this.state.errors}
+              handleRankChange={this.handleRankChange}
+              ranks={this.state.ranks}
+            />
+            <ColorPicker
+              color={this.state.themeColor}
+              changeColor={this.changeColor}
+            />
+            <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={this.onSubmit}
+              >Potwierdź i wyślij</Button>
+            </div>
+          </main>
+        </div>
+      </ThemeProvider>
     );
   }
 }
@@ -245,6 +254,7 @@ export class AddCourse extends Component {
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
+  themeColors: state.color.themeColors,
 });
 
 export default compose(
