@@ -240,6 +240,17 @@ class StudentGradesView(APIView):
         return Response(StudentGradesSerializer(student_grades, many=True).data)
 
 
+class GradeExportView(APIView):
+    permission_classes = [IsTutor]
+
+    def get(self, request, course_id):
+        course = Course.objects.get(pk=course_id)
+        filename = course.grade_export()
+        scheme = request.is_secure() and "https" or "http"
+        result_url = f'{scheme}://{request.get_host()}/{filename}'
+        return Response(result_url)
+
+
 class PlotPartView(APIView):
     permission_classes = [IsTutor]
 
