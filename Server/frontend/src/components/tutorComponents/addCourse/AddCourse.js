@@ -112,11 +112,11 @@ export class AddCourse extends Component {
   handleWeightChange = (categoryName, value) => {
     const {weights} = this.state;
     weights[categoryName] = value;
-    this.setState({weights}, () => console.log(this.state.weights));
+    this.setState({weights});
   }
 
   changeColor = (color) => {
-    this.setState({ themeColor: color.hex }, () => console.log(this.state.themeColor));
+    this.setState({ themeColor: color.hex });
   }
 
   checkErrors = async () => {
