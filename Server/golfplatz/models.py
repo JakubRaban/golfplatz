@@ -1,5 +1,9 @@
+import calendar
+import csv
 import functools
 import re
+from collections import defaultdict
+from datetime import datetime
 from decimal import Decimal
 from random import randint
 from typing import List, Tuple, Set
@@ -94,6 +98,20 @@ class Course(models.Model):
                             CourseGroupStudents.objects.filter(course_group__course=self)]
         ranking_elements.sort(key=lambda element: element.student_score.score_percent, reverse=True)
         return ranking_elements
+
+    def get_all_students_grades(self, username_header_name='username'):
+        acc_chapters = AccomplishedChapter.objects.filter(chapter__plot_part__course=self, is_completed=True)
+        acc_chapters_values = acc_chapters.values('points_scored', 'chapter__name', 'chapter__points_for_max_grade', 'student')
+        students = {student.id: student.get_full_name() for student in Participant.objects.all()}
+        chapters = {value['chapter__name'] for value in acc_chapters_values}
+        students_to_chapters_to_data = defaultdict(lambda: {})
+        for value in acc_chapters_values:
+            students_to_chapters_to_data[students[value['student']]][value['chapter__name']] = round(float(value['points_scored'] * (100 / value['chapter__points_for_max_grade'])), 3)
+        score_dicts = []
+        for student, grades in students_to_chapters_to_data.items():
+            grades[username_header_name] = student
+            score_dicts.append(grades)
+        return chapters, score_dicts
 
     def __str__(self):
         return f'Course {self.name}'

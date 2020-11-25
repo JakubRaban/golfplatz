@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .gameplay import start_chapter, process_answers, is_adventure, is_summary, is_choice, grade_answers_manually
+from .gradeexport import export_grades
 from .graph_utils.chaptertograph import chapter_to_graph, get_most_points_possible_in_chapter
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
@@ -38,6 +39,12 @@ class CourseView(APIView):
         else:
             Course.objects.filter(pk=course_id).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CourseListView(APIView):
+    def get(self, request):
+        courses = CourseListSerializer(Course.objects.all(), many=True)
+        return Response(courses.data)
 
 
 class RegisterStudentView(APIView):
@@ -237,6 +244,30 @@ class StudentGradesView(APIView):
         chapters_zipped = zip(acc_chapters, chapters)
         student_grades = [StudentGrade(chapter_zipped) for chapter_zipped in chapters_zipped]
         return Response(StudentGradesSerializer(student_grades, many=True).data)
+
+
+class CourseAllStudentsGradesView(APIView):
+    permission_classes = [IsTutor]
+
+    def get(self, request, course_id):
+        course = Course.objects.get(pk=course_id)
+        chapters, score_dicts = course.get_all_students_grades()
+        return Response({
+            'chapters': chapters,
+            'students_scores': score_dicts
+        })
+
+
+class GradeExportView(APIView):
+    permission_classes = [IsTutor]
+
+    def get(self, request, course_id):
+        course = Course.objects.get(pk=course_id)
+        chapters, score_dicts = course.get_all_students_grades()
+        csv_filename = export_grades(chapters, score_dicts)
+        scheme = request.is_secure() and "https" or "http"
+        result_url = f'{scheme}://{request.get_host()}/{csv_filename}'
+        return Response(result_url)
 
 
 class WeightsView(APIView):
