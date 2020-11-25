@@ -188,6 +188,7 @@ class Weight(models.Model):
 class PlotPart(models.Model):
     name = models.CharField(max_length=100)
     introduction = models.TextField()
+    is_unlocked = models.BooleanField(default=False)
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='plot_parts')
     position_in_course = models.PositiveSmallIntegerField()
 
@@ -212,6 +213,10 @@ class PlotPart(models.Model):
     @property
     def max_points_possible(self):
         return sum([chapter.max_points_possible for chapter in self.chapters.all()])
+
+    def toggle_locked(self):
+        self.is_unlocked = not self.is_unlocked
+        self.save()
 
     def __str__(self):
         return f'Plot part {self.name} in {self.course.name}'
