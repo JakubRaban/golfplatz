@@ -141,7 +141,7 @@ export class CourseDetails extends Component {
                 <TableBody>
                   { this.props.course.courseGroups.map((group, i) =>
                     <TableRow key={i}>
-                      <TableCell>{group}</TableCell>
+                      <TableCell>{group.groupName}</TableCell>
                     </TableRow>,
                   )}
                 </TableBody>
