@@ -14,6 +14,7 @@ import {
   ADD_RANKS,
   DELETE_ADVENTURE,
   ERRORS,
+  EXPORT_CSV,
   GET_ACHIEVEMENTS,
   GET_ADVENTURES,
   GET_CHAPTER,
@@ -25,6 +26,7 @@ import {
   GET_RANKING,
   GET_STUDENT_MARKS,
   GET_ALL_RANKS,
+  GET_UNCHECKED_GRADES,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
@@ -129,10 +131,28 @@ export const getCourseStructure = (courseId) => (dispatch, getState) => {
       payload: res.data,
     })
   })
+};
+
+export const exportGrades = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/grades/export/csv/`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: EXPORT_CSV,
+      payload: res.data,
+    })
+  })
+};
+
+export const getCourseUncheckedGrades = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/grades/unchecked/`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_UNCHECKED_GRADES,
+      payload: res.data,
+    })
+  })
 }
 
 export const getCourseGrades = (courseId) => (dispatch, getState) => {
-  axios.get(`api/courses/${courseId}/grades/unchecked/`, tokenConfig(getState)).then((res) => {
+  axios.get(`api/courses/${courseId}/grades/all/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_COURSE_GRADES,
       payload: res.data,
@@ -283,7 +303,7 @@ export const getAdventures = (id) => (dispatch, getState) => {
 };
 
 export const getCourses = () => (dispatch, getState) => {
-  axios.get('/api/courses/', tokenConfig(getState)).then((res) => {
+  axios.get('/api/courses/flat/', tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_COURSES,
       payload: res.data,

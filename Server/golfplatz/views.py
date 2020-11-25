@@ -253,6 +253,7 @@ class CourseAllStudentsGradesView(APIView):
         course = Course.objects.get(pk=course_id)
         chapters, score_dicts = course.get_all_students_grades()
         return Response({
+            'course_name': course.name,
             'chapters': chapters,
             'students_scores': score_dicts
         })

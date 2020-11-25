@@ -47,33 +47,41 @@ export class Ranking extends Component {
           {this.props.ranking.ranking.length === 0 ?
           <Typography component='h6' variant='h6'>Tutaj pojawi się ranking walczących</Typography> :
           <MaterialTable
-              title="Bohaterowie minionych epok"
-              columns={this.columns}
-              data={this.state.data}
-              options={{
-                actionsColumnIndex: -1,
-              }}
-              localization={{
-                pagination: {
-                  labelDisplayedRows: '{from}-{to} z {count}',
-                  labelRowsSelect: 'wyników',
+            title="Bohaterowie minionych epok"
+            columns={this.columns}
+            data={this.state.data}
+            options={{
+              actionsColumnIndex: -1,
+            }}
+            localization={{
+              pagination: {
+                labelDisplayedRows: '{from}-{to} z {count}',
+                labelRowsSelect: 'wyników',
+                firstAriaLabel: 'Pierwsza strona',
+                firstTooltip: 'Pierwsza strona',
+                previousAriaLabel: 'Poprzednia strona',
+                previousTooltip: 'Poprzednia strona',
+                nextAriaLabel: 'Następna strona',
+                nextTooltip: 'Następna strona',
+                lastAriaLabel: 'Ostatnia strona',
+                lastTooltip: 'Ostatnia strona',
+              },
+              toolbar: {
+                nRowsSelected: 'Wybrano {0} pozycji',
+                searchPlaceholder: 'Wyszukaj',
+              },
+              header: {
+                actions: 'Opcje',
+              },
+              body: {
+                emptyDataSourceMessage: 'Brak danych',
+                filterRow: {
+                  filterTooltip: 'Filtruj',
                 },
-                toolbar: {
-                  nRowsSelected: 'Wybrano {0} pozycji',
-                  searchPlaceholder: 'Wyszukaj',
-                },
-                header: {
-                  actions: 'Opcje',
-                },
-                body: {
-                  emptyDataSourceMessage: 'Brak danych',
-                  filterRow: {
-                    filterTooltip: 'Filtruj',
-                  },
-                },
-              }}
-            />
-          }
+              },
+            }}
+          />
+        }
         </>
       }
       </>
