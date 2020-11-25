@@ -28,7 +28,7 @@ import {
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE, ADD_WEIGHTS,
+  UPDATE_ADVENTURE, ADD_WEIGHTS, TOGGLE_PLOT_PART_LOCK,
 }
   from './types.js';
 
@@ -73,6 +73,15 @@ export const deleteAdventure = (id) => (dispatch, getState) => {
       console.log(err.response.data);
     });
 };
+
+export const unlockPlotPart = (id) => (dispatch, getState) => {
+  axios.patch(`/api/plot_parts/${id}/toggle_lock/`, '', tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: TOGGLE_PLOT_PART_LOCK,
+      payload: res.data
+    });
+  })
+}
 
 export const addPathsWithDescriptions = (pathsWithDescriptions, chapterId) => (dispatch, getState) => {
   axios.post(`/api/chapters/${chapterId}/submit/`, pathsWithDescriptions, tokenConfig(getState)).then((res) => {

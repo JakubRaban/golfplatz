@@ -9,6 +9,7 @@ export const CREATE_MESSAGE = 'CREATE_MESSAGE';
 export const USER_LOADED = 'USER_LOADED';
 export const USER_LOADING = 'USER_LOADING';
 export const ADD_PLOT_PARTS = 'ADD_PLOT_PARTS';
+export const TOGGLE_PLOT_PART_LOCK = 'TOGGLE_PLOT_PART_LOCK';
 export const ADD_COURSE_GROUPS = 'ADD_COURSE_GROUPS';
 export const GET_COURSE = 'GET_COURSE';
 export const ADD_CHAPTER = 'ADD_CHAPTER';

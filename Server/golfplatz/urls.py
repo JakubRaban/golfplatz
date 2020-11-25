@@ -19,6 +19,7 @@ urlpatterns = [
     path('courses/<int:course_id>/plot_parts/', PlotPartView.as_view()),
 
     path('plot_parts/<int:plot_part_id>/', SpecificPlotPartView.as_view()),
+    path('plot_parts/<int:plot_part_id>/toggle_lock/', TogglePlotPartLockView.as_view()),
     path('plot_parts/<int:plot_part_id>/chapters/', ChapterView.as_view()),
 
     path('chapters/<int:chapter_id>/', SpecificChapterView.as_view()),

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-direct-mutation-state */
-import '../../styles/course-forms.css';
+import '../../../styles/course-forms.css';
 
 import { List, ListItem, ListItemText } from '@material-ui/core/';
 import Button from '@material-ui/core/Button';
@@ -26,11 +26,12 @@ import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
-import { logout } from '../../actions/auth.js';
-import { addChapters, getCourse } from '../../actions/course.js';
-import { styles } from '../../styles/style.js';
-import NavBar from '../common/navbars/NavBar.js';
-import AddChapter from './AddChapter.js';
+import { logout } from '../../../actions/auth.js';
+import { addChapters, getCourse } from '../../../actions/course.js';
+import { styles } from '../../../styles/style.js';
+import NavBar from '../../common/navbars/NavBar.js';
+import AddChapter from './../AddChapter.js';
+import ToggleLockButton from "./ToggleLockButton";
 
 export class CourseDetails extends Component {
   constructor(props) {
@@ -154,6 +155,7 @@ export class CourseDetails extends Component {
                   <Typography variant="subtitle1" gutterBottom>
                   Część {i + 1}:
                   </Typography>
+                  <ToggleLockButton plotPart={plotPart} />
                   <List>
                     <ListItem>
                       <ListItemText primary="Nazwa" secondary={plotPart.name} />
