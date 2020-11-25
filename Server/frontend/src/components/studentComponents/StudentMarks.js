@@ -56,6 +56,14 @@ export class StudentMarks extends Component {
                 pagination: {
                   labelDisplayedRows: '{from}-{to} z {count}',
                   labelRowsSelect: 'wyników',
+                  firstAriaLabel: 'Pierwsza strona',
+                  firstTooltip: 'Pierwsza strona',
+                  previousAriaLabel: 'Poprzednia strona',
+                  previousTooltip: 'Poprzednia strona',
+                  nextAriaLabel: 'Następna strona',
+                  nextTooltip: 'Następna strona',
+                  lastAriaLabel: 'Ostatnia strona',
+                  lastTooltip: 'Ostatnia strona',
                 },
                 toolbar: {
                   nRowsSelected: 'Wybrano {0} pozycji',

@@ -8,12 +8,12 @@ import { Accordion, AccordionDetails, AccordionSummary,CssBaseline,
   List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import { getCourseGrades } from '../../actions/course.js';
+import { getCourseUncheckedGrades } from '../../actions/course.js';
 import { logout } from '../../actions/auth.js';
 import { styles } from '../../styles/style.js';
 import NavBar from '../common/navbars/NavBar.js';
 
-export class Marks extends Component {
+export class AddGrades extends Component {
   state = { loaded: false };
 
   static propTypes = {
@@ -22,18 +22,18 @@ export class Marks extends Component {
   };
 
   componentDidMount() {
-    this.props.getCourseGrades(this.props.match.params.id);
+    this.props.getCourseUncheckedGrades(this.props.match.params.id);
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.courseGrades !== this.props.courseGrades) {
+    if (prevProps.courseUncheckedGrades !== this.props.courseUncheckedGrades) {
       this.setState({ loaded: true });
     }
   }
 
   getCourseName() {
-    const name = this.props.courseGrades?.name || '';
-    return `Oceny studentów - ${name}`;
+    const name = this.props.courseUncheckedGrades?.name || '';
+    return `Oceń studentów - ${name}`;
   }
 
   renderAdventure = (adventure) => {
@@ -64,7 +64,7 @@ export class Marks extends Component {
           <div className={classes.appBarSpacer} />
           {this.state.loaded &&
               <>
-                {this.props.courseGrades.plotParts.map((plotPart, index) =>
+                {this.props.courseUncheckedGrades.plotParts.map((plotPart, index) =>
                   <List
                     key={index}
                     component='nav'
@@ -104,10 +104,10 @@ export class Marks extends Component {
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
-  courseGrades: state.course.courseGrades,
+  courseUncheckedGrades: state.course.courseUncheckedGrades,
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getCourseGrades }),
+  connect(mapStateToProps, { logout, getCourseUncheckedGrades }),
   withStyles(styles),
-)(Marks);
+)(AddGrades);

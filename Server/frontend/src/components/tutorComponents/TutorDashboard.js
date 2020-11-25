@@ -37,6 +37,7 @@ function Copyright() {
 export class TutorDashboard extends Component {
   state = {
     dialogOpen: false,
+    dialogOpen2: false,
     open: false,
   };
 
@@ -73,6 +74,14 @@ export class TutorDashboard extends Component {
 
   handleDialogOpen = () => {
     this.setState({ dialogOpen: true });
+  }
+
+  handleDialogClose2 = () => {
+    this.setState({ dialogOpen2: false });
+  }
+
+  handleDialogOpen2 = () => {
+    this.setState({ dialogOpen2: true });
   }
 
   render() {
@@ -115,7 +124,7 @@ export class TutorDashboard extends Component {
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[3]}` }}>
-                        <Button color='secondary' disabled onClick={this.handleDialogOpen}>
+                        <Button color='secondary' onClick={this.handleDialogOpen2}>
                           Podgląd ocen
                         </Button>
                       </Paper>
@@ -125,7 +134,8 @@ export class TutorDashboard extends Component {
                     <Copyright />
                   </Box>
                 </Container>
-                <ChooseCourseDialog courses={this.props.courses} link='marks' onClose={this.handleDialogClose} open={this.state.dialogOpen} title='Wybierz kurs, z którego oceny chcesz zobaczyć'/>
+                <ChooseCourseDialog courses={this.props.courses} link='add-grades' onClose={this.handleDialogClose} open={this.state.dialogOpen} title='Wybierz kurs, z którego oceny chcesz wprowadzić'/>
+                <ChooseCourseDialog courses={this.props.courses} link='grades' onClose={this.handleDialogClose2} open={this.state.dialogOpen2} title='Wybierz kurs, z którego oceny chcesz zobaczyć'/>
               </main>
             </div>
           </ThemeProvider> : <LinearProgress />

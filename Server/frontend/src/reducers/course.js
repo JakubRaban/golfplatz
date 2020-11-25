@@ -8,6 +8,7 @@ import {
   ADD_PLOT_PARTS,
   DELETE_ADVENTURE,
   ERRORS,
+  EXPORT_CSV,
   GET_ACHIEVEMENTS,
   GET_ADVENTURES,
   GET_CHAPTER,
@@ -19,6 +20,7 @@ import {
   GET_RANK,
   GET_RANKING,
   GET_STUDENT_MARKS,
+  GET_UNCHECKED_GRADES,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
@@ -32,9 +34,11 @@ const initialState = {
   courseGroups: [],
   courseDetailed: {},
   courseGrades: {},
+  courseUncheckedGrades: {},
   courseStructure: {},
   chapters: [],
   chapterDetailed: {},
+  csv: {},
   errors: {},
   achievements: {},
   adventures: [],
@@ -78,6 +82,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         courseGrades: action.payload,
+      };
+    case GET_UNCHECKED_GRADES:
+      return {
+        ...state,
+        courseUncheckedGrades: action.payload,
       };
     case GET_COURSE_STRUCTURE:
       return {
@@ -125,6 +134,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         studentMarks: action.payload,
+      };
+    case EXPORT_CSV:
+      return {
+        ...state,
+        csv: action.payload,
       };
     case ADD_ADVENTURES:
       return {

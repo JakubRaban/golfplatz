@@ -21,7 +21,8 @@ import AddCourse from './tutorComponents/addCourse/AddCourse.js';
 import CourseDetails from './tutorComponents/CourseDetails.js';
 import Adventure from './tutorComponents/createAdventure/Adventure.js';
 import GetCourses from './tutorComponents/GetCourses.js';
-import Marks from './tutorComponents/Marks.js';
+import AddGrades from './tutorComponents/AddGrades.js';
+import Grades from './tutorComponents/Grades.js';
 import TutorDashboard from './tutorComponents/TutorDashboard.js';
 
 class App extends React.Component {
@@ -47,7 +48,8 @@ class App extends React.Component {
               <Route exact path='/adventure/:id' render={(props) => <Adventure {...props}/>} />
               <Route exact path='/register-student' component={RegisterStudent} />
               <Route exact path='/register-tutor' component={RegisterTutor} />
-              <Route exact path='/marks/:id' component={Marks} />
+              <Route exact path='/add-grades/:id' component={AddGrades} />
+              <Route exact path='/grades/:id' component={Grades} />
               <Route exact path='/game-card/:id' component={GameCard} />
               <Route exact path='/course-structure/:id' component={CourseStructure} />
               <Route exact path='/open-chapter/:id' component={ChapterPassing} />
