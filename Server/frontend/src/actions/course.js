@@ -144,9 +144,9 @@ export const getCourseGrades = (courseId) => (dispatch, getState) => {
 
 export const addCourse = (course, courseGroups, plotParts, achievements, ranks, weights) => (dispatch, getState) => {
   try {
-    makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, weights, dispatch, getState);
+    return makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, weights, dispatch, getState);
   } catch (e) {
-    // do nothing
+    return "error";
   }
 };
 
@@ -223,6 +223,8 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
       // dispatch(returnErrors(err.response.data, err.response.status));
       fail();
     })
+
+  return "ok";
 }
 
 const deleteCourse = (id) => (dispatch, getState) => {
