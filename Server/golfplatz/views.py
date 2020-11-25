@@ -313,7 +313,7 @@ class TogglePlotPartLockView(APIView):
     def patch(self, request, plot_part_id):
         plot_part = PlotPart.objects.get(pk=plot_part_id)
         plot_part.toggle_locked()
-        return Response()
+        return Response(PlotPartSerializer(plot_part).data)
 
 
 class ChapterView(APIView):

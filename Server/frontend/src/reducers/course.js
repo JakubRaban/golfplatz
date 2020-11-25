@@ -22,7 +22,7 @@ import {
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE,
+  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK,
 }
   from '../actions/types.js';
 
@@ -152,6 +152,17 @@ export default function (state = initialState, action) {
       return {
         ...state,
         adventurePart: action.payload,
+      };
+    case TOGGLE_PLOT_PART_LOCK:
+      const index = state.courseDetailed.plotParts.findIndex((plotPart) => plotPart.id === action.payload.id);
+      const plotParts = [...state.courseDetailed.plotParts];
+      plotParts[index] = action.payload;
+      return {
+        ...state,
+        courseDetailed: {
+          ...state.courseDetailed,
+          plotParts,
+        },
       };
     case ERRORS:
       return {

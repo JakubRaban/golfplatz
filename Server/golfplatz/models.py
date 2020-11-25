@@ -200,7 +200,7 @@ class PlotPart(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        if 'position_in_course' not in kwargs:
+        if 'position_in_course' not in kwargs and not self.position_in_course:
             current_parts = PlotPart.objects.filter(course=self.course)
             last_part_index = current_parts.aggregate(index=Max('position_in_course'))['index'] or 0
             self.position_in_course = last_part_index + 1

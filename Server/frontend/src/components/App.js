@@ -18,7 +18,7 @@ import CourseStructure from './studentComponents/CourseStructure.js';
 import StudentDashboard from './studentComponents/StudentDashboard.js';
 import TurboAdventure from './tutorComponents/pathsAndChoices/TurboAdventure.js';
 import AddCourse from './tutorComponents/addCourse/AddCourse.js';
-import CourseDetails from './tutorComponents/CourseDetails.js';
+import CourseDetails from './tutorComponents/courseDetails/CourseDetails.js';
 import Adventure from './tutorComponents/createAdventure/Adventure.js';
 import GetCourses from './tutorComponents/GetCourses.js';
 import Marks from './tutorComponents/Marks.js';
