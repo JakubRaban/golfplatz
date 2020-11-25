@@ -1,6 +1,3 @@
-from collections import OrderedDict
-from operator import itemgetter
-
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from drf_extra_fields.fields import Base64ImageField
@@ -271,6 +268,12 @@ class CreatePlotPartSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     plot_parts = PlotPartSerializer(many=True, read_only=True)
 
+    class Meta:
+        model = Course
+        fields = '__all__'
+
+
+class CourseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'

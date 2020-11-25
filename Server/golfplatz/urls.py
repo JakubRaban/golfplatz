@@ -12,6 +12,7 @@ urlpatterns = [
     path('whoami/', WhoAmIView.as_view()),
 
     path('courses/', CourseView.as_view()),
+    path('courses/flat/', CourseListView.as_view()),
     path('courses/<int:course_id>/', CourseView.as_view()),
     path('courses/<int:course_id>/course_groups/', CourseGroupView.as_view()),
     path('course_groups/enroll/<str:access_code>/', CourseGroupEnrollmentView.as_view()),
@@ -42,8 +43,9 @@ urlpatterns = [
     path('courses/<int:course_id>/ranking/', CourseRankingView.as_view()),
     path('courses/<int:course_id>/student_grades/', StudentGradesView.as_view()),
     path('courses/<int:course_id>/course_structure/', CourseStructureView.as_view()),
-    path('courses/<int:course_id>/course_grades/', CourseNameView.as_view()),
-    path('courses/<int:course_id>/grade_export/', GradeExportView.as_view()),
+    path('courses/<int:course_id>/grades/unchecked/', CourseNameView.as_view()),
+    path('courses/<int:course_id>/grades/all/', CourseAllStudentsGradesView.as_view()),
+    path('courses/<int:course_id>/grades/export/csv/', GradeExportView.as_view()),
 
     path('manual_grading/<adventure_id>/', ManualGradingView.as_view()),
 

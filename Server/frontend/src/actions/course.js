@@ -122,7 +122,7 @@ export const getCourseStructure = (courseId) => (dispatch, getState) => {
 }
 
 export const getCourseGrades = (courseId) => (dispatch, getState) => {
-  axios.get(`api/courses/${courseId}/course_grades`, tokenConfig(getState)).then((res) => {
+  axios.get(`api/courses/${courseId}/grades/unchecked/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_COURSE_GRADES,
       payload: res.data,
