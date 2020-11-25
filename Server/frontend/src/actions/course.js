@@ -31,6 +31,8 @@ import {
   UPDATE_ADVENTURE, ADD_WEIGHTS, TOGGLE_PLOT_PART_LOCK,
 }
   from './types.js';
+import {DELETE_COURSE} from "./types";
+import {get} from "react-color/lib/helpers";
 
 export const addAdventure = (adventure, chapterId) => (dispatch, getState) => {
   axios.post(`/api/chapters/${chapterId}/adventures/`, toServerForm(adventure), tokenConfig(getState)).then((res) => {
@@ -141,11 +143,20 @@ export const getCourseGrades = (courseId) => (dispatch, getState) => {
 }
 
 export const addCourse = (course, courseGroups, plotParts, achievements, ranks, weights) => (dispatch, getState) => {
-  makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, weights, dispatch, getState);
+  try {
+    makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, weights, dispatch, getState);
+  } catch (e) {
+    // do nothing
+  }
 };
 
 async function makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, weights, dispatch, getState) {
   let courseId = -1;
+  const fail = () => {
+    deleteCourse(courseId)(dispatch, getState)
+    Alerts.error('Wystąpił błąd podczas dodawania kursu, spróbuj ponownie');
+    throw new Error()
+  }
   await axios.post('/api/courses/', course, tokenConfig(getState)).then((res) => {
     dispatch({
       type: ADD_COURSE,
@@ -155,7 +166,7 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
   })
     .catch((err) => {
       console.log(err);
-      dispatch(returnErrors(err.response.data, err.response.status));
+      // dispatch(returnErrors(err.response.data, err.response.status));
     });
 
   await axios.post(`/api/courses/${courseId}/course_groups/`, courseGroups, tokenConfig(getState)).then((res) => {
@@ -165,18 +176,19 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
     });
   })
     .catch((err) => {
-      dispatch(returnErrors(err.response.data, err.response.status));
+      // dispatch(returnErrors(err.response.data, err.response.status));
+      fail();
     });
 
   await axios.post(`/api/courses/${courseId}/plot_parts/`, plotParts, tokenConfig(getState)).then((res) => {
-    Alerts.success('Pomyślnie dodano kurs');
     dispatch({
       type: ADD_PLOT_PARTS,
       payload: res.data,
     });
   })
     .catch((err) => {
-      dispatch(returnErrors(err.response.data, err.response.status));
+      // dispatch(returnErrors(err.response.data, err.response.status));
+      fail();
     });
 
   await axios.post(`/api/courses/${courseId}/achievements/`, achievements, tokenConfig(getState)).then((res) => {
@@ -186,7 +198,8 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
     });
   })
     .catch((err) => {
-      dispatch(returnErrors(err.response.data, err.response.status));
+      // dispatch(returnErrors(err.response.data, err.response.status));
+      fail();
     });
 
   await axios.post(`/api/courses/${courseId}/ranks/`, ranks, tokenConfig(getState)).then((res) => {
@@ -196,7 +209,8 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
     });
   })
     .catch((err) => {
-      dispatch(returnErrors(err.response.data, err.response.status));
+      // dispatch(returnErrors(err.response.data, err.response.status));
+      fail();
     });
 
   await axios.post(`/api/courses/${courseId}/weights/`, weights, tokenConfig(getState)).then((res) => {
@@ -206,8 +220,18 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
     });
   })
     .catch((err) => {
-      dispatch(returnErrors(err.response.data, err.response.status));
+      // dispatch(returnErrors(err.response.data, err.response.status));
+      fail();
     })
+}
+
+const deleteCourse = (id) => (dispatch, getState) => {
+  axios.delete(`/api/courses/${id}/`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: DELETE_COURSE,
+      id
+    });
+  })
 }
 
 export const getAchievements = (courseId) => (dispatch, getState) => {
