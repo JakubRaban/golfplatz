@@ -163,8 +163,11 @@ export class AddCourse extends Component {
     if (empty(this.state.errors)) {
       const { name, description, courseGroups, plotParts, achievements, ranks, weights, themeColor } = this.state;
       const course = { name, description, themeColor };
-      this.props.addCourse(course, courseGroups, plotParts, achievements, ranks, weights);
-      this.setState({ redirect: true });
+      const result = await this.props.addCourse(course, courseGroups, plotParts, achievements, ranks, weights);
+      console.log(result, typeof result);
+      if (result === "ok") {
+        this.setState({redirect: true});
+      }
     }
   };
 

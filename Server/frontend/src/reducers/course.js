@@ -24,7 +24,7 @@ import {
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK,
+  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK, DELETE_COURSE,
 }
   from '../actions/types.js';
 
@@ -78,6 +78,11 @@ export default function (state = initialState, action) {
         ...state,
         courseDetailed: action.payload,
       };
+    case DELETE_COURSE:
+      return {
+        ...state,
+        courses: [...state.courses.filter((course) => course.id !== action.id)]
+      }
     case GET_COURSE_GRADES:
       return {
         ...state,
