@@ -3,7 +3,8 @@ import axios from 'axios';
 import { toServerForm } from '../components/common/algorithms/clientServerTranscoders/adventureTranscoder.js';
 import Alerts from '../components/common/alerts/Alerts.js';
 import { tokenConfig } from './auth.js';
-import { ADD_ACHIEVEMENTS,
+import {
+  ADD_ACHIEVEMENTS,
   ADD_ADVENTURES,
   ADD_ANSWER,
   ADD_CHAPTER,
@@ -27,7 +28,7 @@ import { ADD_ACHIEVEMENTS,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE,
+  UPDATE_ADVENTURE, ADD_WEIGHTS,
 }
   from './types.js';
 
@@ -130,11 +131,11 @@ export const getCourseGrades = (courseId) => (dispatch, getState) => {
   })
 }
 
-export const addCourse = (course, courseGroups, plotParts, achievements, ranks) => (dispatch, getState) => {
-  makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, dispatch, getState);
+export const addCourse = (course, courseGroups, plotParts, achievements, ranks, weights) => (dispatch, getState) => {
+  makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, weights, dispatch, getState);
 };
 
-async function makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, dispatch, getState) {
+async function makeAllCourseRequests(course, courseGroups, plotParts, achievements, ranks, weights, dispatch, getState) {
   let courseId = -1;
   await axios.post('/api/courses/', course, tokenConfig(getState)).then((res) => {
     dispatch({
@@ -188,10 +189,20 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
     .catch((err) => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });
+
+  await axios.post(`/api/courses/${courseId}/weights/`, weights, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: ADD_WEIGHTS,
+      payload: res.data,
+    });
+  })
+    .catch((err) => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    })
 }
 
 export const getAchievements = (courseId) => (dispatch, getState) => {
-  axios.get(`/api/courses/${courseId}/accomplished_achievements`, tokenConfig(getState)).then((res) => {
+  axios.get(`/api/courses/${courseId}/accomplished_achievements/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_ACHIEVEMENTS,
       payload: res.data,
@@ -200,7 +211,7 @@ export const getAchievements = (courseId) => (dispatch, getState) => {
 }
 
 export const getAllRanks = (courseId) => (dispatch, getState) => {
-  axios.get(`/api/courses/${courseId}/ranks`, tokenConfig(getState)).then((res) => {
+  axios.get(`/api/courses/${courseId}/ranks/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_ALL_RANKS,
       payload: res.data,
@@ -209,7 +220,7 @@ export const getAllRanks = (courseId) => (dispatch, getState) => {
 }
 
 export const getRanking = (courseId) => (dispatch, getState) => {
-  axios.get(`api/courses/${courseId}/ranking`, tokenConfig(getState)).then((res) => {
+  axios.get(`api/courses/${courseId}/ranking/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_RANKING,
       payload: res.data,
@@ -218,7 +229,7 @@ export const getRanking = (courseId) => (dispatch, getState) => {
 }
 
 export const getStudentMarks = (courseId) => (dispatch, getState) => {
-  axios.get(`api/courses/${courseId}/student_grades`, tokenConfig(getState)).then((res) => {
+  axios.get(`api/courses/${courseId}/student_grades/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_STUDENT_MARKS,
       payload: res.data,
@@ -227,7 +238,7 @@ export const getStudentMarks = (courseId) => (dispatch, getState) => {
 }
 
 export const getStudentRank = (courseId) => (dispatch, getState) => {
-  axios.get(`/api/courses/${courseId}/score`, tokenConfig(getState)).then((res) => {
+  axios.get(`/api/courses/${courseId}/score/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_RANK,
       payload: res.data,
@@ -236,7 +247,7 @@ export const getStudentRank = (courseId) => (dispatch, getState) => {
 }
 
 export const getRankAfterChapter = (chapterId) => (dispatch, getState) => {
-  axios.get(`/api/chapters/${chapterId}/new_score`, tokenConfig(getState)).then((res) => {
+  axios.get(`/api/chapters/${chapterId}/new_score/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_RANK,
       payload: res.data,
@@ -245,7 +256,7 @@ export const getRankAfterChapter = (chapterId) => (dispatch, getState) => {
 }
 
 export const getAchievementsAfterChapter = (chapterId) => (dispatch, getState) => {
-  axios.get(`/api/chapters/${chapterId}/new_achievements`, tokenConfig(getState)).then((res) => {
+  axios.get(`/api/chapters/${chapterId}/new_achievements/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_ACHIEVEMENTS,
       payload: res.data,

@@ -37,7 +37,7 @@ class ParticipantBasicDataSerializer(serializers.ModelSerializer):
 class CreateCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'theme_color']
 
 
 class CourseGroupSerializer(serializers.ModelSerializer):
@@ -60,6 +60,14 @@ class RankSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rank
         exclude = ['course']
+
+
+class WeightsSerializer(serializers.Serializer):
+    QUIZ = serializers.IntegerField()
+    TEST = serializers.IntegerField()
+    GENERIC = serializers.IntegerField()
+    HOMEWORK = serializers.IntegerField()
+    ACTIVENESS = serializers.IntegerField()
 
 
 class StudentScoreSerializer(serializers.Serializer):

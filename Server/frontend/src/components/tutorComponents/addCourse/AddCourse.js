@@ -19,6 +19,8 @@ import AddAchievements from './AddAchievements.js';
 import AddCourseInitialInfo from './AddCourseInitialInfo.js';
 import AddGroupsAndPlot from './AddGroupsAndPlot.js';
 import AddRanks from './AddRanks.js';
+import AddWeights from './AddWeights.js';
+import ColorPicker from "./ColorPicker";
 
 export class AddCourse extends Component {
   state = {
@@ -27,8 +29,16 @@ export class AddCourse extends Component {
     courseGroups: [''],
     plotParts: [{ name: '', introduction: '' }],
     redirect: false,
+    weights: {
+      'QUIZ': '1',
+      'GENERIC': '1',
+      'TEST': '1',
+      'HOMEWORK': '1',
+      'ACTIVENESS': '1',
+    },
     achievements: [],
     ranks: [],
+    themeColor: '#3f51b5',
     errors: {},
   };
 
@@ -99,6 +109,16 @@ export class AddCourse extends Component {
     this.setState({ ranks });
   }
 
+  handleWeightChange = (categoryName, value) => {
+    const {weights} = this.state;
+    weights[categoryName] = value;
+    this.setState({weights});
+  }
+
+  changeColor = (color) => {
+    this.setState({ themeColor: color.hex });
+  }
+
   checkErrors = async () => {
     const errors = {}
     if (isEmpty(this.state.name)) errors.name = 'Nazwa kursu nie może być pusta'
@@ -130,7 +150,9 @@ export class AddCourse extends Component {
       if (isEmpty(rank.image))
         setWith(errors, `ranks[${i}].image`, 'Prześlij obrazek rangi');
     });
-
+    for(const [key, value] of Object.entries(this.state.weights)) {
+      if(!isInt(value, { min: 1 })) setWith(errors, `weights.${key}`, 'Podaj liczbę całkowitą większą od 0');
+    }
     await this.setState({ errors })
   }
 
@@ -138,9 +160,9 @@ export class AddCourse extends Component {
     await this.checkErrors();
 
     if (empty(this.state.errors)) {
-      const { name, description, courseGroups, plotParts, achievements, ranks } = this.state;
-      const course = { name, description };
-      this.props.addCourse(course, courseGroups, plotParts, achievements, ranks);
+      const { name, description, courseGroups, plotParts, achievements, ranks, weights, themeColor } = this.state;
+      const course = { name, description, themeColor };
+      this.props.addCourse(course, courseGroups, plotParts, achievements, ranks, weights);
       this.setState({ redirect: true });
     }
   };
@@ -186,6 +208,11 @@ export class AddCourse extends Component {
             handlePlotPartChange={this.handlePlotPartChange}
             plotParts={plotParts}
           />
+          <AddWeights
+            weights={this.state.weights}
+            handleWeightChange={this.handleWeightChange}
+            errors={this.state.errors}
+            />
           <AddAchievements
             achievements={this.state.achievements}
             addNewAchievement={this.addNewAchievement}
@@ -197,6 +224,10 @@ export class AddCourse extends Component {
             errors={this.state.errors}
             handleRankChange={this.handleRankChange}
             ranks={this.state.ranks}
+          />
+          <ColorPicker
+            color={this.state.themeColor}
+            changeColor={this.changeColor}
           />
           <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
             <Button

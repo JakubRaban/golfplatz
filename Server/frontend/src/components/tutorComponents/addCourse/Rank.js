@@ -34,7 +34,7 @@ export class Rank extends React.Component {
                 <TextField className="input-class" value={rank.name} type="text" 
                   error={get(errors, `ranks[${index}].name`, false)} name="name"
                   helperText={get(errors, `ranks[${index}].name`, '')} variant="outlined"
-                  onChange={() => this.props.handleChange('name', index, event.target.value)} />
+                  onChange={(e) => this.props.handleChange('name', index, e.target.value)} />
               </div>
             </div>
             <div className="row">
@@ -52,10 +52,10 @@ export class Rank extends React.Component {
                 <InputLabel className="label-class">Dolny próg punktowy:</InputLabel>
               </div>
               <div className="col-75">
-                <TextField className="input-class" value={rank.lowerThresholdPercent} type="text" 
+                <TextField className="input-class" value={rank.lowerThresholdPercent} type="number"
                   error={get(errors, `ranks[${index}].lowerThresholdPercent`, false)} name="lowerThresholdPercent"
-                  helperText={get(errors, `ranks[${index}].lowerThresholdPercent`, '')} variant="outlined" type="number"
-                  onChange={() => this.props.handleChange('lowerThresholdPercent', index, event.target.value)} />
+                  helperText={get(errors, `ranks[${index}].lowerThresholdPercent`, '')} variant="outlined"
+                  onChange={(e) => this.props.handleChange('lowerThresholdPercent', index, e.target.value)} />
               </div>
             </div>
           </div>

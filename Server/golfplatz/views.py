@@ -1,4 +1,3 @@
-from django.core.files.base import ContentFile
 from django.db import transaction
 from knox.models import AuthToken
 from rest_framework import generics
@@ -13,7 +12,7 @@ from .gradeexport import export_grades
 from .graph_utils.chaptertograph import chapter_to_graph, get_most_points_possible_in_chapter
 from .graph_utils.initialadventurefinder import designate_initial_adventure
 from .graph_utils.verifier import verify_adventure_graph
-from .models import AccomplishedChapter, StudentScore, StudentGrade, CourseGroupStudents
+from .models import StudentScore, StudentGrade, CourseGroupStudents, Weight
 from .permissions import IsTutor, IsStudent
 from .serializers import *
 
@@ -271,6 +270,19 @@ class GradeExportView(APIView):
         return Response(result_url)
 
 
+class WeightsView(APIView):
+    permission_classes = [IsTutor]
+
+    def post(self, request, course_id):
+        serializer = WeightsSerializer(data={key.upper(): value for key, value in request.data.items()})
+        serializer.is_valid(raise_exception=True)
+        Weight.objects.bulk_create([
+            Weight(category=category, weight=weight, course_id=course_id)
+            for category, weight in serializer.validated_data.items()
+        ])
+        return Response()
+
+
 class PlotPartView(APIView):
     permission_classes = [IsTutor]
 
@@ -424,9 +436,7 @@ class AdventureAnswerView(APIView):
 
     def post(self, request, adventure_id):
         serializer = AdventureAnswerSerializer(data=request.data)
-        if not serializer.is_valid():
-            print(serializer.errors)
-            return Response(status=400)
+        serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         current_adventure = Adventure.objects.get(pk=adventure_id)
         closed_questions_data = data['closed_questions']

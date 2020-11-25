@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Max, F
+from django.db.models import Max, F, Sum
 from django.utils.timezone import now
 from knox.models import AuthToken
 
@@ -51,13 +51,13 @@ class Participant(AbstractUser):
     def __str__(self):
         return f'{self.get_full_name()} ({self.email})'
 
-    def update_score_in_course(self, course, points_scored, points_total):
-        CourseGroupStudents.objects.filter(student=self, course_group__course=course) \
-            .update(points_scored=points_scored, max_score=points_total, chapters_done=F('chapters_done')+1)
-
     def get_score_in_course(self, course):
-        course_student_data = CourseGroupStudents.objects.get(student=self, course_group__course=course)
-        return course_student_data.points_scored, course_student_data.max_score, course_student_data.chapters_done
+        accomplished_chapters = AccomplishedChapter.objects.filter(
+            student=self, is_completed=True, chapter__plot_part__course=course
+        )
+        sum_of_points = accomplished_chapters.aggregate(pts=Sum('points_scored'))['pts']
+        max_score = accomplished_chapters.aggregate(pts=Sum('chapter__points_for_max_grade'))['pts']
+        return sum_of_points, max_score, accomplished_chapters.count()
 
     def get_score_in_course_percent(self, course):
         points_scored, max_score, _ = self.get_score_in_course(course)
@@ -84,6 +84,7 @@ class Course(models.Model):
     student_ranking_visibility_strategy = models.CharField(
         max_length=20, choices=RankingVisibilityStrategy.choices, default=RankingVisibilityStrategy.RANKS_ONLY
     )
+    theme_color = models.CharField(max_length=7, validators=[RegexValidator(regex=r'^#[0-9a-f]{6}$')])
 
     def add_course_groups(self, names: List[str]):
         return [CourseGroup.objects.create(group_name=group_name, course=self) for group_name in names]
@@ -132,9 +133,6 @@ class CourseGroup(models.Model):
 class CourseGroupStudents(models.Model):
     student = models.ForeignKey(Participant, on_delete=models.CASCADE)
     course_group = models.ForeignKey(CourseGroup, on_delete=models.CASCADE)
-    points_scored = models.DecimalField(max_digits=8, decimal_places=3, default=0)
-    max_score = models.DecimalField(max_digits=8, decimal_places=3, default=0)
-    chapters_done = models.PositiveSmallIntegerField(default=0)
 
 
 class Achievement(models.Model):
@@ -172,6 +170,19 @@ class Rank(models.Model):
 
     class Meta:
         ordering = ['lower_threshold_percent']
+
+
+class Weight(models.Model):
+    class Category(models.TextChoices):
+        QUIZ = 'QUIZ', 'Quiz'
+        GENERIC = 'GENERIC', 'Generic lab exercise'
+        ACTIVENESS = 'ACTIVENESS', 'Activeness'
+        TEST = 'TEST', 'Test'
+        HOMEWORK = 'HOMEWORK', 'Homework or project'
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    category = models.CharField(max_length=10, choices=Category.choices)
+    weight = models.PositiveIntegerField()
 
 
 class PlotPart(models.Model):
@@ -444,15 +455,8 @@ class AccomplishedChapter(models.Model):
 
 
 class PointSource(models.Model):
-    class Category(models.TextChoices):
-        QUIZ = 'QUIZ', 'Quiz'
-        GENERIC = 'GENERIC', 'Generic lab exercise'
-        ACTIVENESS = 'ACTIVENESS', 'Activeness'
-        TEST = 'TEST', 'Test'
-        HOMEWORK = 'HOMEWORK', 'Homework or project'
-
     adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True, related_name='point_source')
-    category = models.CharField(max_length=10, choices=Category.choices)
+    category = models.CharField(max_length=10, choices=Weight.Category.choices)
 
 
 class Answer(models.Model):
