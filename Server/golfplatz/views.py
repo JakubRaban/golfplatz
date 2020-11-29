@@ -58,7 +58,7 @@ class RegisterTutorView(APIView):
 
 
 def save_participant(request, group_name):
-    participant_serializer = ParticipantSerializer(data=request.data)
+    participant_serializer = ParticipantSerializer(data=request.data, context={'group_name': group_name})
     participant_serializer.is_valid(raise_exception=True)
     participant = participant_serializer.save()
     user_token = participant.register(group_name=group_name)
@@ -78,6 +78,11 @@ class LoginView(APIView):
             "user": ParticipantSerializer(user).data,
             "token": user_token
         })
+
+
+class IsFreshView(APIView):
+    def get(self, request):
+        return Response({'is_fresh': Participant.objects.count() == 0})
 
 
 class CourseGroupView(APIView):

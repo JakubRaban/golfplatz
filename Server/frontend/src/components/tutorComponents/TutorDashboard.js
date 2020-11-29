@@ -54,7 +54,7 @@ export class TutorDashboard extends Component {
   }
 
   setPalette = async () => {
-    await this.props.getPalette(this.props.courses[1].themeColor);
+    await this.props.getPalette('#666666');
     this.theme = await createMuiTheme({
       palette: {
         primary: {

@@ -10,6 +10,7 @@ urlpatterns = [
     path('login/', LoginView.as_view()),
     path('logout/', knox_views.LogoutView.as_view(), name='knox_logout'),
     path('whoami/', WhoAmIView.as_view()),
+    path('is_fresh/', IsFreshView.as_view()),
 
     path('courses/', CourseView.as_view()),
     path('courses/flat/', CourseListView.as_view()),

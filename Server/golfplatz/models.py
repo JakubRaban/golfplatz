@@ -27,6 +27,14 @@ def get_random_access_code(length=8):
     return result
 
 
+def get_system_key(length=16):
+    result = ""
+    for i in range(length):
+        gen = randint(33, 126)
+        result += chr(gen)
+    return result
+
+
 class Participant(AbstractUser):
     phone_validator = RegexValidator(regex=r'^\d{9}$', message="Phone number must be exactly 9 digits long")
 
@@ -35,7 +43,6 @@ class Participant(AbstractUser):
     last_name = models.CharField('last name', max_length=150, blank=False)
     email = models.EmailField('email address', unique=True)
     student_number = models.CharField(max_length=10, unique=True, null=True, blank=False)
-    phone_number = models.CharField(validators=[phone_validator], max_length=9, unique=True, null=True, blank=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -561,6 +568,14 @@ class StudentTextAnswer(StudentAnswer):
 
 class StudentImageAnswer(StudentAnswer):
     image = models.ImageField()
+
+
+class SystemKey(models.Model):
+    system_key = models.CharField(max_length=16, default=get_system_key)
+
+    @staticmethod
+    def get():
+        return SystemKey.objects.all()[0].system_key if SystemKey.objects.count() > 0 else None
 
 
 class PathChoice:

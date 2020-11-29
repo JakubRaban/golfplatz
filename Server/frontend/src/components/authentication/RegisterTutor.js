@@ -23,6 +23,7 @@ export class RegisterTutor extends Component {
     email: '',
     password: '',
     password2: '',
+    systemKey: '',
     errors: {},
   };
 
@@ -40,6 +41,7 @@ export class RegisterTutor extends Component {
     if (isEmpty(this.state.password)) errors.password = 'Podaj hasło';
     if (isEmpty(this.state.password2)) errors.password2 = 'Powtórz hasło';
     if (this.state.password !== this.state.password2) errors.password2 = 'Podane hasła są różne';
+    if (this.state.systemKey.length !== 16 && !this.props.fresh) errors.systemKey = 'Podaj 16-znakowy klucz rejestracji prowadzącego';
 
     await this.setState({ errors });
   }
@@ -49,12 +51,13 @@ export class RegisterTutor extends Component {
     await this.checkErrors();
 
     if (empty(this.state.errors)) {  
-      const { firstName, lastName, email, password, password2 } = this.state;
+      const { firstName, lastName, email, password, systemKey } = this.state;
       const newTutor = {
         firstName,
         lastName,
         email,
         password,
+        systemKey,
       };
       this.props.registerTutor(newTutor);
     }
@@ -63,7 +66,7 @@ export class RegisterTutor extends Component {
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
   render() {
-    const { firstName, lastName, email, password, password2, errors } = this.state;
+    const { firstName, lastName, email, password, password2, systemKey, errors } = this.state;
     if (this.props.isAuthenticated) {
       return <Redirect to="/" />;
     }
@@ -118,7 +121,7 @@ export class RegisterTutor extends Component {
                 error={errors.password}
                 fullWidth
                 helperText={errors.password || ''}
-                label='Hasło:'
+                label='Twoje hasło użytkownika:'
                 name='password'
                 onChange={this.onChange}
                 type='password'
@@ -139,15 +142,28 @@ export class RegisterTutor extends Component {
                 variant='filled'
               />
             </div>
+            {!this.props.fresh && <div className='systemKey'>
+              <TextField
+                error={errors.systemKey}
+                fullWidth
+                helperText={errors.systemKey || ''}
+                label='Klucz rejestracji prowadzącego'
+                name='systemKey'
+                onChange={this.onChange}
+                type='password'
+                value={systemKey}
+                variant='filled'
+              />
+            </div>}
             <div className="button-container">
               <Button className="login-button" type="submit">
                 Zarejestruj się
               </Button>
             </div>
-            <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
+            {!this.props.fresh && <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
               <Typography color="textPrimary">Masz już konto? </Typography>
               <Link to="/login">Zaloguj się!</Link>
-            </Breadcrumbs>
+            </Breadcrumbs>}
           </form>
         </div>
       </div>
@@ -157,6 +173,7 @@ export class RegisterTutor extends Component {
 
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
+  fresh: state.auth.isFresh,
 });
 
 export default connect(mapStateToProps, { registerTutor })(RegisterTutor);
