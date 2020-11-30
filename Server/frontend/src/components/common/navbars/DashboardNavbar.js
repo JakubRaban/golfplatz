@@ -5,23 +5,55 @@ import { withStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
-import clsx from 'clsx';
 import React, { Component } from 'react';
+import Input from '@material-ui/core/Input';
+import MenuItem from '@material-ui/core/MenuItem';
+import Select from '@material-ui/core/Select';
 
 import { styles } from '../../../styles/style.js';
 
 class DashboardNavbar extends Component {
+  state = { selectedCourse: '' };
+
+  handleSelect = (e) => {
+    this.setState({ selectedCourse: e.target.value});
+    this.props.handleChange(e.target.value);
+  }
+
   render() {
-    const { classes } = this.props;
-    const { open } = this.props;
+    const { classes, courses } = this.props;
     return (
-      <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
+      <AppBar position='absolute' className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
-          <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+          <Typography component='h1' variant='h6' color='inherit' noWrap className={classes.title}>
             {this.props.title}
           </Typography>
-          <IconButton color="inherit" onClick={this.props.logout.bind(this)}>
-            <Badge color="secondary">
+          <div className={classes.dropdown}>
+            <Select
+              displayEmpty
+              value={this.state.selectedCourse}
+              onChange={this.handleSelect}
+              input={<Input />}
+              renderValue={(selected) => {
+                if (selected.length === 0) {
+                  return <em>Wybierz domyślny kurs</em>;
+                }
+                return selected;
+              }}
+            >
+              <MenuItem disabled value=''>
+                <em>Wybierz domyślny kurs:</em>
+              </MenuItem>
+              {courses.map((course, index) => (
+                <MenuItem key={index} value={course.name}>
+                  {course.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
+          
+          <IconButton color='inherit' onClick={this.props.logout.bind(this)}>
+            <Badge color='secondary'>
               <PowerSettingsNewIcon />
             </Badge>
           </IconButton>

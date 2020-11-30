@@ -1,4 +1,4 @@
-import { createMuiTheme } from '@material-ui/core/styles';
+import { createMuiTheme, fade } from '@material-ui/core/styles';
 
 const theme = createMuiTheme();
 
@@ -50,5 +50,24 @@ export const styles = {
   },
   fixedHeight: {
     height: 240,
+  },
+  dropdown: {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.3),
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.35),
+    },
+    marginLeft: 0,
+    width: '100%',
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    paddingTop: theme.spacing(0.5),
+    paddingBottom: theme.spacing(0.5),
+    [theme.breakpoints.up('md')]: {
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
+      width: 'auto',
+    },
   },
 };

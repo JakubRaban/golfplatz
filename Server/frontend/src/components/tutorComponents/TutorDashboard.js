@@ -38,7 +38,7 @@ export class TutorDashboard extends Component {
   state = {
     dialogOpen: false,
     dialogOpen2: false,
-    open: false,
+    selectedCourseId: undefined,
   };
 
   theme = createMuiTheme();
@@ -49,12 +49,12 @@ export class TutorDashboard extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.courses !== this.props.courses) {
-      this.setPalette();
+      this.setState({ loaded: true });
     }
   }
 
-  setPalette = async () => {
-    await this.props.getPalette(this.props.courses[1].themeColor);
+  setPalette = async (course) => {
+    await this.props.getPalette(course.themeColor);
     this.theme = await createMuiTheme({
       palette: {
         primary: {
@@ -65,7 +65,7 @@ export class TutorDashboard extends Component {
         },
       },
     });
-    await this.setState({ loaded: true });
+    await this.setState({ selectedCourseId: course.id });
   }
 
   handleDialogClose = () => {
@@ -84,10 +84,15 @@ export class TutorDashboard extends Component {
     this.setState({ dialogOpen2: true });
   }
 
+  handleCourseSelect = (selectedCourseName) => {
+    const selectedCourse = this.props.courses.find((course) => course.name === selectedCourseName);
+
+    this.setPalette(selectedCourse);
+  }
+
   render() {
     const { classes, palette } = this.props;
     const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
-    console.log(this.theme);
     return (
       <>
         {this.state.loaded ?
@@ -95,7 +100,10 @@ export class TutorDashboard extends Component {
             <div className={classes.root}>
               <CssBaseline />
               <DashboardNavbar 
-                title='Panel prowadzącego' logout={this.props.logout} open={this.state.open}
+                courses={this.props.courses}
+                handleChange={this.handleCourseSelect}
+                logout={this.props.logout}
+                title='Panel prowadzącego'
               />
               <main className={classes.content}>
                 <div className={classes.appBarSpacer} />
