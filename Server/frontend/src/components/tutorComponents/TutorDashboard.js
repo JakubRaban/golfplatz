@@ -123,28 +123,28 @@ export class TutorDashboard extends Component {
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={8} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[0]}` }}>
-                        <Button color='secondary' component={ Link } to='/add-courses'>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} component={ Link } to='/add-courses'>
                           Dodaj nowy kurs
                         </Button>
                       </Paper>
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[1]}` }}>
-                        <Button color='secondary' component={ Link } to='/courses'>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} component={ Link } to='/courses'>
                           Zobacz swoje kursy
                         </Button>
                       </Paper>
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[2]}` }}>
-                        <Button color='secondary' disabled={!this.state.selectedCourseId} onClick={this.handleAddGradesClick}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.state.selectedCourseId} onClick={this.handleAddGradesClick}>
                           Oceń zadania
                         </Button>
                       </Paper>
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[3]}` }}>
-                        <Button color='secondary' disabled={!this.state.selectedCourseId} onClick={this.handleShowGradesClick}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.state.selectedCourseId} onClick={this.handleShowGradesClick}>
                           Podgląd ocen
                         </Button>
                       </Paper>
