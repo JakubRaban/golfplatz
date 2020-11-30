@@ -33,7 +33,7 @@ export class Ranking extends Component {
         courseGroupName: r.courseGroupName,
         scorePercent: r.studentScore.scorePercent,
         chaptersDone: r.studentScore.chaptersDone,
-        rank: <img alt={r.studentScore.rank.name} src={r.studentScore.rank.image} style={{ height: '50px', width: '50px' }} title={r.studentScore.rank.name} />,
+        rank: r.studentScore.rank ? <img alt={r.studentScore.rank.name} src={r.studentScore.rank.image} style={{ height: '50px', width: '50px' }} title={r.studentScore.rank.name} /> : null,
       })
     });
     this.setState({ data, loaded: true });

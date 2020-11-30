@@ -150,6 +150,8 @@ export class AddCourse extends Component {
         setWith(errors, `ranks[${i}].name`, 'Nazwa rangi nie może być pusta');
       if (isEmpty(rank.image))
         setWith(errors, `ranks[${i}].image`, 'Prześlij obrazek rangi');
+      if(!isInt(rank.lowerThresholdPercent, { min: 0, max: 100 }))
+        setWith(errors, `ranks[${i}].lowerThresholdPercent`, 'Podaj liczbę całkowitą od 0 do 100');
     });
     for(const [key, value] of Object.entries(this.state.weights)) {
       if(!isInt(value, { min: 1 })) setWith(errors, `weights.${key}`, 'Podaj liczbę całkowitą większą od 0');

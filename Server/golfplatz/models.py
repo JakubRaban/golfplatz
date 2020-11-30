@@ -62,8 +62,8 @@ class Participant(AbstractUser):
         accomplished_chapters = AccomplishedChapter.objects.filter(
             student=self, is_completed=True, chapter__plot_part__course=course
         )
-        sum_of_points = accomplished_chapters.aggregate(pts=Sum('points_scored'))['pts']
-        max_score = accomplished_chapters.aggregate(pts=Sum('chapter__points_for_max_grade'))['pts']
+        sum_of_points = accomplished_chapters.aggregate(pts=Sum('points_scored'))['pts'] or 0
+        max_score = accomplished_chapters.aggregate(pts=Sum('chapter__points_for_max_grade'))['pts'] or 0
         return sum_of_points, max_score, accomplished_chapters.count()
 
     def get_score_in_course_percent(self, course):
@@ -73,12 +73,15 @@ class Participant(AbstractUser):
     def get_rank_in_course(self, course):
         score_percent = self.get_score_in_course_percent(course)
         ranks = list(Rank.objects.filter(course=course))
-        if score_percent <= 0:
-            return ranks[0]
-        for index, rank in enumerate(ranks):
-            if rank.lower_threshold_percent >= score_percent:
-                return ranks[index - 1]
-        return ranks[-1]
+        if len(ranks) > 0:
+            if score_percent <= 0:
+                return ranks[0]
+            for index, rank in enumerate(ranks):
+                if rank.lower_threshold_percent >= score_percent:
+                    return ranks[index - 1]
+            return ranks[-1]
+        else:
+            return None
 
 
 class Course(models.Model):

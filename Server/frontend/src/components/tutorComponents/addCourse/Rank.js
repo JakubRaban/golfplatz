@@ -52,9 +52,9 @@ export class Rank extends React.Component {
                 <InputLabel className="label-class">Dolny próg punktowy:</InputLabel>
               </div>
               <div className="col-75">
-                <TextField className="input-class" value={rank.lowerThresholdPercent} type="number"
+                <TextField className="input-class" value={rank.lowerThresholdPercent} type="number" disabled={index === 0}
                   error={get(errors, `ranks[${index}].lowerThresholdPercent`, false)} name="lowerThresholdPercent"
-                  helperText={get(errors, `ranks[${index}].lowerThresholdPercent`, '')} variant="outlined"
+                  helperText={index !== 0 ? get(errors, `ranks[${index}].lowerThresholdPercent`, '') : 'To będzie najgorsza ranga. Dodaj kolejne dla wyższych progów punktowych.'} variant="outlined"
                   onChange={(e) => this.props.handleChange('lowerThresholdPercent', index, e.target.value)} />
               </div>
             </div>
