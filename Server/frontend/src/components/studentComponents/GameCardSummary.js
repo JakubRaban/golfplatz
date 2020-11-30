@@ -87,7 +87,6 @@ export class GameCardSummary extends Component {
           </CardContent>
         </Card>
       );
-    // else return <></>
   }
 
   render() {
