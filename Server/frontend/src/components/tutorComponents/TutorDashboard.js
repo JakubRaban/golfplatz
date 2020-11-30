@@ -12,10 +12,11 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import compose from 'recompose/compose';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import { getPalette } from '../../actions/color.js';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import { withRouter } from 'react-router-dom';
 
 import { logout } from '../../actions/auth.js';
+import { getPalette, MAIN_COLOR } from '../../actions/color.js';
 import { getCourses } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import DashboardNavbar from '../common/navbars/DashboardNavbar.js';
@@ -35,13 +36,18 @@ function Copyright() {
 }
 
 export class TutorDashboard extends Component {
+  theme = createMuiTheme();
+
+  constructor(props) {
+    props.getPalette(MAIN_COLOR);
+    super(props);
+  }
+
   state = {
-    dialogOpen: false,
-    dialogOpen2: false,
+    addGradesDialogOpen: false,
+    showGradesDialogOpen: false,
     selectedCourseId: undefined,
   };
-
-  theme = createMuiTheme();
 
   componentDidMount() {
     this.props.getCourses();
@@ -68,20 +74,26 @@ export class TutorDashboard extends Component {
     await this.setState({ selectedCourseId: course.id });
   }
 
-  handleDialogClose = () => {
-    this.setState({ dialogOpen: false });
+  handleAddGradesDialogClose = () => {
+    this.setState({ addGradesDialogOpen: false });
   }
 
-  handleDialogOpen = () => {
-    this.setState({ dialogOpen: true });
+  handleAddGradesClick = () => {
+    if (this.state.selectedCourseId === undefined) this.setState({ addGradesDialogOpen: true });
+    else {
+      this.props.history.push(`/add-grades/${this.state.selectedCourseId}`);
+    }
   }
 
-  handleDialogClose2 = () => {
-    this.setState({ dialogOpen2: false });
+  handleShowGradesDialogClose = () => {
+    this.setState({ showGradesDialogOpen: false });
   }
 
-  handleDialogOpen2 = () => {
-    this.setState({ dialogOpen2: true });
+  handleShowGradesClick = () => {
+    if (this.state.selectedCourseId === undefined) this.setState({ showGradesDialogOpen: true });
+    else {
+      this.props.history.push(`/grades/${this.state.selectedCourseId}`);
+    }
   }
 
   handleCourseSelect = (selectedCourseName) => {
@@ -125,14 +137,14 @@ export class TutorDashboard extends Component {
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[2]}` }}>
-                        <Button color='secondary' onClick={this.handleDialogOpen}>
+                        <Button color='secondary' disabled={!this.state.selectedCourseId} onClick={this.handleAddGradesClick}>
                           Oceń zadania
                         </Button>
                       </Paper>
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[3]}` }}>
-                        <Button color='secondary' onClick={this.handleDialogOpen2}>
+                        <Button color='secondary' disabled={!this.state.selectedCourseId} onClick={this.handleShowGradesClick}>
                           Podgląd ocen
                         </Button>
                       </Paper>
@@ -142,8 +154,20 @@ export class TutorDashboard extends Component {
                     <Copyright />
                   </Box>
                 </Container>
-                <ChooseCourseDialog courses={this.props.courses} link='add-grades' onClose={this.handleDialogClose} open={this.state.dialogOpen} title='Wybierz kurs, z którego oceny chcesz wprowadzić'/>
-                <ChooseCourseDialog courses={this.props.courses} link='grades' onClose={this.handleDialogClose2} open={this.state.dialogOpen2} title='Wybierz kurs, z którego oceny chcesz zobaczyć'/>
+                {/* <ChooseCourseDialog
+                  courses={this.props.courses}
+                  link='add-grades'
+                  onClose={this.handleAddGradesDialogClose}
+                  open={this.state.addGradesDialogOpen}
+                  title='Wybierz kurs, z którego oceny chcesz wprowadzić'
+                />
+                <ChooseCourseDialog
+                  courses={this.props.courses}
+                  link='grades'
+                  onClose={this.handleShowGradesDialogClose}
+                  open={this.state.showGradesDialogOpen}
+                  title='Wybierz kurs, z którego oceny chcesz zobaczyć'
+                /> */}
               </main>
             </div>
           </ThemeProvider> : <LinearProgress />
@@ -162,4 +186,4 @@ const mapStateToProps = (state) => ({
 export default compose(
   connect(mapStateToProps, { logout, getCourses, getPalette }),
   withStyles(styles),
-)(TutorDashboard);
+)(withRouter(TutorDashboard));

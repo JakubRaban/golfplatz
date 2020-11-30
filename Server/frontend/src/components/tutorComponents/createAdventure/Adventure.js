@@ -5,8 +5,8 @@ import {
   Button,
   CssBaseline,
   Typography,
-  withStyles,
 } from '@material-ui/core';
+import { createMuiTheme, ThemeProvider, withStyles } from '@material-ui/core/styles';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -20,7 +20,6 @@ import { setWith } from 'lodash'
 
 import { logout } from '../../../actions/auth.js';
 import { addAdventure, updateAdventure } from '../../../actions/course.js';
-import { toServerForm } from '../../common/algorithms/clientServerTranscoders/adventureTranscoder.js';
 import { styles } from '../../../styles/style.js';
 import NavBar from '../../common/navbars/NavBar.js';
 import AdventureBasicDataForm from './AdventureBasicDataForm.js';
@@ -52,6 +51,17 @@ class Adventure extends React.Component {
     ruleEndTime: '',
     decreasingMethod: 'NONE',
   }
+
+  theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: this.props.themeColors[0],
+      },
+      secondary: {
+        main: this.props.themeColors[1],
+      },
+    },
+  });
 
   constructor(props) {
     super(props);
@@ -211,50 +221,52 @@ class Adventure extends React.Component {
     }
 
     return (
-      <div className={classes.root}>
-        <CssBaseline/>
-        <NavBar logout={this.props.logout}
-          title={this.state.isNew ? 'Stwórz nową przygodę' : 'Edytuj przygodę'} returnLink={`/chapters/${this.props.chapter.id}`} />
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer}/>
-          <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData} errors={this.state.errors}/>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-              <Typography className={classes.heading}>Pytania</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <AdventureQuestionsFormList questions={this.state.questions}
-                addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion}
-                deleteQuestion={this.deleteQuestion}
-                addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer}
-                deleteAnswer={this.deleteAnswer}
-                errors={this.state.errors}/>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-              <Typography className={classes.heading}>Ograniczenia czasowe</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <div>
+      <ThemeProvider theme={this.theme}>
+        <div className={classes.root}>
+          <CssBaseline/>
+          <NavBar logout={this.props.logout}
+            title={this.state.isNew ? 'Stwórz nową przygodę' : 'Edytuj przygodę'} returnLink={`/chapters/${this.props.chapter.id}`} />
+          <main className={classes.content}>
+            <div className={classes.appBarSpacer}/>
+            <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData} errors={this.state.errors}/>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                <Typography className={classes.heading}>Pytania</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <AdventureQuestionsFormList questions={this.state.questions}
+                  addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion}
+                  deleteQuestion={this.deleteQuestion}
+                  addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer}
+                  deleteAnswer={this.deleteAnswer}
+                  errors={this.state.errors}/>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                <Typography className={classes.heading}>Ograniczenia czasowe</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
                 <div>
-                  <TimeLimitForm hasTimeLimit={this.state.hasTimeLimit} setHasTimeLimit={this.setHasTimeLimit}
-                    timeLimit={this.state.timeLimit} setTimeLimit={this.setTimeLimit} errors={this.state.errors}/>
+                  <div>
+                    <TimeLimitForm hasTimeLimit={this.state.hasTimeLimit} setHasTimeLimit={this.setHasTimeLimit}
+                      timeLimit={this.state.timeLimit} setTimeLimit={this.setTimeLimit} errors={this.state.errors}/>
+                  </div>
+                  <div>
+                    <TimerRulesFormList timerRules={this.state.timerRules} enableTimerRules={this.enableTimerRules}
+                      timerRulesEnabled={this.state.timerRulesEnabled}
+                      addTimerRule={this.addTimerRule} updateTimerRule={this.updateTimerRule}
+                      deleteTimerRule={this.deleteTimerRule} errors={this.state.errors}/>
+                  </div>
                 </div>
-                <div>
-                  <TimerRulesFormList timerRules={this.state.timerRules} enableTimerRules={this.enableTimerRules}
-                    timerRulesEnabled={this.state.timerRulesEnabled}
-                    addTimerRule={this.addTimerRule} updateTimerRule={this.updateTimerRule}
-                    deleteTimerRule={this.deleteTimerRule} errors={this.state.errors}/>
-                </div>
-              </div>
-            </AccordionDetails>
-          </Accordion>
-          <Button color={'primary'} onClick={this.submitForm}>Zatwierdź i zapisz</Button>
-          {!empty(this.state.errors) && <div style={{ color: 'red' }}>Formularz zawiera błędy. Popraw je i spróbuj ponownie.</div>}
-          {this.state.isAddingAdventure && <CircularProgress />}
-        </main>
-      </div>
+              </AccordionDetails>
+            </Accordion>
+            <Button color={'primary'} onClick={this.submitForm}>Zatwierdź i zapisz</Button>
+            {!empty(this.state.errors) && <div style={{ color: 'red' }}>Formularz zawiera błędy. Popraw je i spróbuj ponownie.</div>}
+            {this.state.isAddingAdventure && <CircularProgress />}
+          </main>
+        </div>
+      </ThemeProvider>
     );
   }
 }
@@ -264,6 +276,8 @@ const mapStateToProps = (state) => ({
   user: state.auth.user,
   chapter: state.course.chapterDetailed,
   adventures: state.course.adventures,
+  palette: state.color.palette,
+  themeColors: state.color.themeColors,
 });
 
 export default compose(

@@ -1,5 +1,5 @@
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { withStyles } from '@material-ui/core/styles';
+import { createMuiTheme, ThemeProvider, withStyles } from '@material-ui/core/styles';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import PropTypes from 'prop-types';
@@ -24,6 +24,17 @@ export class TurboAdventure extends Component {
   static propTypes = {
     adventures: PropTypes.any.isRequired,
   };
+
+  theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: this.props.themeColors[0],
+      },
+      secondary: {
+        main: this.props.themeColors[1],
+      },
+    },
+  });
 
   componentDidMount() {
     const chapterId = this.props.match.params.id;
@@ -56,24 +67,26 @@ export class TurboAdventure extends Component {
     }
 
     return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <NavBar logout={this.props.logout} title={'Przygody w rozdziale'} returnLink={`/courses/${this.props.course.id}`} />
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
-          {this.state.loaded &&
-            <>
-              <Tabs value={this.state.mode} onChange={this.handleChange}>
-                <Tab label='Lista przygód' value='text'/>
-                <Tab label='Tworzenie ścieżek' value='graph'/>
-              </Tabs>
-              {this.state.mode === 'text' ?
-                <AdventuresList adventures={this.props.adventures}/> :
-                <Graph adventures={this.props.adventures} choices={this.props.choices} paths={this.props.paths}/>}
-            </>
-          }
-        </main>
-      </div>
+      <ThemeProvider theme={this.theme}>
+        <div className={classes.root}>
+          <CssBaseline />
+          <NavBar logout={this.props.logout} title={'Przygody w rozdziale'} returnLink={`/courses/${this.props.course.id}`} />
+          <main className={classes.content}>
+            <div className={classes.appBarSpacer} />
+            {this.state.loaded &&
+              <>
+                <Tabs value={this.state.mode} onChange={this.handleChange}>
+                  <Tab label='Lista przygód' value='text'/>
+                  <Tab label='Tworzenie ścieżek' value='graph'/>
+                </Tabs>
+                {this.state.mode === 'text' ?
+                  <AdventuresList adventures={this.props.adventures}/> :
+                  <Graph adventures={this.props.adventures} choices={this.props.choices} paths={this.props.paths}/>}
+              </>
+            }
+          </main>
+        </div>
+      </ThemeProvider>
     );
   }
 }
@@ -86,6 +99,8 @@ const mapStateToProps = (state) => ({
   adventures: state.course.adventures,
   paths: state.course.paths,
   choices: state.course.choices,
+  palette: state.color.palette,
+  themeColors: state.color.themeColors,
 });
 
 export default compose(

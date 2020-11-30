@@ -7,13 +7,13 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/styles';
 import clsx from 'clsx';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
 
 import { logout } from '../../actions/auth.js';
+import { getPalette } from '../../actions/color.js';
 import { getCourses } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import DashboardNavbar from '../common/navbars/DashboardNavbar.js';
@@ -33,14 +33,14 @@ function Copyright() {
 }
 
 export class StudentDashboard extends Component {
-  static propTypes = {
-    logout: PropTypes.func.isRequired,
-    isAuthenticated: PropTypes.bool,
-    user: PropTypes.any,
-  };
+  theme = createMuiTheme();
+
+  constructor(props) {
+    props.getPalette('#3f51b5');
+    super(props);
+  }
 
   state = {
-    drawerOpen: false,
     dialogOpen: false,
     dialogOpen2: false,
     loaded: false,
@@ -54,18 +54,6 @@ export class StudentDashboard extends Component {
     if (prevProps.courses !== this.props.courses) {
       this.setState({ loaded: true });
     }
-  }
-
-  handleDrawerOpen = () => {
-    this.setState({
-      drawerOpen: true,
-    });
-  }
-
-  handleDrawerClose = () => {
-    this.setState({
-      drawerOpen: false,
-    });
   }
 
   handleDialogClose = () => {
@@ -99,8 +87,11 @@ export class StudentDashboard extends Component {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <DashboardNavbar title={'Panel uczestnika kursu'} handleDrawerOpen={this.handleDrawerOpen}
-          handleDrawerClose={this.handleDrawerClose} logout={this.props.logout} open={this.state.drawerOpen}
+        <DashboardNavbar
+          courses={this.props.courses}
+          handleChange={this.handleCourseSelect}
+          logout={this.props.logout}
+          title={'Panel uczestnika kursu'}
         />
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
@@ -121,7 +112,6 @@ export class StudentDashboard extends Component {
                     <Button color="primary" onClick={this.handleDialog2Open}>
                       Podejmij wyzwanie!
                     </Button>
-                    {/* <Link to="/open-chapter/16"></Link> */}
                   </Paper>
                 </Grid>
               </Grid>
@@ -142,10 +132,12 @@ export class StudentDashboard extends Component {
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
-  courses: state.course.courses
+  courses: state.course.courses,
+  palette: state.color.palette,
+  themeColors: state.color.themeColors,
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getCourses }),
+  connect(mapStateToProps, { logout, getCourses, getPalette }),
   withStyles(styles),
 )(StudentDashboard);
