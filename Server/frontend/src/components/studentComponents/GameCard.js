@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import NavBar from '../common/navbars/NavBar.js';
 import compose from 'recompose/compose';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import { logout } from '../../actions/auth.js';
 import { getAchievements, getAllRanks, getStudentRank, getRanking, getStudentMarks } from '../../actions/course.js';
@@ -23,6 +24,17 @@ export class GameCard extends Component {
     isAuthenticated: PropTypes.bool,
     user: PropTypes.any,
   };
+
+  theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: this.props.themeColors[0],
+      },
+      secondary: {
+        main: this.props.themeColors[1],
+      },
+    },
+  });
 
   componentDidMount() {
     this.makeRequests();
@@ -74,26 +86,27 @@ export class GameCard extends Component {
     }
     const { classes } = this.props;
     return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <NavBar logout={this.props.logout} title={`Karta gry - ${this.props.user.firstName} ${this.props.user.lastName}`} returnLink={'/'} />
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
-          <div style={{ margin: '5px' }}>
-            {this.state.loading ? <div>Ładowanie</div> :
-              <>
-                <Tabs value={this.state.mode} onChange={this.handleChange}>
-                  <Tab label='Podsumowanie' value='summary'/>
-                  <Tab label='Twoje oceny' value='marks'/>
-                  <Tab label='Ranking' value='ranking'/>
-                </Tabs>
-                {this.renderTab()}
-              </>
-            }
-          </div>
-        </main>
-      </div>
-
+      <ThemeProvider theme={this.theme}>
+        <div className={classes.root}>
+          <CssBaseline />
+          <NavBar logout={this.props.logout} title={`Karta gry - ${this.props.user.firstName} ${this.props.user.lastName}`} returnLink={'/'} />
+          <main className={classes.content}>
+            <div className={classes.appBarSpacer} />
+            <div style={{ margin: '5px' }}>
+              {this.state.loading ? <div>Ładowanie</div> :
+                <>
+                  <Tabs value={this.state.mode} onChange={this.handleChange}>
+                    <Tab label='Podsumowanie' value='summary'/>
+                    <Tab label='Twoje oceny' value='marks'/>
+                    <Tab label='Ranking' value='ranking'/>
+                  </Tabs>
+                  {this.renderTab()}
+                </>
+              }
+            </div>
+          </main>
+        </div>
+      </ThemeProvider>
     );
   }
 }
@@ -106,6 +119,8 @@ const mapStateToProps = (state) => ({
   studentRank: state.course.studentRank,
   ranking: state.course.ranking,
   studentMarks: state.course.studentMarks,
+  palette: state.color.palette,
+  themeColors: state.color.themeColors,
 });
 
 export default compose(

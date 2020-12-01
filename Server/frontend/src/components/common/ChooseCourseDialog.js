@@ -9,8 +9,6 @@ function ListItemLink(props) {
 
 class ChooseCourseDialog extends React.Component {
   render() {
-    console.log(this.props);
-
     return (
       <Dialog open={this.props.open} onClose={this.props.onClose}>
         <DialogTitle id='alert-dialog-title'>{this.props.title}</DialogTitle>

@@ -1,7 +1,8 @@
 import { SET_PALETTE, SET_THEME_COLOR} from './types.js';
-import { createMuiTheme } from '@material-ui/core/styles';
 
 const ColorScheme = require('color-scheme');
+
+export const MAIN_COLOR = '#3f51b5';
 
 export const getPalette = (color) => (dispatch) => {
   setTheme(color, dispatch);
