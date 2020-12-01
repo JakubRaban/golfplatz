@@ -6,6 +6,7 @@ import {Redirect} from 'react-router-dom';
 import NavBar from '../common/navbars/NavBar.js';
 import compose from 'recompose/compose';
 import {CssBaseline, List, ListItem, ListItemText, ListSubheader, Typography} from '@material-ui/core';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import {getCourseStructure} from '../../actions/course.js';
 import {logout} from '../../actions/auth.js';
@@ -16,12 +17,23 @@ function ListItemLink(props) {
 }
 
 export class CourseStructure extends Component {
-  state = {loaded: false};
+  state = { loaded: false };
 
   static propTypes = {
     isAuthenticated: PropTypes.bool,
     user: PropTypes.any,
   };
+
+  theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: this.props.themeColors[0],
+      },
+      secondary: {
+        main: this.props.themeColors[1],
+      },
+    },
+  });
 
   componentDidMount() {
     this.props.getCourseStructure(this.props.match.params.id);
@@ -102,26 +114,27 @@ export class CourseStructure extends Component {
     const {classes} = this.props;
     console.log(this.props);
     return (
-      <div className={classes.root}>
-        <CssBaseline/>
-        <NavBar logout={this.props.logout} title={this.getCourseName()} returnLink={'/'}/>
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer}/>
-          <div style={{margin: '5px'}}>
-            {this.state.loaded &&
-            <>
-              <Typography component='h6' variant='h6'>
-                {this.props.courseStructure.description}
-              </Typography>
-              {this.props.courseStructure.plotParts.map((plotPart, index) =>
-                this.renderPlotPart(index, plotPart)
-              )}
-            </>
-            }
-          </div>
-        </main>
-      </div>
-
+      <ThemeProvider theme={this.theme}>
+        <div className={classes.root}>
+          <CssBaseline/>
+          <NavBar logout={this.props.logout} title={this.getCourseName()} returnLink={'/'}/>
+          <main className={classes.content}>
+            <div className={classes.appBarSpacer}/>
+            <div style={{margin: '5px'}}>
+              {this.state.loaded &&
+              <>
+                <Typography component='h6' variant='h6'>
+                  {this.props.courseStructure.description}
+                </Typography>
+                {this.props.courseStructure.plotParts.map((plotPart, index) =>
+                  this.renderPlotPart(index, plotPart)
+                )}
+              </>
+              }
+            </div>
+          </main>
+        </div>
+      </ThemeProvider>
     );
   }
 }
@@ -130,6 +143,8 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
   courseStructure: state.course.courseStructure,
+  palette: state.color.palette,
+  themeColors: state.color.themeColors,
 });
 
 export default compose(

@@ -1,23 +1,11 @@
 /* eslint-disable react/no-direct-mutation-state */
 import '../../../styles/course-forms.css';
 
-import { List, ListItem, ListItemText } from '@material-ui/core/';
-import Button from '@material-ui/core/Button';
-import Collapse from '@material-ui/core/Collapse';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Dialog from '@material-ui/core/Dialog';
-import IconButton from '@material-ui/core/IconButton';
-import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Typography from '@material-ui/core/Typography';
+import { Button, Collapse, CssBaseline, IconButton, Dialog, List, ListItem, ListItemText, LinearProgress,
+  Table, TableBody, TableCell, TableHead, TableRow, Typography} from '@material-ui/core/';
 import EditIcon from '@material-ui/icons/Edit';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { isEmpty as empty } from 'lodash';
 import isEmpty from 'validator/lib/isEmpty.js';
@@ -25,41 +13,55 @@ import { setWith } from 'lodash';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
+import { createMuiTheme, ThemeProvider, withStyles } from '@material-ui/core/styles';
 
 import { logout } from '../../../actions/auth.js';
+import { getPalette } from '../../../actions/color.js';
 import { addChapters, getCourse } from '../../../actions/course.js';
 import { styles } from '../../../styles/style.js';
 import NavBar from '../../common/navbars/NavBar.js';
 import AddChapter from './../AddChapter.js';
-import ToggleLockButton from "./ToggleLockButton";
+import ToggleLockButton from './ToggleLockButton';
 
 export class CourseDetails extends Component {
-  constructor(props) {
-    super(props);
-    props.getCourse(props.match.params.id);
-  }
-
   state = {
     chapters: [{ name: '', description: '' }],
     errors: {},
+    loaded: false,
     open: [],
     openDialog: false,
   };
 
-  static propTypes = {
-    course: PropTypes.any.isRequired,
-    isAuthenticated: PropTypes.bool,
-    user: PropTypes.any,
-  };
+  theme = createMuiTheme();
+
+  componentDidMount() {
+    this.props.getCourse(this.props.match.params.id);
+  }
 
   componentDidUpdate(prevProps) {
     if (prevProps.course !== this.props.course) {
+      this.setPalette(this.props.course);
       this.setState({
         chapters: [{ name: '', description: '' }],
         open: new Array(this.props.course.plotParts.length).fill(false),
         openDialog: false,
       });
     }
+  }
+
+  setPalette = async (course) => {
+    await this.props.getPalette(course.themeColor);
+    this.theme = await createMuiTheme({
+      palette: {
+        primary: {
+          main: this.props.themeColors[0],
+        },
+        secondary: {
+          main: this.props.themeColors[1],
+        },
+      },
+    });
+    await this.setState({ loaded: true });
   }
 
   checkErrors = async () => {
@@ -101,6 +103,12 @@ export class CourseDetails extends Component {
     });
   };
 
+  handleClose = () => {
+    this.setState({
+      openDialog: false,
+    });
+  };
+
   addNewChapter = () => {
     const { chapters } = this.state;
     chapters.push({ name: '', description: '' });
@@ -117,121 +125,124 @@ export class CourseDetails extends Component {
     const { classes } = this.props;
 
     if (!this.props.isAuthenticated) {
-      return <Redirect to="/login" />;
+      return <Redirect to='/login' />;
     }
     if (this.props.user.groups[0] === 1) {
       return (
-        <Redirect to="/"/>
+        <Redirect to='/'/>
       );
     }
     return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <NavBar logout={this.props.logout} title={'Szczegóły kursu'} returnLink={'/courses'} />
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
-          {Object.keys(this.props.course).length !== 0 ?
-            <div style={{ margin: '5px' }}>
-              <Typography variant="h5" gutterBottom>
-              Oglądasz szczegóły kursu "{this.props.course.name}"
-              </Typography>
-              <Typography variant="h6" gutterBottom>
-              Zajęcia odbywają się o następujących porach:
-              </Typography>
-              <Table>
-                <TableBody>
-                  { this.props.course.courseGroups.map((group, i) =>
-                    <TableRow key={i}>
-                      <TableCell>{group.groupName}</TableCell>
-                    </TableRow>,
-                  )}
-                </TableBody>
-              </Table>
-              <Typography variant="h6" gutterBottom>
-              Części fabuły:
-              </Typography>
-              { this.props.course.plotParts.map((plotPart, i) =>
-                <React.Fragment key={i}>
-                  <Typography variant="subtitle1" gutterBottom>
-                  Część {i + 1}:
-                  </Typography>
-                  <ToggleLockButton plotPart={plotPart} />
-                  <List>
-                    <ListItem>
-                      <ListItemText primary="Nazwa" secondary={plotPart.name} />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemText primary="Opis" secondary={plotPart.introduction} />
-                    </ListItem>
-                    <ListItem button onClick={this.handleClick(i)}>
-                      <ListItemText primary="Rozdziały" />
-                      {this.state.open[i] ? <ExpandLess /> : <ExpandMore />}
-                    </ListItem>
-                    <Collapse in={this.state.open[i]} timeout="auto" unmountOnExit>
-                      <List component="div" disablePadding>
-                        <Table>
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Nazwa rozdziału</TableCell>
-                              <TableCell>Opis</TableCell>
-                              <TableCell />
-                            </TableRow>
-                          </TableHead>
-                          { this.props.course.plotParts[i].chapters.map((chapter, j) =>
-                            <TableBody key={j}>
-                              <TableRow>
-                                <TableCell>{chapter.name}</TableCell>
-                                <TableCell>{chapter.description}</TableCell>
-                                <TableCell>
-                                  <IconButton component={Link} to={`/chapters/${chapter.id}/`}
-                                    color="inherit"
-                                    aria-label="Edytuj rozdział">
-                                    <EditIcon/>
-                                  </IconButton>
-                                </TableCell>
-                              </TableRow>
-                            </TableBody>,
-                          )}
-                        </Table>
-                        <ListItem>
-                          <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
-                        Dodaj rozdział
-                          </Button>
-                          <Dialog open={this.state.openDialog} fullWidth={true} maxWidth='sm'>
-                            <div style={{ margin: '10px' }}>
-                              { this.state.chapters.map((chapter, index) =>
-                                <AddChapter
-                                  errors={this.state.errors}
-                                  chapter={chapter}
-                                  handleChange={this.handleChapterChange}
-                                  index={index}
-                                  key={index} />,
-                              )}
-                              <Button
-                                color="secondary"
-                                variant='outlined'
-                                onClick={this.addNewChapter}
-                              >Dodaj kolejny rozdział</Button>
-                              <div style={{ float: 'right' }}>
-                                <Button
-                                  color="primary"
-                                  variant="contained"
-                                  onClick={() => this.onSubmit(plotPart.id)}
-                                >Dalej</Button>
-                              </div>
-                            </div>
-                          </Dialog>
-                        </ListItem>
-                      </List>
-                    </Collapse>
-                  </List>
-                </React.Fragment>,
-              ) }
-            </div> :
-            <div>loading</div>
-          }
-        </main>
-      </div>
+      <>
+        {this.state.loaded ?
+          <ThemeProvider theme={this.theme}>
+            <div className={classes.root}>
+              <CssBaseline />
+              <NavBar logout={this.props.logout} title={'Szczegóły kursu'} returnLink={'/courses'} />
+              <main className={classes.content}>
+                <div className={classes.appBarSpacer} />
+                  <div style={{ margin: '5px' }}>
+                    <Typography variant='h5' gutterBottom>
+                      Oglądasz szczegóły kursu '{this.props.course.name}'
+                    </Typography>
+                    <Typography variant='h6' gutterBottom>
+                      Zajęcia odbywają się o następujących porach:
+                    </Typography>
+                    <Table>
+                      <TableBody>
+                        { this.props.course.courseGroups.map((group, i) =>
+                          <TableRow key={i}>
+                            <TableCell>{group.groupName}</TableCell>
+                          </TableRow>,
+                        )}
+                      </TableBody>
+                    </Table>
+                    <Typography variant='h6' gutterBottom>
+                      Części fabuły:
+                    </Typography>
+                    { this.props.course.plotParts.map((plotPart, i) =>
+                      <React.Fragment key={i}>
+                        <Typography variant='subtitle1' gutterBottom>
+                          Część {i + 1}:
+                        </Typography>
+                        <ToggleLockButton plotPart={plotPart} />
+                        <List>
+                          <ListItem>
+                            <ListItemText primary='Nazwa' secondary={plotPart.name} />
+                          </ListItem>
+                          <ListItem>
+                            <ListItemText primary='Opis' secondary={plotPart.introduction} />
+                          </ListItem>
+                          <ListItem button onClick={this.handleClick(i)}>
+                            <ListItemText primary='Rozdziały' />
+                            {this.state.open[i] ? <ExpandLess /> : <ExpandMore />}
+                          </ListItem>
+                          <Collapse in={this.state.open[i]} timeout='auto' unmountOnExit>
+                            <List component='div' disablePadding>
+                              <Table>
+                                <TableHead>
+                                  <TableRow>
+                                    <TableCell>Nazwa rozdziału</TableCell>
+                                    <TableCell>Opis</TableCell>
+                                    <TableCell />
+                                  </TableRow>
+                                </TableHead>
+                                { this.props.course.plotParts[i].chapters.map((chapter, j) =>
+                                  <TableBody key={j}>
+                                    <TableRow>
+                                      <TableCell>{chapter.name}</TableCell>
+                                      <TableCell>{chapter.description}</TableCell>
+                                      <TableCell>
+                                        <IconButton component={Link} to={`/chapters/${chapter.id}/`}
+                                          color='inherit'
+                                          aria-label='Zobacz rozdział'>
+                                          <EditIcon/>
+                                        </IconButton>
+                                      </TableCell>
+                                    </TableRow>
+                                  </TableBody>,
+                                )}
+                              </Table>
+                              <ListItem>
+                                <Button variant='outlined' color='primary' onClick={this.handleClickOpen}>
+                                  Dodaj rozdział
+                                </Button>
+                                <Dialog fullWidth maxWidth='sm' open={this.state.openDialog} onClose={this.handleClose}>
+                                  <div style={{ margin: '10px' }}>
+                                    { this.state.chapters.map((chapter, index) =>
+                                      <AddChapter
+                                        errors={this.state.errors}
+                                        chapter={chapter}
+                                        handleChange={this.handleChapterChange}
+                                        index={index}
+                                        key={index} />,
+                                    )}
+                                    <Button
+                                      color='secondary'
+                                      variant='outlined'
+                                      onClick={this.addNewChapter}
+                                    >Dodaj kolejny rozdział</Button>
+                                    <div style={{ float: 'right' }}>
+                                      <Button
+                                        color='primary'
+                                        variant='contained'
+                                        onClick={() => this.onSubmit(plotPart.id)}
+                                      >Dalej</Button>
+                                    </div>
+                                  </div>
+                                </Dialog>
+                              </ListItem>
+                            </List>
+                          </Collapse>
+                        </List>
+                      </React.Fragment>,
+                    ) }
+                  </div>
+              </main>
+            </div>
+          </ThemeProvider> : <LinearProgress />
+        }
+      </>
     );
   }
 }
@@ -240,9 +251,11 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
   course: state.course.courseDetailed,
+  palette: state.color.palette,
+  themeColors: state.color.themeColors,
 });
 
 export default compose(
-  connect(mapStateToProps, { getCourse, addChapters, logout }),
+  connect(mapStateToProps, { getCourse, addChapters, logout, getPalette }),
   withStyles(styles),
 )(CourseDetails);

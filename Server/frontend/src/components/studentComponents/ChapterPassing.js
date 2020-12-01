@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 import { logout } from '../../actions/auth.js';
 import { addAdventureAnswer, chooseNextAdventure, startChapter,
@@ -42,6 +44,17 @@ export class ChapterPassing extends Component {
     user: PropTypes.any,
     adventurePart: PropTypes.any,
   };
+
+  theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: this.props.themeColors[0],
+      },
+      secondary: {
+        main: this.props.themeColors[1],
+      },
+    },
+  });
 
   componentDidUpdate(prevProps) {
     if (prevProps.adventurePart !== this.props.adventurePart) {
@@ -206,51 +219,52 @@ export class ChapterPassing extends Component {
       );
     }
     return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <NavBar logout={this.props.logout} title={'Przed Tobą walka'} returnLink={'/'} />
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
-          <div style={{ margin: '5px' }}>
-            {this.state.loading ? <div>Ładowanie</div> :
-              <React.Fragment>
-                <Typography variant="h4" gutterBottom>
-                  {this.props.adventurePart.chapterName}
-                </Typography>
-                {this.state.answerMode &&
-                  <Adventure timeLimit={this.state.timeLimit}
-                    closedQuestions={this.state.closedQuestions}
-                    openQuestions={this.state.openQuestions}
-                    imageQuestions={this.state.imageQuestions}
-                    submitted={this.state.submitted}
-                    adventurePart={this.props.adventurePart}
-                    onAnswerChange={this.onAnswerChange}
-                    onOpenAnswerChange={this.onOpenAnswerChange}
-                    onImageAnswerChange={this.onImageAnswerChange}
-                    onSubmit={this.onSubmitAnswer}
-                    onNext={this.onNext}
-                  />
-                }
-                {this.state.choiceMode &&
-                  <NextAdventureChoice
-                    adventurePart={this.props.adventurePart}
-                    onSubmit={this.onSubmitPathChoice}
-                  />
-                }
-                {this.state.summaryMode &&
-                  <Summary
-                    achievements={this.props.achievements}
-                    adventurePart={this.props.adventurePart}
-                    endChapter={this.endChapter}
-                    rank={this.props.rank}
-                  />
-                }
-              </React.Fragment>
-            }
-          </div>
-        </main>
-      </div>
-
+      <ThemeProvider theme={this.theme}>
+        <div className={classes.root}>
+          <CssBaseline />
+          <NavBar logout={this.props.logout} title={'Przed Tobą walka'} returnLink={'/'} />
+          <main className={classes.content}>
+            <div className={classes.appBarSpacer} />
+            <div style={{ margin: '5px' }}>
+              {this.state.loading ? <LinearProgress /> :
+                <React.Fragment>
+                  <Typography variant="h4" gutterBottom>
+                    {this.props.adventurePart.chapterName}
+                  </Typography>
+                  {this.state.answerMode &&
+                    <Adventure timeLimit={this.state.timeLimit}
+                      closedQuestions={this.state.closedQuestions}
+                      openQuestions={this.state.openQuestions}
+                      imageQuestions={this.state.imageQuestions}
+                      submitted={this.state.submitted}
+                      adventurePart={this.props.adventurePart}
+                      onAnswerChange={this.onAnswerChange}
+                      onOpenAnswerChange={this.onOpenAnswerChange}
+                      onImageAnswerChange={this.onImageAnswerChange}
+                      onSubmit={this.onSubmitAnswer}
+                      onNext={this.onNext}
+                    />
+                  }
+                  {this.state.choiceMode &&
+                    <NextAdventureChoice
+                      adventurePart={this.props.adventurePart}
+                      onSubmit={this.onSubmitPathChoice}
+                    />
+                  }
+                  {this.state.summaryMode &&
+                    <Summary
+                      achievements={this.props.achievements}
+                      adventurePart={this.props.adventurePart}
+                      endChapter={this.endChapter}
+                      rank={this.props.rank}
+                    />
+                  }
+                </React.Fragment>
+              }
+            </div>
+          </main>
+        </div>
+      </ThemeProvider>
     );
   }
 }
@@ -261,6 +275,8 @@ const mapStateToProps = (state) => ({
   adventurePart: state.course.adventurePart,
   achievements: state.course.achievements,
   rank: state.course.rank,
+  palette: state.color.palette,
+  themeColors: state.color.themeColors,
 });
 
 export default compose(

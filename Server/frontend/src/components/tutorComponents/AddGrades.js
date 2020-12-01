@@ -7,6 +7,8 @@ import compose from 'recompose/compose';
 import { Accordion, AccordionDetails, AccordionSummary,CssBaseline,
   List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 import { getCourseUncheckedGrades } from '../../actions/course.js';
 import { logout } from '../../actions/auth.js';
@@ -16,10 +18,16 @@ import NavBar from '../common/navbars/NavBar.js';
 export class AddGrades extends Component {
   state = { loaded: false };
 
-  static propTypes = {
-    isAuthenticated: PropTypes.bool,
-    user: PropTypes.any,
-  };
+  theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: this.props.themeColors[0],
+      },
+      secondary: {
+        main: this.props.themeColors[1],
+      },
+    },
+  });
 
   componentDidMount() {
     this.props.getCourseUncheckedGrades(this.props.match.params.id);
@@ -47,7 +55,6 @@ export class AddGrades extends Component {
 
   render() {
     const { classes } = this.props;
-    console.log(this.props);
     if (!this.props.isAuthenticated) {
       return <Redirect to="/login" />;
     }
@@ -57,46 +64,47 @@ export class AddGrades extends Component {
       );
     }
     return (
-      <div className={classes.root}>
-        <CssBaseline />
-        <NavBar logout={this.props.logout} title={this.getCourseName()} returnLink={'/'} />
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
-          {this.state.loaded &&
-              <>
-                {this.props.courseUncheckedGrades.plotParts.map((plotPart, index) =>
-                  <List
-                    key={index}
-                    component='nav'
-                    aria-labelledby='nested-list-subheader'
-                  >
-                    <ListItem>
-                      <ListItemText primary={plotPart.name} primaryTypographyProps={{ variant: 'h6' }}/>
-                    </ListItem>
-                    {plotPart.chapters.map((chapter, i)=> 
-                      <List key={100+i} component='div' disablePadding>
-                        <ListItem>
-                          <ListItemText primary={chapter.name} />
-                        </ListItem>
-                        {chapter.adventures.map((adventure, j) => 
-                          <Accordion key={1000*j}>
-                            <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                              <Typography variant='body2'>{adventure.name}</Typography>
-                            </AccordionSummary>
-                            <AccordionDetails>
-                              {this.renderAdventure(adventure)}
-                            </AccordionDetails>
-                          </Accordion>
-                        )}
-                      </List>
-                    )}
-                  </List>
-                )}
-              </>
-            }
-        </main>
-      </div>
-
+      <>
+        {this.state.loaded ?
+          <ThemeProvider theme={this.theme}>
+            <div className={classes.root}>
+              <CssBaseline />
+              <NavBar logout={this.props.logout} title={this.getCourseName()} returnLink={'/'} />
+              <main className={classes.content}>
+                <div className={classes.appBarSpacer} />
+                  {this.props.courseUncheckedGrades.plotParts.map((plotPart, index) =>
+                    <List
+                      key={index}
+                      component='nav'
+                      aria-labelledby='nested-list-subheader'
+                    >
+                      <ListItem>
+                        <ListItemText primary={plotPart.name} primaryTypographyProps={{ variant: 'h6' }}/>
+                      </ListItem>
+                      {plotPart.chapters.map((chapter, i)=> 
+                        <List key={100+i} component='div' disablePadding>
+                          <ListItem>
+                            <ListItemText primary={chapter.name} />
+                          </ListItem>
+                          {chapter.adventures.map((adventure, j) => 
+                            <Accordion key={1000*j}>
+                              <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                                <Typography variant='body2'>{adventure.name}</Typography>
+                              </AccordionSummary>
+                              <AccordionDetails>
+                                {this.renderAdventure(adventure)}
+                              </AccordionDetails>
+                            </Accordion>
+                          )}
+                        </List>
+                      )}
+                    </List>
+                  )}
+              </main>
+            </div>
+          </ThemeProvider> : <LinearProgress />
+        }
+      </>
     );
   }
 }
@@ -105,6 +113,8 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
   user: state.auth.user,
   courseUncheckedGrades: state.course.courseUncheckedGrades,
+  palette: state.color.palette,
+  themeColors: state.color.themeColors,
 });
 
 export default compose(
