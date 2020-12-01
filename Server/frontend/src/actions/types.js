@@ -40,3 +40,4 @@ export const AUTH_ERROR = 'AUTH_ERROR';
 export const SET_PALETTE = 'SET_PALETTE';
 export const SET_THEME_COLOR = 'SET_THEME_COLOR';
 export const IS_FRESH = 'IS_FRESH';
+export const GRADE_MANUAL = 'GRADE_MANUAL';

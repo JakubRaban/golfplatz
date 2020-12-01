@@ -41,7 +41,7 @@ export class CourseStructure extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.courseStructure !== this.props.courseStructure) {
-      this.setState({loaded: true});
+      this.setState({ loaded: true });
     }
   }
 

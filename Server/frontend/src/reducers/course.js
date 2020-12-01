@@ -21,6 +21,7 @@ import {
   GET_RANKING,
   GET_STUDENT_MARKS,
   GET_UNCHECKED_GRADES,
+  GRADE_MANUAL,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
@@ -38,6 +39,7 @@ const initialState = {
   courseStructure: {},
   chapters: [],
   chapterDetailed: {},
+  manualGrades: {},
   csv: {},
   errors: {},
   achievements: {},
@@ -119,6 +121,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         achievements: action.payload,
+      };
+    case GRADE_MANUAL:
+      return {
+        ...state,
+        manualGrades: action.payload,
       };
     case GET_ALL_RANKS:
       return {

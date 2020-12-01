@@ -17,9 +17,9 @@ export class PlotPart extends React.Component {
           </div>
           <div className="col-75">
             <TextField className="input-class" value={plotPart.name} type="text"
-                       error={get(errors, `plotParts[${index}].name`, false)} name="name"
-                       helperText={get(errors, `plotParts[${index}].name`, '')} variant="outlined"
-                       onChange={(e) => this.props.handleChange('name', index, e.target.value)}/>
+              error={get(errors, `plotParts[${index}].name`, false)} name="name"
+              helperText={get(errors, `plotParts[${index}].name`, '')} variant="outlined"
+              onChange={(e) => this.props.handleChange('name', index, e.target.value)}/>
           </div>
         </div>
         <div className="row">
@@ -28,9 +28,9 @@ export class PlotPart extends React.Component {
           </div>
           <div className="col-75">
             <TextField className="input-class" value={plotPart.introduction} name="introduction"
-                       error={get(errors, `plotParts[${index}].introduction`, false)} type="text"
-                       helperText={get(errors, `plotParts[${index}].introduction`, '')} variant="outlined"
-                       onChange={() => this.props.handleChange('introduction', index, event.target.value)}/>
+              error={get(errors, `plotParts[${index}].introduction`, false)} type="text"
+              helperText={get(errors, `plotParts[${index}].introduction`, '')} variant="outlined"
+              onChange={() => this.props.handleChange('introduction', index, event.target.value)}/>
           </div>
         </div>
       </div>

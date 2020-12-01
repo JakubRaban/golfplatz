@@ -44,8 +44,8 @@ export class StudentMarks extends Component {
         {this.state.loaded &&
         <>
           {this.props.marks.length === 0 ?
-          <Typography component='h6' variant='h6'>Nie ukończyłeś jeszcze żadnego rozdziału</Typography> :
-          <MaterialTable
+            <Typography component='h6' variant='h6'>Nie ukończyłeś jeszcze żadnego rozdziału</Typography> :
+            <MaterialTable
               title="Zadowolony?"
               columns={this.columns}
               data={this.state.data}

@@ -82,7 +82,7 @@ export class GameCardSummary extends Component {
             </Typography>
             <Typography variant='subtitle1' color='textSecondary'>
               Oznacza to, że Twój wynik wynosi przynajmniej {this.props.studentRank.rank.lowerThresholdPercent}%.
-              {nextRankThreshold <= 100 ? `Zdobądź minimum ${nextRankThreshold}%, aby uzyskać wyższą rangę!` : 'To najwyższa możliwa ranga - tak trzymaj!'}
+              {nextRankThreshold <= 100 ? ` Zdobądź minimum ${nextRankThreshold}%, aby uzyskać wyższą rangę!` : 'To najwyższa możliwa ranga - tak trzymaj!'}
             </Typography>
           </CardContent>
         </Card>
