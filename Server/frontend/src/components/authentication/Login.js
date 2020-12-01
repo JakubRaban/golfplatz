@@ -12,7 +12,8 @@ import { Link, Redirect } from 'react-router-dom';
 import { isEmpty as empty } from 'lodash';
 import isEmpty from 'validator/lib/isEmpty.js';
 
-import { login } from '../../actions/auth.js';
+import { login, isFresh } from '../../actions/auth.js';
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 
 export class Login extends Component {
@@ -47,9 +48,19 @@ export class Login extends Component {
 
   onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
+  componentDidMount() {
+    this.props.isFresh()
+  }
+
   render() {
     if (this.props.isAuthenticated) {
       return <Redirect to='/' />;
+    }
+    if (this.props.fresh) {
+      return <Redirect to='/register-tutor' />;
+    }
+    if (this.props.fresh === undefined) {
+      return <CircularProgress />
     }
     const { email, password, errors } = this.state;
 
@@ -112,6 +123,7 @@ export class Login extends Component {
 
 const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
+  fresh: state.auth.isFresh,
 });
 
-export default connect(mapStateToProps, { login })(Login);
+export default connect(mapStateToProps, { login, isFresh })(Login);

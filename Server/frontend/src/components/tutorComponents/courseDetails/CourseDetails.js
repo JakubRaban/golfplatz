@@ -152,7 +152,11 @@ export class CourseDetails extends Component {
                       <TableBody>
                         { this.props.course.courseGroups.map((group, i) =>
                           <TableRow key={i}>
-                            <TableCell>{group.groupName}</TableCell>
+                            <TableCell>
+                              {group.groupName}
+                              <br/>
+                              Kod zapisu dla studentów: <b>{group.accessCode}</b>
+                            </TableCell>
                           </TableRow>,
                         )}
                       </TableBody>

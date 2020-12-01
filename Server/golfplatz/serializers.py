@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from .models import Course, CourseGroup, Participant, PlotPart, Chapter, Adventure, TimerRule, \
     Question, Answer, PointSource, Path, NextAdventureChoiceDescription, PathChoiceDescription, \
-    Achievement, Grade, StudentAnswer, StudentImageAnswer, StudentTextAnswer, Rank, AccomplishedChapter
+    Achievement, Grade, StudentAnswer, StudentImageAnswer, StudentTextAnswer, Rank, AccomplishedChapter, SystemKey
 
 
 class LoginSerializer(serializers.Serializer):
@@ -20,11 +20,25 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
+    system_key = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+
     class Meta:
         model = Participant
         fields = '__all__'
 
+    def validate(self, attrs):
+        super(ParticipantSerializer, self).validate(attrs)
+        if self.context['group_name'] == 'tutor':
+            key = SystemKey.get()
+            if key:
+                if attrs.pop('system_key', '') != key:
+                    raise PermissionDenied()
+            else:
+                SystemKey.objects.create()
+        return attrs
+
     def create(self, validated_data):
+        validated_data.pop('system_key', '')
         return Participant.objects.create_user(**validated_data)
 
 
@@ -75,7 +89,7 @@ class StudentScoreSerializer(serializers.Serializer):
     max_score = serializers.DecimalField(max_digits=8, decimal_places=3)
     score_percent = serializers.DecimalField(max_digits=8, decimal_places=3)
     chapters_done = serializers.IntegerField()
-    rank = RankSerializer()
+    rank = RankSerializer(allow_null=True)
 
 
 class StudentGradesSerializer(serializers.Serializer):

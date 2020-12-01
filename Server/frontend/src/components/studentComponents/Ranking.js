@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import MaterialTable from 'material-table';
 import { Typography } from '@material-ui/core';
 import { isEmpty } from 'lodash';
+import { connect } from 'react-redux';
 
 export class Ranking extends Component {
   state = { data: [], loaded: false };
@@ -33,7 +34,7 @@ export class Ranking extends Component {
         courseGroupName: r.courseGroupName,
         scorePercent: r.studentScore.scorePercent,
         chaptersDone: r.studentScore.chaptersDone,
-        rank: <img alt={r.studentScore.rank.name} src={r.studentScore.rank.image} style={{ height: '50px', width: '50px' }} title={r.studentScore.rank.name} />,
+        rank: r.studentScore.rank ? <img alt={r.studentScore.rank.name} src={r.studentScore.rank.image} style={{ height: '50px', width: '50px' }} title={r.studentScore.rank.name} /> : null,
       })
     });
     this.setState({ data, loaded: true });
@@ -48,7 +49,7 @@ export class Ranking extends Component {
           <Typography component='h6' variant='h6'>Tutaj pojawi się ranking walczących</Typography> :
           <MaterialTable
             title="Bohaterowie minionych epok"
-            columns={this.columns}
+            columns={this.columns.filter((column) => column.field !== 'rank' || this.props.ranks.length > 0)}
             data={this.state.data}
             options={{
               actionsColumnIndex: -1,
@@ -89,4 +90,8 @@ export class Ranking extends Component {
   }
 }
 
-export default Ranking;
+const mapStateToProps = (state) => ({
+  ranks: state.course.ranks,
+})
+
+export default connect(mapStateToProps)(Ranking);

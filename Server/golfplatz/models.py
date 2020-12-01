@@ -27,6 +27,14 @@ def get_random_access_code(length=8):
     return result
 
 
+def get_system_key(length=16):
+    result = ""
+    for i in range(length):
+        gen = randint(33, 126)
+        result += chr(gen)
+    return result
+
+
 class Participant(AbstractUser):
     phone_validator = RegexValidator(regex=r'^\d{9}$', message="Phone number must be exactly 9 digits long")
 
@@ -35,7 +43,6 @@ class Participant(AbstractUser):
     last_name = models.CharField('last name', max_length=150, blank=False)
     email = models.EmailField('email address', unique=True)
     student_number = models.CharField(max_length=10, unique=True, null=True, blank=False)
-    phone_number = models.CharField(validators=[phone_validator], max_length=9, unique=True, null=True, blank=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -55,8 +62,8 @@ class Participant(AbstractUser):
         accomplished_chapters = AccomplishedChapter.objects.filter(
             student=self, is_completed=True, chapter__plot_part__course=course
         )
-        sum_of_points = accomplished_chapters.aggregate(pts=Sum('points_scored'))['pts']
-        max_score = accomplished_chapters.aggregate(pts=Sum('chapter__points_for_max_grade'))['pts']
+        sum_of_points = accomplished_chapters.aggregate(pts=Sum('points_scored'))['pts'] or 0
+        max_score = accomplished_chapters.aggregate(pts=Sum('chapter__points_for_max_grade'))['pts'] or 0
         return sum_of_points, max_score, accomplished_chapters.count()
 
     def get_score_in_course_percent(self, course):
@@ -66,12 +73,15 @@ class Participant(AbstractUser):
     def get_rank_in_course(self, course):
         score_percent = self.get_score_in_course_percent(course)
         ranks = list(Rank.objects.filter(course=course))
-        if score_percent <= 0:
-            return ranks[0]
-        for index, rank in enumerate(ranks):
-            if rank.lower_threshold_percent >= score_percent:
-                return ranks[index - 1]
-        return ranks[-1]
+        if len(ranks) > 0:
+            if score_percent <= 0:
+                return ranks[0]
+            for index, rank in enumerate(ranks):
+                if rank.lower_threshold_percent >= score_percent:
+                    return ranks[index - 1]
+            return ranks[-1]
+        else:
+            return None
 
 
 class Course(models.Model):
@@ -561,6 +571,14 @@ class StudentTextAnswer(StudentAnswer):
 
 class StudentImageAnswer(StudentAnswer):
     image = models.ImageField()
+
+
+class SystemKey(models.Model):
+    system_key = models.CharField(max_length=16, default=get_system_key)
+
+    @staticmethod
+    def get():
+        return SystemKey.objects.all()[0].system_key if SystemKey.objects.count() > 0 else None
 
 
 class PathChoice:

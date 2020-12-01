@@ -18,7 +18,7 @@ import Ranking from './Ranking.js';
 import StudentMarks from './StudentMarks.js';
 
 export class GameCard extends Component {
-  state = { loading: false, mode: 'summary', nextRankThreshold: 100 };
+  state = { loading: false, mode: 'summary', nextRankThreshold: 101 };
 
   static propTypes = {
     isAuthenticated: PropTypes.bool,

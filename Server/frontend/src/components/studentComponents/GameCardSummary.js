@@ -1,25 +1,25 @@
-import React, { Component } from 'react';
-import { Card, CardContent, CardMedia, Typography } from '@material-ui/core';
-import { isEmpty } from 'lodash';
+import React, {Component} from 'react';
+import {Card, CardContent, CardMedia, Typography} from '@material-ui/core';
+import {isEmpty} from 'lodash';
 
 export class GameCardSummary extends Component {
-  state = { achievementsLoaded: false, rankLoaded: false };
+  state = {achievementsLoaded: false, rankLoaded: false};
 
   componentDidMount() {
     if (this.props.achievements?.accomplished?.length > 0 || this.props.achievements?.notAccomplished?.length > 0) {
-      this.setState({ achievementsLoaded: true });
+      this.setState({achievementsLoaded: true});
     }
     if (!isEmpty(this.props.studentRank)) {
-      this.setState({ rankLoaded: true });
+      this.setState({rankLoaded: true});
     }
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.achievements !== prevProps.achievements) {
-      this.setState({ achievementsLoaded: true });
+      this.setState({achievementsLoaded: true});
     }
     if (this.props.studentRank !== prevProps.studentRank) {
-      this.setState({ rankLoaded: true });
+      this.setState({rankLoaded: true});
     }
   }
 
@@ -46,10 +46,10 @@ export class GameCardSummary extends Component {
   }
 
   renderAchievement = (achievement, accomplished = false) => {
-    const cardMediaStyle = accomplished ? { height: '140px' } : { height: '140px', opacity: '10%' };
+    const cardMediaStyle = accomplished ? {height: '140px'} : {height: '140px', opacity: '10%'};
 
     return (
-      <Card style={{ width: '350px', margin: '5px' }}>
+      <Card style={{width: '350px', margin: '5px'}}>
         <CardMedia
           style={cardMediaStyle}
           component='img'
@@ -68,23 +68,25 @@ export class GameCardSummary extends Component {
   }
 
   renderRank = () => {
-    return (
-      <Card style={{display: 'flex'}}>
-        <CardMedia style={{height: '140px', width: '140px'}}
-          image={this.props.studentRank.rank.image}
-          title='Rank image'
-        />
-        <CardContent>
-          <Typography component='h6' variant='h6'>
-            Twoja ranga w kursie to: {this.props.studentRank.rank.name}
-          </Typography>
-          <Typography variant='subtitle1' color='textSecondary'>
-            Oznacza to, że Twój wynik wynosi przynajmniej {this.props.studentRank.rank.lowerThresholdPercent}%.
-            Zdobądź minimum {this.props.nextRankThreshold}%, aby uzyskać wyższą rangę!
-          </Typography>
-        </CardContent>
-      </Card>
-    );
+    const { nextRankThreshold, studentRank } = this.props;
+    if (studentRank.rank)
+      return (
+        <Card style={{display: 'flex'}}>
+          <CardMedia style={{height: '140px', width: '140px'}}
+                     image={this.props.studentRank.rank.image}
+                     title='Rank image'
+          />
+          <CardContent>
+            <Typography component='h6' variant='h6'>
+              Twoja ranga w kursie to: {this.props.studentRank.rank.name}
+            </Typography>
+            <Typography variant='subtitle1' color='textSecondary'>
+              Oznacza to, że Twój wynik wynosi przynajmniej {this.props.studentRank.rank.lowerThresholdPercent}%.
+              {nextRankThreshold <= 100 ? `Zdobądź minimum ${nextRankThreshold}%, aby uzyskać wyższą rangę!` : 'To najwyższa możliwa ranga - tak trzymaj!'}
+            </Typography>
+          </CardContent>
+        </Card>
+      );
   }
 
   render() {
@@ -93,20 +95,20 @@ export class GameCardSummary extends Component {
         {this.state.rankLoaded && this.renderRank()}
 
         {this.state.achievementsLoaded &&
-          <Typography component='h6' variant='h6'>
-            {this.props.achievements.accomplished.length > 0 || this.props.achievements.notAccomplished.length > 0
-              ? 'Odznaki w kursie:' : 'Prowadzący nie zdefiniował odznak w tym kursie.'}
-          </Typography>
+        <Typography component='h6' variant='h6'>
+          {this.props.achievements.accomplished.length > 0 || this.props.achievements.notAccomplished.length > 0
+            ? 'Odznaki w kursie:' : 'Prowadzący nie zdefiniował odznak w tym kursie.'}
+        </Typography>
         }
         <div style={{display: 'flex'}}>
           {this.state.achievementsLoaded && this.props.achievements?.accomplished.map((achievement) =>
             this.renderAchievement(achievement, true)
           )}
-          {this.state.achievementsLoaded && this.props.achievements?.notAccomplished.map((achievement) => 
+          {this.state.achievementsLoaded && this.props.achievements?.notAccomplished.map((achievement) =>
             this.renderAchievement(achievement)
           )}
         </div>
-    </>
+      </>
     );
   }
 }

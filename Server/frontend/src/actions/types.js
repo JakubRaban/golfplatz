@@ -39,3 +39,4 @@ export const GET_STUDENT_MARKS = 'GET_STUDENT_MARKS';
 export const AUTH_ERROR = 'AUTH_ERROR';
 export const SET_PALETTE = 'SET_PALETTE';
 export const SET_THEME_COLOR = 'SET_THEME_COLOR';
+export const IS_FRESH = 'IS_FRESH';

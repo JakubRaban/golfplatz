@@ -10,6 +10,7 @@ import {
   REGISTER_SUCCESS,
   USER_LOADED,
   USER_LOADING,
+  IS_FRESH,
 } from './types.js';
 import { printError } from '../components/common/errors/errorsMapper.js';
 
@@ -64,14 +65,23 @@ export const login = (email, password) => (dispatch) => {
     });
 };
 
-export const registerTutor = ({ firstName, lastName, email, password }) => (dispatch) => {
-  const body = JSON.stringify({ firstName, lastName, email, password });
+export const isFresh = () => (dispatch) => {
+  axios.get('/api/is_fresh/', getBasicHeader()).then((res) => {
+    dispatch({
+      type: IS_FRESH,
+      payload: res.data,
+    });
+  });
+}
+
+export const registerTutor = ({ firstName, lastName, email, password, systemKey }) => (dispatch) => {
+  const body = JSON.stringify({ firstName, lastName, email, password, systemKey });
 
   postRegisterRequest('tutor', body, dispatch);
 };
 
-export const registerStudent = ({ firstName, lastName, email, password, studentNumber, phoneNumber }) => (dispatch) => {
-  const body = JSON.stringify({ firstName, lastName, email, password, studentNumber, phoneNumber });
+export const registerStudent = ({ firstName, lastName, email, password, studentNumber }) => (dispatch) => {
+  const body = JSON.stringify({ firstName, lastName, email, password, studentNumber });
 
   postRegisterRequest('student', body, dispatch);
 };
