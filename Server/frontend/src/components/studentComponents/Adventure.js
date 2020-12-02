@@ -9,6 +9,9 @@ import Typography from '@material-ui/core/Typography';
 import TextField, { Input } from '@material/react-text-field';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import ReactTimer from 'react-compound-timer';
+
+import Timer from './Timer.js';
 
 export class Adventure extends Component {
   handleImage = (id) => (e) => {
@@ -26,17 +29,17 @@ export class Adventure extends Component {
     return (
       <>
         <InputLabel>Prześlij odpowiedź:</InputLabel>
-        <input type="file" name="image" accept="image/*" onChange={this.handleImage(id)}/>
+        <input type='file' name='image' accept='image/*' onChange={this.handleImage(id)}/>
       </>
     );
   }
 
   renderOpenQuestion = (id) => {
     return (
-      <TextField label="Twoja odpowiedź:" variant="outlined" style = {{ width: 500 }}>
+      <TextField label='Twoja odpowiedź:' variant='outlined' style = {{ width: 500 }}>
         <Input
-          type="answer"
-          name="answer"
+          type='answer'
+          name='answer'
           onChange={this.props.onOpenAnswerChange(id)}
           value={this.props.openQuestions.get(id)}
         />
@@ -46,92 +49,107 @@ export class Adventure extends Component {
 
   renderClosedQuestion = (question, i) => {
     return (
-      <FormControl component="fieldset">
+      <FormControl component='fieldset'>
         <FormGroup>
           {question.answers.map((answer, j) =>
-            <FormControlLabel key={i * j}
+            <FormControlLabel key={100000+j}
               control={
                 <Checkbox
                   checked={this.props.closedQuestions.get(question.id)[j].marked}
-                  onChange={this.props.onAnswerChange(question.id, j, i)} name="answer"
+                  onChange={this.props.onAnswerChange(question.id, j, i)} name='answer'
                 />
               }
-              label={<Box component="div" fontSize={13}> {answer.text} </Box>} />,
+              label={<Box component='div' fontSize={13}> {answer.text} </Box>} />,
           )}
         </FormGroup>
       </FormControl>
     );
   }
 
+  handleSubmit = (time) => {
+    this.props.onSubmit(time);
+  }
+
   render() {
+    console.log(this.props);
     return (
       <div>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant='h5' gutterBottom>
           {this.props.adventurePart.adventure.name}
         </Typography>
-        <Typography variant="subtitle1" gutterBottom>
+        <Typography variant='subtitle1' gutterBottom>
           {this.props.adventurePart.adventure.taskDescription}
         </Typography>
         {!this.props.submitted ?
-          <React.Fragment>
-            {/* {this.props.adventurePart.adventure.timeLimit > 0 && <Timer time={this.props.timeLimit}/>} */}
-            {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
-              <React.Fragment key={i}>
-                <Typography variant="subtitle2" gutterBottom>
-                  {question.text}
-                </Typography>
-                {question.questionType === 'OPEN' ?
-                  <>
-                    {
-                      question.inputType === 'IMAGE' ?
-                        this.renderImageQuestion(question.id) : this.renderOpenQuestion(question.id)
-                    }
-                  </>:
-                  this.renderClosedQuestion(question, i)
+          <ReactTimer
+            direction='backward'
+            formatValue={value => `${value < 10 ? `0${value}` : value}`}
+            initialTime={this.props.timeLimit * 1000}
+          >
+            {(timer) => (
+              <>
+                {this.props.adventurePart.adventure.timeLimit > 0 &&
+                  <div>
+                    <ReactTimer.Hours />:<ReactTimer.Minutes />:<ReactTimer.Seconds />
+                  </div>
                 }
-              </React.Fragment>,
+                {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
+                  <React.Fragment key={100+i}>
+                    <Typography variant='subtitle2' gutterBottom>
+                      {question.text}
+                    </Typography>
+                    {question.questionType === 'OPEN' ?
+                      <>
+                        {
+                          question.inputType === 'IMAGE' ?
+                            this.renderImageQuestion(question.id) : this.renderOpenQuestion(question.id)
+                        }
+                      </>:
+                      this.renderClosedQuestion(question, i)
+                    }
+                  </React.Fragment>,
+                )}
+                <div style={{ display: 'block' }}>
+                  <Button variant='contained' onClick={() => this.handleSubmit(timer.getTime())}>Zatwierdź</Button>
+                </div>
+              </>
             )}
-            <div style={{ display: 'block' }}>
-              <Button variant="contained" onClick={this.props.onSubmit}>Zatwierdź</Button>
-            </div>
-
-          </React.Fragment> :
-          <React.Fragment>
+          </ReactTimer> :
+          <>
             {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
-              <React.Fragment key={i}>
-                <Typography variant="subtitle1" gutterBottom>
+              <React.Fragment key={1000 + i}>
+                <Typography variant='subtitle1' gutterBottom>
                   {question.text}
                 </Typography>
                 {question.questionType === 'CLOSED' ?
-                  <FormControl component="fieldset">
+                  <FormControl component='fieldset'>
                     <FormGroup>
                       {question.answers.map((answer, j) =>
-                        <React.Fragment key={i * j}>
+                        <React.Fragment key={10000 + j}>
                           <FormControlLabel
                             control={<Checkbox checked={this.props.closedQuestions.get(question.id)[j].marked}
-                              name="answer" />}
+                              name='answer' />}
                             label={answer.text}
                           />
                           {this.props.closedQuestions.get(question.id)[j].marked &&
-                        <Typography variant="subtitle2" gutterBottom>
-                          {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
-                        </Typography>
+                            <Typography variant='subtitle2' gutterBottom>
+                              {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
+                            </Typography>
                           }
                         </React.Fragment>,
                       )}
                     </FormGroup>
                   </FormControl> :
-                  <Typography variant="subtitle2" gutterBottom>
+                  <Typography variant='subtitle2' gutterBottom>
                     Twoja odpowiedź: {this.props.openQuestions.get(question.id)}
                   </Typography>
                 }
               </React.Fragment>,
             )}
             <div style={{ display: 'block' }}>
-              <Button variant="contained" onClick={this.props.onNext}>Dalej</Button>
+              <Button variant='contained' onClick={this.props.onNext}>Dalej</Button>
             </div>
-
-          </React.Fragment>
+          </>
         }
 
       </div>

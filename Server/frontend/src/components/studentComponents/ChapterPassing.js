@@ -35,7 +35,7 @@ export class ChapterPassing extends Component {
     closedQuestions: new Map(),
     openQuestions: new Map(),
     imageQuestions: new Map(),
-    timeLimit: 90,
+    timeLimit: null,
     ended: false,
   }
 
@@ -84,12 +84,10 @@ export class ChapterPassing extends Component {
           closedQuestions: tmpClosedQuestions,
           openQuestions: tmpOpenQuestions,
           imageQuestions: tmpImgQuestions,
+          timeLimit: this.props.adventurePart.adventure.timeLimit,
         });
 
         this.startTime = new Date();
-        if (this.props.adventurePart.adventure.timeLimit > 0) {
-          this.timer = setInterval(() => this.tick(), 1000);
-        }
       } else if (this.props.adventurePart.responseType === 'choice') {
         this.setState({
           choiceMode: true,
@@ -100,6 +98,7 @@ export class ChapterPassing extends Component {
           closedQuestions: new Map(),
           openQuestions: new Map(),
           imageQuestions: new Map(),
+          timeLimit: null,
         });
       } else if (this.props.adventurePart.responseType === 'summary') {
         this.props.getAchievementsAfterChapter(this.props.match.params.id);
@@ -113,24 +112,25 @@ export class ChapterPassing extends Component {
           closedQuestions: new Map(),
           openQuestions: new Map(),
           imageQuestions: new Map(),
+          timeLimit: null,
         });
       }
     }
   }
 
-  tick() {
-    const current = this.state.timeLimit;
-    if (current === 0) {
-      this.transition();
-    } else {
-      this.setState({ timeLimit: current - 1 });
-    }
-  }
+  // tick() {
+  //   const current = this.state.timeLimit;
+  //   if (current === 0) {
+  //     this.transition();
+  //   } else {
+  //     this.setState({ timeLimit: current - 1 });
+  //   }
+  // }
 
-  transition() {
-    clearInterval(this.timer);
-    // call timeout
-  }
+  // transition() {
+  //   clearInterval(this.timer);
+  //   // call timeout
+  // }
 
   onOpenAnswerChange = (id) => (e) => {
     const tmpQuestions = this.state.openQuestions;
@@ -161,8 +161,8 @@ export class ChapterPassing extends Component {
     });
   }
 
-  onSubmitAnswer = (e) => {
-    const answerTime = 16; /* tymczasowo:*/
+  onSubmitAnswer = (timeElapsed) => {
+    const answerTime = this.state.timeLimit - timeElapsed/1000;
 
     const closedQuestions = [];
     const openQuestions = [];
@@ -206,16 +206,16 @@ export class ChapterPassing extends Component {
     const { classes } = this.props;
 
     if (!this.props.isAuthenticated) {
-      return <Redirect to="/login" />;
+      return <Redirect to='/login' />;
     }
     if (this.props.user.groups[0] === 2) {
       return (
-        <Redirect to="/"/>
+        <Redirect to='/'/>
       );
     }
     if (this.state.ended) {
       return (
-        <Redirect to="/"/>
+        <Redirect to='/'/>
       );
     }
     return (
@@ -228,11 +228,11 @@ export class ChapterPassing extends Component {
             <div style={{ margin: '5px' }}>
               {this.state.loading ? <LinearProgress /> :
                 <React.Fragment>
-                  <Typography variant="h4" gutterBottom>
+                  <Typography variant='h4' gutterBottom>
                     {this.props.adventurePart.chapterName}
                   </Typography>
                   {this.state.answerMode &&
-                    <Adventure timeLimit={this.state.timeLimit}
+                    <Adventure 
                       closedQuestions={this.state.closedQuestions}
                       openQuestions={this.state.openQuestions}
                       imageQuestions={this.state.imageQuestions}
@@ -243,6 +243,7 @@ export class ChapterPassing extends Component {
                       onImageAnswerChange={this.onImageAnswerChange}
                       onSubmit={this.onSubmitAnswer}
                       onNext={this.onNext}
+                      timeLimit={this.state.timeLimit}
                     />
                   }
                   {this.state.choiceMode &&

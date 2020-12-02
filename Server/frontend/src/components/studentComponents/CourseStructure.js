@@ -82,7 +82,7 @@ export class CourseStructure extends Component {
           </>
         ) : (
           <Typography component='h6' variant='subtitle1' color="secondary">
-            {plotPart.name} - twój Prowadzący twierdzi że tu jest jeszcze zbyt niebezpiecznie
+            {plotPart.name} - Twój prowadzący twierdzi, że tu jest jeszcze zbyt niebezpiecznie
           </Typography>
         )}
 

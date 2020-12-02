@@ -54,6 +54,7 @@
     "react-alert": "^7.0.0",
     "react-alert-template-basic": "^1.0.0",
     "react-color": "^2.19.3",
+    "react-compound-timer": "^1.2.0",
     "react-cytoscapejs": "^1.2.1",
     "react-digraph": "^6.7.1",
     "react-form": "^2.15.0",
