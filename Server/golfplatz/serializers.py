@@ -452,7 +452,7 @@ class AdventureNameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Adventure
-        fields = ['name', 'point_source']
+        fields = ['id', 'name', 'point_source']
 
 
 class ChapterNameSerializer(serializers.ModelSerializer):

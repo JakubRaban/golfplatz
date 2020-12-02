@@ -24,6 +24,7 @@ import GetCourses from './tutorComponents/GetCourses.js';
 import AddGrades from './tutorComponents/AddGrades.js';
 import Grades from './tutorComponents/Grades.js';
 import TutorDashboard from './tutorComponents/TutorDashboard.js';
+import ManualGrading from './tutorComponents/ManualGrading.js';
 
 class App extends React.Component {
   componentDidMount() {
@@ -53,6 +54,7 @@ class App extends React.Component {
               <Route exact path='/game-card/:id' component={GameCard} />
               <Route exact path='/course-structure/:id' component={CourseStructure} />
               <Route exact path='/open-chapter/:id' component={ChapterPassing} />
+              <Route exact path='/manual-grade/:plotPartIndex/:chapterIndex/:adventureId' component={ManualGrading} />
             </Switch>
           </Router>
         </PersistGate>

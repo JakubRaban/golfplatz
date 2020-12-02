@@ -27,6 +27,7 @@ import {
   GET_STUDENT_MARKS,
   GET_ALL_RANKS,
   GET_UNCHECKED_GRADES,
+  GRADE_MANUAL,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
@@ -160,6 +161,19 @@ export const getCourseGrades = (courseId) => (dispatch, getState) => {
       payload: res.data,
     })
   })
+}
+
+export const gradeManual = (adventureId, grades) => (dispatch, getState) => {
+  axios.post(`api/manual_grading/${adventureId}/`, grades, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GRADE_MANUAL,
+      payload: res.data,
+    })
+    Alerts.success('Pomyślnie dodano oceny');
+  })
+    .catch((err) => {
+      console.log(err);
+    });
 }
 
 export const addCourse = (course, courseGroups, plotParts, achievements, ranks, weights) => (dispatch, getState) => {

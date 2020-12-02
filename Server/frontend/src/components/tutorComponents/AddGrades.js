@@ -1,14 +1,14 @@
 import { withStyles } from '@material-ui/core/styles';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
-import { Accordion, AccordionDetails, AccordionSummary,CssBaseline,
+import { Accordion, AccordionDetails, AccordionSummary, Button, CssBaseline,
   List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import { withRouter } from 'react-router-dom';
 
 import { getCourseUncheckedGrades } from '../../actions/course.js';
 import { logout } from '../../actions/auth.js';
@@ -44,23 +44,28 @@ export class AddGrades extends Component {
     return `Oceń studentów - ${name}`;
   }
 
-  renderAdventure = (adventure) => {
+  renderAdventure = (adventure, i, j) => {
+    let needGrade = false;
     adventure.pointSource.questions.forEach((question) => {
-      if (question.grades.length !== 0) {
-        return <Typography variant='body2'>Trzeba ocenić</Typography>;
-      } 
+      console.log(question);
+      console.log(question.grades.length);
+      if (question.grades.length !== 0) needGrade = true; 
     });
-    return <Typography variant='body2'>Wszyściutko ocenione</Typography>;
+    return needGrade ?
+      <Button color='secondary' onClick={() => this.props.history.push(`/manual-grade/${i}/${j}/${adventure.id}`)} variant='contained'>
+        Oceń tę przygodę
+      </Button> :
+      <Typography variant='body2'>Wszystkie pytania w tej przygodzie zostały już ocenione</Typography>;
   }
 
   render() {
     const { classes } = this.props;
     if (!this.props.isAuthenticated) {
-      return <Redirect to="/login" />;
+      return <Redirect to='/login' />;
     }
     if (this.props.user.groups[0] === 1) {
       return (
-        <Redirect to="/"/>
+        <Redirect to='/'/>
       );
     }
     return (
@@ -87,12 +92,12 @@ export class AddGrades extends Component {
                             <ListItemText primary={chapter.name} />
                           </ListItem>
                           {chapter.adventures.map((adventure, j) => 
-                            <Accordion key={1000*j}>
+                            <Accordion key={1000+j}>
                               <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
                                 <Typography variant='body2'>{adventure.name}</Typography>
                               </AccordionSummary>
                               <AccordionDetails>
-                                {this.renderAdventure(adventure)}
+                                {this.renderAdventure(adventure, index, i)}
                               </AccordionDetails>
                             </Accordion>
                           )}
@@ -120,4 +125,4 @@ const mapStateToProps = (state) => ({
 export default compose(
   connect(mapStateToProps, { logout, getCourseUncheckedGrades }),
   withStyles(styles),
-)(AddGrades);
+)(withRouter(AddGrades));
