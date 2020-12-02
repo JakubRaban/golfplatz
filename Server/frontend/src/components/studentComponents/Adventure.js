@@ -11,8 +11,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import ReactTimer from 'react-compound-timer';
 
-import Timer from './Timer.js';
-
 export class Adventure extends Component {
   handleImage = (id) => (e) => {
     const file = e.target.files[0];
