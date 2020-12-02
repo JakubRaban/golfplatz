@@ -33,7 +33,7 @@ if os.path.isfile(dotenv_file):
 SECRET_KEY = 'pr^33kyxg&_id**qv#kud!0p@y^!p%+g4ws7kj7p91%=1a-_&)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = not os.path.isfile(dotenv_file)
+DEBUG = os.path.isfile(dotenv_file)
 
 ALLOWED_HOSTS = ['.localhost', '127.0.0.1', 'golfplatz.herokuapp.com']
 

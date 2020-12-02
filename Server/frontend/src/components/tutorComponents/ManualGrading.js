@@ -12,6 +12,8 @@ import { logout } from '../../actions/auth.js';
 import { gradeManual } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import NavBar from '../common/navbars/NavBar.js';
+import isDecimal from "validator/es/lib/isDecimal";
+import FormErrorMessage from "../common/FormErrorMessage";
 
 export class ManualGrading extends Component {
   state = { addedGrades: [], errors: {}, loaded: false };
@@ -51,7 +53,7 @@ export class ManualGrading extends Component {
   checkErrors = async () => {
     const errors = {}
     this.state.addedGrades.forEach((addedGrade, i) => {
-      if (empty(addedGrade.points)) setWith(errors, `addedGrades[${i}].points`, 'Ocena nie może być pusta');
+      if (!isDecimal(addedGrade.points, {decimal_digits: '1,3', locale: 'pl-PL'})) setWith(errors, `addedGrades[${i}].points`, 'Ocena nie może być pusta');
     });
     console.log(errors);
     await this.setState({ errors })
@@ -144,7 +146,9 @@ export class ManualGrading extends Component {
                       color='primary'
                       variant='contained'
                       onClick={this.submitGrades}
-                    >Dodaj oceny</Button>
+                    >Dodaj oceny
+                    </Button>
+                    {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}} />}
                   </div>
                 </>
               </main>

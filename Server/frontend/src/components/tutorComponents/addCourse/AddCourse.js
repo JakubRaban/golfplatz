@@ -22,6 +22,7 @@ import AddGroupsAndPlot from './AddGroupsAndPlot.js';
 import AddRanks from './AddRanks.js';
 import AddWeights from './AddWeights.js';
 import ColorPicker from "./ColorPicker";
+import FormErrorMessage from "../../common/FormErrorMessage";
 
 export class AddCourse extends Component {
   state = {
@@ -241,6 +242,7 @@ export class AddCourse extends Component {
               variant="contained"
               onClick={this.onSubmit}
             >Potwierdź i wyślij</Button>
+            {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}}/>}
           </div>
         </main>
       </div>

@@ -22,6 +22,7 @@ import { styles } from '../../../styles/style.js';
 import NavBar from '../../common/navbars/NavBar.js';
 import AddChapter from './../AddChapter.js';
 import ToggleLockButton from './ToggleLockButton';
+import FormErrorMessage from "../../common/FormErrorMessage";
 
 export class CourseDetails extends Component {
   state = {
@@ -231,7 +232,9 @@ export class CourseDetails extends Component {
                                         color='primary'
                                         variant='contained'
                                         onClick={() => this.onSubmit(plotPart.id)}
-                                      >Dalej</Button>
+                                      >Dalej
+                                      </Button>
+                                      {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}}/>}
                                     </div>
                                   </div>
                                 </Dialog>
