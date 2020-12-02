@@ -85,6 +85,12 @@ export class Adventure extends Component {
             direction='backward'
             formatValue={value => `${value < 10 ? `0${value}` : value}`}
             initialTime={this.props.timeLimit * 1000}
+            checkpoints={[
+              {
+                time: 0,
+                callback: () => this.handleSubmit(0),
+              },
+            ]}
           >
             {(timer) => (
               <>
