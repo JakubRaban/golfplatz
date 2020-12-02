@@ -51,6 +51,7 @@ export class AddCourse extends Component {
     howMany: '0',
     inARow: false,
     conditionType: 'NOT SELECTED',
+    adventureCategoryIncluded: 'ALL',
     percentage: '0',
   }
 
@@ -72,7 +73,7 @@ export class AddCourse extends Component {
   handleAchievementChange = (input, index, value) => {
     const { achievements } = this.state;
     achievements[index][input] = value;
-    this.setState({ achievements });
+    this.setState({ achievements }, () => console.log(this.state.achievements));
   }
 
   addNewCourseGroup = () => {
@@ -158,6 +159,9 @@ export class AddCourse extends Component {
 
   onSubmit = async () => {
     await this.checkErrors();
+    for (const achievement of this.state.achievements) {
+      if (achievement.adventureCategoryIncluded === 'ALL') achievement.adventureCategoryIncluded = null;
+    }
 
     if (empty(this.state.errors)) {
       const { name, description, courseGroups, plotParts, achievements, ranks, weights, themeColor } = this.state;
