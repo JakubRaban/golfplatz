@@ -135,8 +135,6 @@ export class AddCourse extends Component {
     this.state.achievements.forEach((achievement, i) => {
       if (isEmpty(achievement.name))
         setWith(errors, `achievements[${i}].name`, 'Nazwa odznaki nie może być pusta');
-      if (isEmpty(achievement.image))
-        setWith(errors, `achievements[${i}].image`, 'Prześlij obrazek odznaki');
       if (achievement.courseElementConsidered === 'NOT SELECTED')
         setWith(errors, `achievements[${i}].courseElementConsidered`, 'Wybierz element kursu');
       if (!isInt(achievement.howMany, { min: 1 }))
@@ -149,8 +147,6 @@ export class AddCourse extends Component {
     this.state.ranks.forEach((rank, i) => {
       if (isEmpty(rank.name))
         setWith(errors, `ranks[${i}].name`, 'Nazwa rangi nie może być pusta');
-      if (isEmpty(rank.image))
-        setWith(errors, `ranks[${i}].image`, 'Prześlij obrazek rangi');
       if(!isInt(rank.lowerThresholdPercent, { min: 0, max: 100 }))
         setWith(errors, `ranks[${i}].lowerThresholdPercent`, 'Podaj liczbę całkowitą od 0 do 100');
     });

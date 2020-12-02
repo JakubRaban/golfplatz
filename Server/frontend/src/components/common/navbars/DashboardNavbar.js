@@ -36,13 +36,13 @@ class DashboardNavbar extends Component {
               input={<Input />}
               renderValue={(selected) => {
                 if (selected.length === 0) {
-                  return <em>Wybierz domyślny kurs</em>;
+                  return <em>Wybierz aktywny kurs</em>;
                 }
                 return selected;
               }}
             >
               <MenuItem disabled value=''>
-                <em>Wybierz domyślny kurs:</em>
+                <em>Wybierz aktywny kurs:</em>
               </MenuItem>
               {courses.map((course, index) => (
                 <MenuItem key={index} value={course.name}>
