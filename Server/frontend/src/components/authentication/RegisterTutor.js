@@ -14,6 +14,7 @@ import { isEmpty as empty } from 'lodash';
 import isEmpty from 'validator/lib/isEmpty.js';
 
 import { registerTutor } from '../../actions/auth.js';
+import FormErrorMessage from "../common/FormErrorMessage";
 
 
 export class RegisterTutor extends Component {
@@ -160,6 +161,7 @@ export class RegisterTutor extends Component {
                 Zarejestruj się
               </Button>
             </div>
+            {!empty(this.props.errors) && <FormErrorMessage style={{textAlign: 'right'}} />}
             {!this.props.fresh && <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
               <Typography color="textPrimary">Masz już konto? </Typography>
               <Link to="/login">Zaloguj się!</Link>
