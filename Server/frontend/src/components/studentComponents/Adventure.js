@@ -82,12 +82,12 @@ export class Adventure extends Component {
           <ReactTimer
             direction='backward'
             formatValue={value => `${value < 10 ? `0${value}` : value}`}
-            initialTime={this.props.timeLimit * 1000}
+            initialTime={this.props.timeLimit*1000}
             checkpoints={[
               {
-                time: 0,
+                time: 1,
                 callback: () => this.handleSubmit(0),
-              },
+              }
             ]}
           >
             {(timer) => (
