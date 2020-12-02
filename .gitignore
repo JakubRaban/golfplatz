@@ -93,7 +93,6 @@ local_settings.py
 node_modules
 pnpm-lock.yaml
 
-.env
 db.sqlite3
 Server/media/**
 
