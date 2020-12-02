@@ -1,9 +1,6 @@
-import calendar
-import csv
 import functools
 import re
 from collections import defaultdict
-from datetime import datetime
 from decimal import Decimal
 from random import randint
 from typing import List, Tuple, Set
@@ -12,11 +9,19 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Max, F, Sum
+from django.db.models import Max, Sum
 from django.utils.timezone import now
 from knox.models import AuthToken
 
 from .managers import ParticipantManager
+
+
+class Category(models.TextChoices):
+    QUIZ = 'QUIZ', 'Quiz'
+    GENERIC = 'GENERIC', 'Generic lab exercise'
+    ACTIVENESS = 'ACTIVENESS', 'Activeness'
+    TEST = 'TEST', 'Test'
+    HOMEWORK = 'HOMEWORK', 'Homework or project'
 
 
 def get_random_access_code(length=8):
@@ -161,6 +166,7 @@ class Achievement(models.Model):
     how_many = models.PositiveSmallIntegerField()
     in_a_row = models.BooleanField()
     condition_type = models.CharField(max_length=10, choices=ConditionType.choices)
+    adventure_category_included = models.CharField(max_length=10, choices=Category.choices, null=True)
     percentage = models.PositiveSmallIntegerField()
     accomplished_by_students = models.ManyToManyField('Participant', through='AccomplishedAchievement')
 
@@ -183,13 +189,6 @@ class Rank(models.Model):
 
 
 class Weight(models.Model):
-    class Category(models.TextChoices):
-        QUIZ = 'QUIZ', 'Quiz'
-        GENERIC = 'GENERIC', 'Generic lab exercise'
-        ACTIVENESS = 'ACTIVENESS', 'Activeness'
-        TEST = 'TEST', 'Test'
-        HOMEWORK = 'HOMEWORK', 'Homework or project'
-
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     category = models.CharField(max_length=10, choices=Category.choices)
     weight = models.PositiveIntegerField()
@@ -471,7 +470,7 @@ class AccomplishedChapter(models.Model):
 
 class PointSource(models.Model):
     adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True, related_name='point_source')
-    category = models.CharField(max_length=10, choices=Weight.Category.choices)
+    category = models.CharField(max_length=10, choices=Category.choices)
 
 
 class Answer(models.Model):

@@ -28,6 +28,7 @@ import AdventureQuestionsFormList from './AdventureQuestionsFormList.js';
 import TimeLimitForm from './TimeLimitForm.js';
 import TimerRulesFormList from './TimerRulesFormList.js';
 import CircularProgress from "@material-ui/core/CircularProgress";
+import FormErrorMessage from "../../common/FormErrorMessage";
 
 class Adventure extends React.Component {
   emptyAnswer = {
@@ -263,7 +264,7 @@ class Adventure extends React.Component {
               </AccordionDetails>
             </Accordion>
             <Button color={'primary'} onClick={this.submitForm}>Zatwierdź i zapisz</Button>
-            {!empty(this.state.errors) && <div style={{ color: 'red' }}>Formularz zawiera błędy. Popraw je i spróbuj ponownie.</div>}
+            {!empty(this.state.errors) && <FormErrorMessage />}
             {this.state.isAddingAdventure && <CircularProgress />}
           </main>
         </div>

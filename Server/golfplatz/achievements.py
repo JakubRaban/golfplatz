@@ -31,7 +31,10 @@ def _check_for_chapter_achievement(previous_chapters: Dict[PlotPart, List[Chapte
         return False
     counter = 0
     for chapter in chapters:
-        if _check_chapter_meets_condition(chapter, achievement, score_aggregator):
+        condition_check = _check_chapter_meets_condition(chapter, achievement, score_aggregator)
+        if condition_check is None:
+            pass
+        elif condition_check:
             counter += 1
         elif achievement.in_a_row:
             counter = 0
@@ -47,7 +50,10 @@ def _check_for_plot_part_achievement(previous_chapters: Dict[PlotPart, List[Chap
         return False
     counter = 0
     for plot_part in fully_done_plot_parts:
-        if _check_plot_part_meets_condition(plot_part, achievement, score_aggregator):
+        condition_check = _check_plot_part_meets_condition(plot_part, achievement, score_aggregator)
+        if condition_check is None:
+            pass
+        if condition_check:
             counter += 1
         elif achievement.in_a_row:
             counter = 0
@@ -56,13 +62,17 @@ def _check_for_plot_part_achievement(previous_chapters: Dict[PlotPart, List[Chap
 
 def _check_chapter_meets_condition(chapter: Chapter, achievement: Achievement, score_aggregator: ScoreAggregator):
     if achievement.condition_type == Achievement.ConditionType.SCORE:
-        return score_aggregator.points_for_chapter_percent(chapter) >= achievement.percentage
+        points = score_aggregator.points_for_chapter_percent(chapter)
+        return points and points >= achievement.percentage
     elif achievement.condition_type == Achievement.ConditionType.TIME:
-        return 0 < score_aggregator.average_time_taken_in_chapter_percent(chapter) <= achievement.percentage
+        time_taken = score_aggregator.average_time_taken_in_chapter_percent(chapter)
+        return time_taken and time_taken <= achievement.percentage
 
 
 def _check_plot_part_meets_condition(plot_part: PlotPart, achievement: Achievement, score_aggregator: ScoreAggregator):
     if achievement.condition_type == Achievement.ConditionType.SCORE:
-        return score_aggregator.points_for_plot_part_percent(plot_part) >= achievement.percentage
+        points = score_aggregator.points_for_plot_part_percent(plot_part)
+        return points and points >= achievement.percentage
     elif achievement.condition_type == Achievement.ConditionType.TIME:
-        return 0 < score_aggregator.average_time_taken_in_plot_part_percent(plot_part) <= achievement.percentage
+        time_taken = score_aggregator.average_time_taken_in_plot_part_percent(plot_part)
+        return time_taken and time_taken <= achievement.percentage
