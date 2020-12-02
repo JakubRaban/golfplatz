@@ -234,9 +234,9 @@ export class CourseDetails extends Component {
                                         onClick={() => this.onSubmit(plotPart.id)}
                                       >Dalej
                                       </Button>
-                                      {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}}/>}
                                     </div>
                                   </div>
+                                  {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}}/>}
                                 </Dialog>
                               </ListItem>
                             </List>

@@ -148,8 +148,8 @@ export class ManualGrading extends Component {
                       onClick={this.submitGrades}
                     >Dodaj oceny
                     </Button>
-                    {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}} />}
                   </div>
+                  {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}} />}
                 </>
               </main>
             </div>

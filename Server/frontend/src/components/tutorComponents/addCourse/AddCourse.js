@@ -242,8 +242,8 @@ export class AddCourse extends Component {
               variant="contained"
               onClick={this.onSubmit}
             >Potwierdź i wyślij</Button>
-            {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}}/>}
           </div>
+          {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}}/>}
         </main>
       </div>
     );

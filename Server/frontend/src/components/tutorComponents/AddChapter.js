@@ -19,7 +19,7 @@ export class AddChapter extends React.Component {
               <TextField className="input-class" value={chapter.name} type="text" 
                 error={get(errors, `chapters[${index}].name`, false)} name="name"
                 helperText={get(errors, `chapters[${index}].name`, '')} variant="outlined"
-                onChange={() => this.props.handleChange('name', index, e.target.value)} />
+                onChange={(e) => this.props.handleChange('name', index, e.target.value)} />
             </div>
           </div>
           <div className="row">
