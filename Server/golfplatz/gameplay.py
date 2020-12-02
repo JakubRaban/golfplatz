@@ -19,11 +19,12 @@ def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
 
 def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]], image_questions_answers: List[Tuple[Question, str]]):
     points_gained = grade_answers_automatically(participant, closed_question_answers, open_question_answers, image_questions_answers)
+    questions = [qa[0] for qa in closed_question_answers + open_question_answers + image_questions_answers]
     AccomplishedAdventure.objects.create(student=participant, adventure=adventure, adventure_started_time=start_time,
                                          time_elapsed_seconds=answer_time,
                                          total_points_for_questions_awarded=points_gained,
                                          applied_time_modifier_percent=adventure.get_time_modifier(answer_time),
-                                         is_fully_graded=adventure.is_auto_checked)
+                                         is_fully_graded=all(question.is_auto_checked for question in questions))
     next_stage = _get_next_stage(adventure)
     if not next_stage:
         summary = do_post_chapter_operations(adventure, student=participant)

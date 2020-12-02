@@ -1,6 +1,6 @@
 from collections import defaultdict
 from statistics import mean
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 
 from .models import Adventure, Chapter, PlotPart, Weight
 
@@ -46,26 +46,47 @@ class ScoreAggregator:
         return self.points_for_adventure(adventure) / (adventure.max_points_possible * self._get_weight(acc_adventure))\
             * 100
 
-    def points_for_chapter(self, chapter: Chapter):
-        acc_adventures = self.adventures_by_chapters[chapter.id]
-        points = [self.points_for_accomplished_adventure(acc_adventure) for acc_adventure in acc_adventures]
-        weights = [self._get_weight(acc_adventure) for acc_adventure in acc_adventures]
-        return sum(points) / mean(weights)
+    def points_for_chapter(self, chapter: Chapter, category: Optional[str] = None):
+        acc_adventures = [acc_adventure for acc_adventure in self.adventures_by_chapters[chapter.id]
+                          if not category or acc_adventure['adventure__point_source__category'] == category]
+        if acc_adventures:
+            points = [self.points_for_accomplished_adventure(acc_adventure) for acc_adventure in acc_adventures]
+            weights = [self._get_weight(acc_adventure) for acc_adventure in acc_adventures]
+            return sum(points) / mean(weights)
+        return None
 
-    def points_for_chapter_percent(self, chapter: Chapter):
-        return self.points_for_chapter(chapter) / chapter.max_points_possible * 100
+    def max_points_for_chapter(self, chapter: Chapter, category: Optional[str] = None):
+        if not category:
+            return chapter.max_points_possible
+        acc_adventures = [acc_adventure for acc_adventure in self.adventures_by_chapters[chapter.id]
+                          if not category or acc_adventure['adventure__point_source__category'] == category]
+        return sum(acc_adventure['adventure__max_points_possible'] for acc_adventure in acc_adventures)
 
-    def points_for_plot_part(self, plot_part: PlotPart):
-        return sum(self.points_for_chapter(chapter) for chapter in plot_part.chapters.all())
+    def points_for_chapter_percent(self, chapter: Chapter, category: Optional[str] = None):
+        points_for_chapter = self.points_for_chapter(chapter, category)
+        max_points_for_chapter = self.max_points_for_chapter(chapter, category)
+        return points_for_chapter / max_points_for_chapter * 100 if points_for_chapter else None
 
-    def points_for_plot_part_percent(self, plot_part: PlotPart):
-        return self.points_for_plot_part(plot_part) / plot_part.max_points_possible * 100
+    def points_for_plot_part(self, plot_part: PlotPart, category: Optional[str] = None):
+        points_for_chapters = [self.points_for_chapter(chapter, category) for chapter in plot_part.chapters.all()]
+        points_for_chapters = [p for p in points_for_chapters if p is not None]
+        if points_for_chapters:
+            return sum(points_for_chapters)
+        return None
 
-    def points_for_all(self):
-        return sum(self.points_for_chapter(chapter) for chapter in Chapter.objects.filter(id__in=self.chapters))
+    def max_points_for_plot_part(self, plot_part: PlotPart, category: Optional[str] = None):
+        if not category:
+            return plot_part.max_points_possible
+        max_points_for_chapters = [self.max_points_for_chapter(chapter, category) for chapter in plot_part.chapters.all()]
+        max_points_for_chapters = [p for p in max_points_for_chapters if p is not None]
+        if max_points_for_chapters:
+            return sum(max_points_for_chapters)
+        return None
 
-    def max_points_for_all(self):
-        return sum(chapter.max_points_possible for chapter in Chapter.objects.filter(id__in=self.chapters))
+    def points_for_plot_part_percent(self, plot_part: PlotPart, category: Optional[str] = None):
+        points_for_plot_part = self.points_for_plot_part(plot_part, category)
+        max_points_for_plot_part = self.max_points_for_plot_part(plot_part, category)
+        return points_for_plot_part / max_points_for_plot_part * 100 if points_for_plot_part else None
 
     @staticmethod
     def time_taken_in_accomplished_adventures(acc_adventures: List[Dict]):
@@ -79,7 +100,7 @@ class ScoreAggregator:
     def time_taken_in_accomplished_adventures_percent(self, acc_adventures: List[Dict]):
         time_taken = self.time_taken_in_accomplished_adventures(acc_adventures)
         total_time_limit = self.total_time_limit_in_accomplished_adventures(acc_adventures)
-        return time_taken / total_time_limit * 100 if total_time_limit > 0 else 0
+        return time_taken / total_time_limit * 100 if total_time_limit > 0 else None
 
     def average_time_taken_in_chapter_percent(self, chapter: Chapter):
         return self.time_taken_in_accomplished_adventures_percent(self.adventures_by_chapters[chapter.id])
