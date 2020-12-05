@@ -4,6 +4,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { withStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import LockIcon from '@material-ui/icons/Lock';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import React, { Component } from 'react';
 import Input from '@material-ui/core/Input';
@@ -11,13 +12,22 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 
 import { styles } from '../../../styles/style.js';
+import SystemKeyModal from '../SystemKeyModal.js';
 
 class DashboardNavbar extends Component {
-  state = { selectedCourse: '' };
+  state = { selectedCourse: '', showSystemKeyModal: false };
 
   handleSelect = (e) => {
     this.setState({ selectedCourse: e.target.value});
     this.props.handleChange(e.target.value);
+  }
+
+  closeSystemKeyModal = () => {
+    this.setState({ showSystemKeyModal: false });
+  }
+
+  openSystemKeyModal = () => {
+    this.setState({ showSystemKeyModal: true });
   }
 
   render() {
@@ -51,13 +61,24 @@ class DashboardNavbar extends Component {
               ))}
             </Select>
           </div>
-          
+          {this.props.isTutor &&
+            <IconButton color='inherit' onClick={this.openSystemKeyModal}>
+              <Badge color='secondary'>
+                <LockIcon />
+              </Badge>
+            </IconButton>
+          }
           <IconButton color='inherit' onClick={this.props.logout.bind(this)}>
             <Badge color='secondary'>
               <PowerSettingsNewIcon />
             </Badge>
           </IconButton>
         </Toolbar>
+        <SystemKeyModal
+          onClose={this.closeSystemKeyModal}
+          open={this.state.showSystemKeyModal}
+          systemKey={this.props.systemKey?.systemKey}
+        />
       </AppBar>
     );
   }

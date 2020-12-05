@@ -20,6 +20,7 @@ import {
   GET_RANK,
   GET_RANKING,
   GET_STUDENT_MARKS,
+  GET_SYSTEM_KEY,
   GET_UNCHECKED_GRADES,
   GRADE_MANUAL,
   NEXT_ADVENTURE,
@@ -51,6 +52,7 @@ const initialState = {
   ranking: {},
   studentRank: {},
   studentMarks: {},
+  systemKey: undefined,
 };
 
 export default function (state = initialState, action) {
@@ -189,6 +191,11 @@ export default function (state = initialState, action) {
           ...state.courseDetailed,
           plotParts,
         },
+      };
+    case GET_SYSTEM_KEY:
+      return {
+        ...state,
+        systemKey: action.payload,
       };
     case ERRORS:
       return {

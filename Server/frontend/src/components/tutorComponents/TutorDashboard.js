@@ -17,7 +17,7 @@ import { withRouter } from 'react-router-dom';
 
 import { logout } from '../../actions/auth.js';
 import { getPalette, MAIN_COLOR } from '../../actions/color.js';
-import { getCourses } from '../../actions/course.js';
+import { getCourses, getSystemKey } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import DashboardNavbar from '../common/navbars/DashboardNavbar.js';
 import ChooseCourseDialog from '../common/ChooseCourseDialog.js';
@@ -50,6 +50,7 @@ export class TutorDashboard extends Component {
   };
 
   componentDidMount() {
+    this.props.getSystemKey();
     this.props.getCourses();
   }
 
@@ -105,6 +106,7 @@ export class TutorDashboard extends Component {
   render() {
     const { classes, palette } = this.props;
     const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+    console.log(this.props);
     return (
       <>
         {this.state.loaded ?
@@ -114,7 +116,9 @@ export class TutorDashboard extends Component {
               <DashboardNavbar 
                 courses={this.props.courses}
                 handleChange={this.handleCourseSelect}
+                isTutor
                 logout={this.props.logout}
+                systemKey={this.props?.systemKey}
                 title='Panel prowadzącego'
               />
               <main className={classes.content}>
@@ -181,9 +185,10 @@ const mapStateToProps = (state) => ({
   courses: state.course.courses,
   palette: state.color.palette,
   themeColors: state.color.themeColors,
+  systemKey: state.course.systemKey,
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getCourses, getPalette }),
+  connect(mapStateToProps, { logout, getCourses, getPalette, getSystemKey }),
   withStyles(styles),
 )(withRouter(TutorDashboard));
