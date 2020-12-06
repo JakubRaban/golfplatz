@@ -91,7 +91,8 @@ export class StudentDashboard extends Component {
   }
 
   handleCourseSelect = async (e) => {
-    await this.setPalette(e.target.value);
+    const course = this.props.courses.find((course) => course.name === e.target.value)
+    await this.setPalette(course);
     this.setPalette(this.props.activeCourse);
   }
 

@@ -40,7 +40,7 @@ class DashboardNavbar extends Component {
           <div className={classes.dropdown}>
             <Select
               displayEmpty
-              value={this.props.activeCourse}
+              value={this.props.activeCourse?.name || ''}
               onChange={handleChange}
               input={<Input />}
             >
@@ -48,7 +48,7 @@ class DashboardNavbar extends Component {
                 <em>Wybierz aktywny kurs:</em>
               </MenuItem>
               {courses.map((course, index) => (
-                <MenuItem key={index} value={course}>
+                <MenuItem key={index} value={course.name}>
                   {course.name}
                 </MenuItem>
               ))}

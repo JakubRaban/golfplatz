@@ -62,6 +62,7 @@ export class CourseDetails extends Component {
         },
       },
     });
+    await this.setState({ loaded: true });
   }
 
   checkErrors = async () => {
