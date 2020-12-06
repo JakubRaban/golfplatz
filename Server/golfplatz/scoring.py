@@ -89,21 +89,23 @@ class ScoreAggregator:
         return points_for_plot_part / max_points_for_plot_part * 100 if points_for_plot_part else None
 
     @staticmethod
-    def time_taken_in_accomplished_adventures(acc_adventures: List[Dict]):
+    def time_taken_in_accomplished_adventures(acc_adventures: List[Dict], category: Optional[str] = None):
         return sum(acc_adventure['time_elapsed_seconds'] for acc_adventure in acc_adventures
-                   if acc_adventure['adventure__time_limit'] > 0)
+                   if acc_adventure['adventure__time_limit'] > 0 and
+                   (not category or acc_adventure['adventure__point_source__category'] == category))
 
     @staticmethod
-    def total_time_limit_in_accomplished_adventures(acc_adventures: List[Dict]):
-        return sum(acc_adventure['adventure__time_limit'] for acc_adventure in acc_adventures)
+    def total_time_limit_in_accomplished_adventures(acc_adventures: List[Dict], category: Optional[str] = None):
+        return sum(acc_adventure['adventure__time_limit'] for acc_adventure in acc_adventures
+                   if not category or acc_adventure['adventure__point_source__category'] == category)
 
-    def time_taken_in_accomplished_adventures_percent(self, acc_adventures: List[Dict]):
-        time_taken = self.time_taken_in_accomplished_adventures(acc_adventures)
-        total_time_limit = self.total_time_limit_in_accomplished_adventures(acc_adventures)
+    def time_taken_in_accomplished_adventures_percent(self, acc_adventures: List[Dict], category: Optional[str] = None):
+        time_taken = self.time_taken_in_accomplished_adventures(acc_adventures, category)
+        total_time_limit = self.total_time_limit_in_accomplished_adventures(acc_adventures, category)
         return time_taken / total_time_limit * 100 if total_time_limit > 0 else None
 
-    def average_time_taken_in_chapter_percent(self, chapter: Chapter):
-        return self.time_taken_in_accomplished_adventures_percent(self.adventures_by_chapters[chapter.id])
+    def average_time_taken_in_chapter_percent(self, chapter: Chapter, category: Optional[str] = None):
+        return self.time_taken_in_accomplished_adventures_percent(self.adventures_by_chapters[chapter.id], category)
 
-    def average_time_taken_in_plot_part_percent(self, plot_part: PlotPart):
-        return self.time_taken_in_accomplished_adventures_percent(self.adventures_by_plot_parts[plot_part.id])
+    def average_time_taken_in_plot_part_percent(self, plot_part: PlotPart, category: Optional[str] = None):
+        return self.time_taken_in_accomplished_adventures_percent(self.adventures_by_plot_parts[plot_part.id], category)

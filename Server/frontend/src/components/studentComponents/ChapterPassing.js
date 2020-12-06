@@ -178,7 +178,13 @@ export class ChapterPassing extends Component {
       imageQuestions.push({ questionId: key, image: value})
     })
 
-    this.adventureAnswer = { startTime: this.startTime.toISOString(), answerTime, closedQuestions, openQuestions, imageQuestions };
+    this.adventureAnswer = {
+      startTime: this.startTime.toISOString(),
+      answerTime: Math.round(answerTime),
+      closedQuestions,
+      openQuestions,
+      imageQuestions
+    };
     console.log(this.adventureAnswer);
 
     this.setState({

@@ -65,7 +65,8 @@ def _check_chapter_meets_condition(chapter: Chapter, achievement: Achievement, s
         points = score_aggregator.points_for_chapter_percent(chapter, achievement.adventure_category_included)
         return points and points >= achievement.percentage
     elif achievement.condition_type == Achievement.ConditionType.TIME:
-        time_taken = score_aggregator.average_time_taken_in_chapter_percent(chapter, achievement.adventure_category_included)
+        time_taken = score_aggregator.average_time_taken_in_chapter_percent(chapter,
+                                                                            achievement.adventure_category_included)
         return time_taken and time_taken <= achievement.percentage
 
 
@@ -74,5 +75,6 @@ def _check_plot_part_meets_condition(plot_part: PlotPart, achievement: Achieveme
         points = score_aggregator.points_for_plot_part_percent(plot_part, achievement.adventure_category_included)
         return points and points >= achievement.percentage
     elif achievement.condition_type == Achievement.ConditionType.TIME:
-        time_taken = score_aggregator.average_time_taken_in_plot_part_percent(plot_part, achievement.adventure_category_included)
+        time_taken = score_aggregator.average_time_taken_in_plot_part_percent(plot_part,
+                                                                              achievement.adventure_category_included)
         return time_taken and time_taken <= achievement.percentage
