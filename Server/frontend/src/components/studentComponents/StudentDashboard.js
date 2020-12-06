@@ -118,6 +118,7 @@ export class StudentDashboard extends Component {
               <DashboardNavbar
                 courses={this.props.courses}
                 handleChange={this.handleCourseSelect}
+                isTutor={false}
                 logout={this.props.logout}
                 title={'Panel uczestnika kursu'}
               />
