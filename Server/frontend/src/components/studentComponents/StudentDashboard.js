@@ -57,11 +57,12 @@ export class StudentDashboard extends Component {
     this.setPalette(this.props.activeCourse);
   }
 
-  componentDidUpdate(prevProps) {
+  async componentDidUpdate(prevProps) {
     if (prevProps.courses !== this.props.courses) {
       this.setState({ loaded: true });
     }
     if (prevProps.activeCourse !== this.props.activeCourse) {
+      await this.props.getStudentCourses();
       this.setPalette(this.props.activeCourse);
     }
   }

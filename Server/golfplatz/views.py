@@ -105,9 +105,10 @@ class CourseGroupEnrollmentView(APIView):
 
     def post(self, request, access_code):
         student = self.request.user
-        course_group = CourseGroup.objects.filter(access_code=access_code)[0]
-        if not course_group:
+        course_groups = CourseGroup.objects.filter(access_code=access_code)
+        if course_groups.count() == 0:
             return Response(status=400)
+        course_group = course_groups[0]
         if CourseGroupStudents.objects.filter(student=student, course_group__course=course_group.course).count() != 0:
             return Response(status=400)
         CourseGroupStudents.objects.create(student=student, course_group=course_group)
