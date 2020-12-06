@@ -98,7 +98,7 @@ export class CourseStructure extends Component {
           `${chapter.name} - Ukończono: ${new Date(chapter.accomplishedChapters[0].timeCompleted).toLocaleString('pl-PL')}`
         }/>
       </ListItem>
-    ) : prevChapter && prevChapter.accomplishedChapters.length === 0 || !prevChapter.accomplishedChapters[0].isCompleted ? (
+    ) : prevChapter && (prevChapter.accomplishedChapters.length === 0 || !prevChapter.accomplishedChapters[0].isCompleted) ? (
       <ListItem>
         <ListItemText secondary={`${chapter.name} - przejdź poprzednie rozdziały zanim zaczniesz ten`} />
       </ListItem>
