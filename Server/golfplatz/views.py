@@ -521,6 +521,13 @@ class ManualGradingView(APIView):
         return Response()
 
 
+class SystemKeyView(APIView):
+    permission_classes = [IsTutor]
+
+    def get(self, request):
+        return Response({'system_key': SystemKey.get()})
+
+
 class WhoAmIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ParticipantSerializer

@@ -25,6 +25,7 @@ import {
   GET_RANK,
   GET_RANKING,
   GET_STUDENT_MARKS,
+  GET_SYSTEM_KEY,
   GET_ALL_RANKS,
   GET_UNCHECKED_GRADES,
   GRADE_MANUAL,
@@ -395,6 +396,15 @@ export const chooseNextAdventure = (id) => (dispatch, getState) => {
   axios.get(`/api/play/path_choice/${id}/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: NEXT_ADVENTURE,
+      payload: res.data,
+    });
+  });
+};
+
+export const getSystemKey = () => (dispatch, getState) => {
+  axios.get(`/api/get_system_key/`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_SYSTEM_KEY,
       payload: res.data,
     });
   });

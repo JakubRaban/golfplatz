@@ -51,5 +51,6 @@ urlpatterns = [
     path('courses/<int:course_id>/grades/export/csv/', GradeExportView.as_view()),
 
     path('manual_grading/<adventure_id>/', ManualGradingView.as_view()),
+    path('get_system_key/', SystemKeyView.as_view()),
 
 ]
