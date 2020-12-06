@@ -26,7 +26,7 @@ import {
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK, DELETE_COURSE, SET_ACTIVE_COURSE,
+  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK, DELETE_COURSE, SET_ACTIVE_COURSE, LOGOUT_SUCCESS,
 }
   from '../actions/types.js';
 
@@ -206,6 +206,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         active: action.payload,
+      }
+    case LOGOUT_SUCCESS:
+      return {
+        ...state,
+        active: undefined,
       }
     default:
       return state;

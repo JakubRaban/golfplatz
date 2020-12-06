@@ -47,6 +47,12 @@ class CourseListView(APIView):
         return Response(courses.data)
 
 
+class StudentCourseListView(APIView):
+    def get(self, request):
+        courses = CourseListSerializer(Course.objects.filter(course_groups__students=self.request.user), many=True)
+        return Response(courses.data)
+
+
 class RegisterStudentView(APIView):
     def post(self, request):
         return save_participant(request, group_name='student')
@@ -98,12 +104,14 @@ class CourseGroupEnrollmentView(APIView):
     permission_classes = [IsStudent]
 
     def post(self, request, access_code):
-        course_group = CourseGroup.objects.filter(access_code=access_code)
+        student = self.request.user
+        course_group = CourseGroup.objects.filter(access_code=access_code)[0]
         if not course_group:
             return Response(status=400)
-        student = self.request.user
-        CourseGroupStudents.objects.create(student=student, course_group=course_group[0])
-        return Response()
+        if CourseGroupStudents.objects.filter(student=student, course_group__course=course_group.course).count() != 0:
+            return Response(status=400)
+        CourseGroupStudents.objects.create(student=student, course_group=course_group)
+        return Response(CourseGroupSerializer(course_group).data)
 
 
 class AchievementView(APIView):

@@ -17,10 +17,12 @@ import { withRouter } from 'react-router-dom';
 
 import { logout } from '../../actions/auth.js';
 import { getPalette } from '../../actions/color.js';
-import { getCourses } from '../../actions/course.js';
+import { getStudentCourses } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import DashboardNavbar from '../common/navbars/DashboardNavbar.js';
 import ChooseCourseDialog from '../common/ChooseCourseDialog.js';
+import TextField from "@material-ui/core/TextField";
+import {enroll} from "../../actions/course";
 
 function Copyright() {
   return (
@@ -46,11 +48,12 @@ export class StudentDashboard extends Component {
     dialogOpen: false,
     dialogOpen2: false,
     loaded: false,
+    enrollCode: '',
     selectedCourseId: undefined,
   };
 
   componentDidMount() {
-    this.props.getCourses();
+    this.props.getStudentCourses();
     this.setPalette(this.props.activeCourse);
   }
 
@@ -96,6 +99,16 @@ export class StudentDashboard extends Component {
     this.setPalette(this.props.activeCourse);
   }
 
+  onEnrollCodeChange = (e) => {
+    this.setState({ enrollCode: e.target.value }, () => console.log(this.state.enrollCode))
+  }
+
+  onEnrollCodeSubmit = async () => {
+    await this.props.enroll(this.state.enrollCode);
+    await this.setPalette(this.props.activeCourse);
+    this.setState({ enrollCode: '' })
+  }
+
   render() {
     if (!this.props.isAuthenticated) {
       return <Redirect to="/login" />;
@@ -126,24 +139,31 @@ export class StudentDashboard extends Component {
                 <Container maxWidth="lg" className={classes.container}>
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={8} lg={12}>
-                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[0]}` }}>
-                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.props.activeCourse} onClick={this.handleGameCardOpen}>
-                          Podejrzyj kartę gry
-                        </Button>
-                      </Paper>
-                    </Grid>
-                    <Grid item xs={12} md={8} lg={6}>
-                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[1]}`}}>
+                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[0]}`}}>
                         <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.props.activeCourse} onClick={this.handleCourseStructureOpen}>
                           Podejmij wyzwanie!
                         </Button>
                       </Paper>
                     </Grid>
                     <Grid item xs={12} md={8} lg={6}>
-                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[2]}`}}>
-                        <Button disabled>
-                          Zapisz się do kursu
+                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[1]}` }}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.props.activeCourse} onClick={this.handleGameCardOpen}>
+                          Podejrzyj kartę gry
                         </Button>
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={8} lg={6}>
+                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[2]}`}}>
+                        <Typography style={{ color: this.theme.palette.primary.contrastText, textAlign: 'center' }} variant="h6">
+                          Zapisz się do kursu
+                        </Typography>
+                        <TextField
+                          variant="filled"
+                          value={this.state.enrollCode}
+                          onChange={this.onEnrollCodeChange}
+                          label="8-cyfrowy kod grupy"
+                        />
+                        <Button color="secondary" onClick={this.onEnrollCodeSubmit}>Zatwierdź</Button>
                       </Paper>
                     </Grid>
                   </Grid>
@@ -172,6 +192,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getCourses, getPalette }),
+  connect(mapStateToProps, { logout, getStudentCourses, getPalette, enroll }),
   withStyles(styles),
 )(withRouter(StudentDashboard));
