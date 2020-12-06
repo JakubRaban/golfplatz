@@ -61,6 +61,9 @@ export class StudentDashboard extends Component {
     if (prevProps.courses !== this.props.courses) {
       this.setState({ loaded: true });
     }
+    if (prevProps.activeCourse !== this.props.activeCourse) {
+      this.setPalette(this.props.activeCourse);
+    }
   }
 
   // handleDialogClose = () => {
@@ -105,7 +108,6 @@ export class StudentDashboard extends Component {
 
   onEnrollCodeSubmit = async () => {
     await this.props.enroll(this.state.enrollCode);
-    await this.setPalette(this.props.activeCourse);
     this.setState({ enrollCode: '' })
   }
 
@@ -132,6 +134,7 @@ export class StudentDashboard extends Component {
                 handleChange={this.handleCourseSelect}
                 isTutor={false}
                 logout={this.props.logout}
+                activeCourse={this.props.activeCourse}
                 title={'Panel uczestnika kursu'}
               />
               <main className={classes.content}>

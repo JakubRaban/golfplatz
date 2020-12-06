@@ -77,11 +77,6 @@ class DashboardNavbar extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  activeCourse: state.course.active,
-});
-
 export default compose(
-  connect(mapStateToProps, { getPalette }),
   withStyles(styles),
 )(DashboardNavbar);

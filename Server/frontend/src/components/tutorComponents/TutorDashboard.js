@@ -116,6 +116,7 @@ export class TutorDashboard extends Component {
                 isTutor
                 logout={this.props.logout}
                 systemKey={this.props?.systemKey}
+                activeCourse={this.props.activeCourse}
                 title='Panel prowadzącego'
               />
               <main className={classes.content}>
