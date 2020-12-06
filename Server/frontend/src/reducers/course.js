@@ -26,7 +26,7 @@ import {
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK, DELETE_COURSE,
+  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK, DELETE_COURSE, SET_ACTIVE_COURSE,
 }
   from '../actions/types.js';
 
@@ -202,6 +202,11 @@ export default function (state = initialState, action) {
         ...state,
         errors: action.payload,
       };
+    case SET_ACTIVE_COURSE:
+      return {
+        ...state,
+        active: action.payload,
+      }
     default:
       return state;
   }

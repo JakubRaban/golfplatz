@@ -10,17 +10,15 @@ import React, { Component } from 'react';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import compose from 'recompose/compose';
+import { connect } from 'react-redux';
 
 import { styles } from '../../../styles/style.js';
 import SystemKeyModal from '../SystemKeyModal.js';
+import {getPalette} from "../../../actions/color";
 
 class DashboardNavbar extends Component {
-  state = { selectedCourse: '', showSystemKeyModal: false };
-
-  handleSelect = (e) => {
-    this.setState({ selectedCourse: e.target.value});
-    this.props.handleChange(e.target.value);
-  }
+  state = { showSystemKeyModal: false };
 
   closeSystemKeyModal = () => {
     this.setState({ showSystemKeyModal: false });
@@ -31,7 +29,8 @@ class DashboardNavbar extends Component {
   }
 
   render() {
-    const { classes, courses } = this.props;
+    const { classes, courses, handleChange } = this.props;
+    console.log("ac", this.props.activeCourse);
     return (
       <AppBar position='absolute' className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
@@ -41,21 +40,15 @@ class DashboardNavbar extends Component {
           <div className={classes.dropdown}>
             <Select
               displayEmpty
-              value={this.state.selectedCourse}
-              onChange={this.handleSelect}
+              value={this.props.activeCourse}
+              onChange={handleChange}
               input={<Input />}
-              renderValue={(selected) => {
-                if (selected.length === 0) {
-                  return <em>Wybierz aktywny kurs</em>;
-                }
-                return selected;
-              }}
             >
-              <MenuItem disabled value=''>
+              <MenuItem disabled value={''}>
                 <em>Wybierz aktywny kurs:</em>
               </MenuItem>
               {courses.map((course, index) => (
-                <MenuItem key={index} value={course.name}>
+                <MenuItem key={index} value={course}>
                   {course.name}
                 </MenuItem>
               ))}
@@ -84,4 +77,11 @@ class DashboardNavbar extends Component {
   }
 }
 
-export default withStyles(styles)(DashboardNavbar);
+const mapStateToProps = (state) => ({
+  activeCourse: state.course.active,
+});
+
+export default compose(
+  connect(mapStateToProps, { getPalette }),
+  withStyles(styles),
+)(DashboardNavbar);

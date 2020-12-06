@@ -39,19 +39,18 @@ export class TutorDashboard extends Component {
   theme = createMuiTheme();
 
   constructor(props) {
-    props.getPalette(MAIN_COLOR);
     super(props);
   }
 
   state = {
     addGradesDialogOpen: false,
     showGradesDialogOpen: false,
-    selectedCourseId: undefined,
   };
 
   componentDidMount() {
     this.props.getSystemKey();
     this.props.getCourses();
+    this.setPalette(this.props.activeCourse);
   }
 
   componentDidUpdate(prevProps) {
@@ -61,7 +60,7 @@ export class TutorDashboard extends Component {
   }
 
   setPalette = async (course) => {
-    await this.props.getPalette(course.themeColor);
+    await this.props.getPalette(course);
     this.theme = await createMuiTheme({
       palette: {
         primary: {
@@ -72,7 +71,6 @@ export class TutorDashboard extends Component {
         },
       },
     });
-    await this.setState({ selectedCourseId: course.id });
   }
 
   handleAddGradesDialogClose = () => {
@@ -80,9 +78,9 @@ export class TutorDashboard extends Component {
   }
 
   handleAddGradesClick = () => {
-    if (this.state.selectedCourseId === undefined) this.setState({ addGradesDialogOpen: true });
+    if (this.props.activeCourse === undefined) this.setState({ addGradesDialogOpen: true });
     else {
-      this.props.history.push(`/add-grades/${this.state.selectedCourseId}`);
+      this.props.history.push(`/add-grades/${this.props.activeCourse.id}`);
     }
   }
 
@@ -91,29 +89,27 @@ export class TutorDashboard extends Component {
   }
 
   handleShowGradesClick = () => {
-    if (this.state.selectedCourseId === undefined) this.setState({ showGradesDialogOpen: true });
+    if (this.props.activeCourse === undefined) this.setState({ showGradesDialogOpen: true });
     else {
-      this.props.history.push(`/grades/${this.state.selectedCourseId}`);
+      this.props.history.push(`/grades/${this.props.activeCourse.id}`);
     }
   }
 
-  handleCourseSelect = (selectedCourseName) => {
-    const selectedCourse = this.props.courses.find((course) => course.name === selectedCourseName);
-
-    this.setPalette(selectedCourse);
+  handleCourseSelect = async (e) => {
+    await this.setPalette(e.target.value);
+    this.setPalette(this.props.activeCourse);
   }
 
   render() {
     const { classes, palette } = this.props;
     const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
-    console.log(this.props);
     return (
       <>
         {this.state.loaded ?
           <ThemeProvider theme={this.theme}>
             <div className={classes.root}>
               <CssBaseline />
-              <DashboardNavbar 
+              <DashboardNavbar
                 courses={this.props.courses}
                 handleChange={this.handleCourseSelect}
                 isTutor
@@ -141,14 +137,14 @@ export class TutorDashboard extends Component {
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[2]}` }}>
-                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.state.selectedCourseId} onClick={this.handleAddGradesClick}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.props.activeCourse} onClick={this.handleAddGradesClick}>
                           Oceń zadania
                         </Button>
                       </Paper>
                     </Grid>
                     <Grid item xs={12} md={4} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[3]}` }}>
-                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.state.selectedCourseId} onClick={this.handleShowGradesClick}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.props.activeCourse} onClick={this.handleShowGradesClick}>
                           Podgląd ocen
                         </Button>
                       </Paper>
@@ -186,6 +182,7 @@ const mapStateToProps = (state) => ({
   palette: state.color.palette,
   themeColors: state.color.themeColors,
   systemKey: state.course.systemKey,
+  activeCourse: state.course.active,
 });
 
 export default compose(

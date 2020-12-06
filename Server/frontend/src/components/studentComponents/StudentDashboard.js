@@ -39,7 +39,6 @@ export class StudentDashboard extends Component {
   theme = createMuiTheme();
 
   constructor(props) {
-    props.getPalette('#3f51b5');
     super(props);
   }
 
@@ -52,6 +51,7 @@ export class StudentDashboard extends Component {
 
   componentDidMount() {
     this.props.getCourses();
+    this.setPalette(this.props.activeCourse);
   }
 
   componentDidUpdate(prevProps) {
@@ -65,7 +65,7 @@ export class StudentDashboard extends Component {
   // }
 
   handleGameCardOpen = () => {
-    this.props.history.push(`/game-card/${this.state.selectedCourseId}`);
+    this.props.history.push(`/game-card/${this.props.activeCourse.id}`);
   }
 
   // handleDialog2Close = () => {
@@ -73,11 +73,11 @@ export class StudentDashboard extends Component {
   // }
 
   handleCourseStructureOpen = () => {
-    this.props.history.push(`/course-structure/${this.state.selectedCourseId}`);
+    this.props.history.push(`/course-structure/${this.props.activeCourse.id}`);
   }
 
   setPalette = async (course) => {
-    await this.props.getPalette(course.themeColor);
+    await this.props.getPalette(course);
     this.theme = await createMuiTheme({
       palette: {
         primary: {
@@ -88,13 +88,11 @@ export class StudentDashboard extends Component {
         },
       },
     });
-    await this.setState({ selectedCourseId: course.id });
   }
 
-  handleCourseSelect = (selectedCourseName) => {
-    const selectedCourse = this.props.courses.find((course) => course.name === selectedCourseName);
-
-    this.setPalette(selectedCourse);
+  handleCourseSelect = async (e) => {
+    await this.setPalette(e.target.value);
+    this.setPalette(this.props.activeCourse);
   }
 
   render() {
@@ -128,14 +126,14 @@ export class StudentDashboard extends Component {
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={8} lg={12}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[0]}` }}>
-                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.state.selectedCourseId} onClick={this.handleGameCardOpen}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.props.activeCourse} onClick={this.handleGameCardOpen}>
                           Podejrzyj kartę gry
                         </Button>
                       </Paper>
                     </Grid>
                     <Grid item xs={12} md={8} lg={6}>
                       <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[1]}`}}>
-                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.state.selectedCourseId} onClick={this.handleCourseStructureOpen}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.props.activeCourse} onClick={this.handleCourseStructureOpen}>
                           Podejmij wyzwanie!
                         </Button>
                       </Paper>
@@ -169,6 +167,7 @@ const mapStateToProps = (state) => ({
   courses: state.course.courses,
   palette: state.color.palette,
   themeColors: state.color.themeColors,
+  activeCourse: state.course.active,
 });
 
 export default compose(
