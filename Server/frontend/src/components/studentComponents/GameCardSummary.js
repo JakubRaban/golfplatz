@@ -45,11 +45,11 @@ export class GameCardSummary extends Component {
     return result;
   }
 
-  renderAchievement = (achievement, accomplished = false) => {
+  renderAchievement = (achievement, index, accomplished = false) => {
     const cardMediaStyle = accomplished ? {height: '140px'} : {height: '140px', opacity: '10%'};
 
     return (
-      <Card style={{width: '350px', margin: '5px'}}>
+      <Card key={index + 100*accomplished} style={{width: '350px', margin: '5px'}}>
         <CardMedia
           style={cardMediaStyle}
           component='img'
@@ -87,9 +87,15 @@ export class GameCardSummary extends Component {
           </CardContent>
         </Card>
       );
+    return (
+      <Typography component='h6' variant='h6'>
+        Twój wynik w kursie to: {this.props.studentRank.scorePercent}%
+      </Typography>
+    );
   }
 
   render() {
+    console.log(this.props);
     return (
       <>
         {this.state.rankLoaded && this.renderRank()}
@@ -101,11 +107,11 @@ export class GameCardSummary extends Component {
         </Typography>
         }
         <div style={{display: 'flex'}}>
-          {this.state.achievementsLoaded && this.props.achievements?.accomplished.map((achievement) =>
-            this.renderAchievement(achievement, true)
+          {this.state.achievementsLoaded && this.props.achievements?.accomplished.map((achievement, index) =>
+            this.renderAchievement(achievement, index, true)
           )}
-          {this.state.achievementsLoaded && this.props.achievements?.notAccomplished.map((achievement) =>
-            this.renderAchievement(achievement)
+          {this.state.achievementsLoaded && this.props.achievements?.notAccomplished.map((achievement, index) =>
+            this.renderAchievement(achievement, index)
           )}
         </div>
       </>
