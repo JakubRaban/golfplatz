@@ -68,12 +68,32 @@ export class Adventure extends Component {
     this.props.onSubmit(time);
   }
 
+  showPointSourceCategory = () => {
+    switch(this.props.adventurePart.adventure.pointSource.category) {
+      case QUIZ:
+        return 'Kartkówka';
+      case GENERIC:
+        return 'Zadanie na zajęciach';
+      case ACTIVENESS:
+        return 'Aktywność';
+      case TEST:
+        return 'Kolokwium';
+      case HOMEWORK:
+        return 'Praca domowa';
+      default:
+        return '';
+    };
+  }
+
   render() {
     console.log(this.props);
     return (
       <div>
         <Typography variant='h5' gutterBottom>
           {this.props.adventurePart.adventure.name}
+        </Typography>
+        <Typography variant='h6' gutterBottom>
+          {this.showPointSourceCategory()}
         </Typography>
         <Typography variant='subtitle1' gutterBottom>
           {this.props.adventurePart.adventure.taskDescription}

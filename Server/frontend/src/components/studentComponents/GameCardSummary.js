@@ -95,7 +95,6 @@ export class GameCardSummary extends Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <>
         {this.state.rankLoaded && this.renderRank()}
