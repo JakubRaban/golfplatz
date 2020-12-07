@@ -289,8 +289,8 @@ export const getAllRanks = (courseId) => (dispatch, getState) => {
   });
 }
 
-export const getRanking = (courseId) => (dispatch, getState) => {
-  axios.get(`api/courses/${courseId}/ranking/`, tokenConfig(getState)).then((res) => {
+export const getStudentRanking = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/ranking/student/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_RANKING,
       payload: res.data,
