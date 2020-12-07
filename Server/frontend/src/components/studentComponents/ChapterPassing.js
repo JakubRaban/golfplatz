@@ -148,7 +148,7 @@ export class ChapterPassing extends Component {
   }
 
   onSubmitAnswer = (timeElapsed) => {
-    const answerTime = this.state.timeLimit - timeElapsed/1000;
+    const answerTime = this.props.adventurePart.adventure.timeLimit ? this.state.timeLimit - timeElapsed/1000 : timeElapsed/1000;
 
     const closedQuestions = [];
     const openQuestions = [];
@@ -196,6 +196,7 @@ export class ChapterPassing extends Component {
 
   render() {
     const { classes } = this.props;
+    console.log(this.props);
 
     if (!this.props.isAuthenticated) {
       return <Redirect to='/login' />;

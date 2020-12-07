@@ -70,15 +70,15 @@ export class Adventure extends Component {
 
   showPointSourceCategory = () => {
     switch(this.props.adventurePart.adventure.pointSource.category) {
-      case QUIZ:
+      case 'QUIZ':
         return 'Kartkówka';
-      case GENERIC:
+      case 'GENERIC':
         return 'Zadanie na zajęciach';
-      case ACTIVENESS:
+      case 'ACTIVENESS':
         return 'Aktywność';
-      case TEST:
+      case 'TEST':
         return 'Kolokwium';
-      case HOMEWORK:
+      case 'HOMEWORK':
         return 'Praca domowa';
       default:
         return '';
@@ -86,7 +86,6 @@ export class Adventure extends Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <div>
         <Typography variant='h5' gutterBottom>
@@ -100,23 +99,21 @@ export class Adventure extends Component {
         </Typography>
         {!this.props.submitted ?
           <ReactTimer
-            direction='backward'
+            direction={this.props.timeLimit ? 'backward' : 'forward'}
             formatValue={value => `${value < 10 ? `0${value}` : value}`}
-            initialTime={this.props.timeLimit * 1000}
+            initialTime={this.props.timeLimit ? this.props.timeLimit * 1000 : 3}
             checkpoints={[
               {
-                time: 0,
+                time: 1,
                 callback: () => this.handleSubmit(0),
               },
             ]}
           >
             {(timer) => (
               <>
-                {this.props.adventurePart.adventure.timeLimit > 0 &&
-                  <div>
-                    <ReactTimer.Hours />:<ReactTimer.Minutes />:<ReactTimer.Seconds />
-                  </div>
-                }
+                <div>
+                  <ReactTimer.Hours />:<ReactTimer.Minutes />:<ReactTimer.Seconds />
+                </div>
                 {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
                   <React.Fragment key={100+i}>
                     <Typography variant='subtitle2' gutterBottom>
