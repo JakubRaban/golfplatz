@@ -16,11 +16,12 @@ export class AddAchievements extends Component {
         </Typography>
         {this.props.achievements.map((achievement, index) =>
           <Achievement
+            key={index}
             achievement={achievement}
             errors={this.props.errors}
             handleChange={this.props.handleAchievementChange}
             index={index}
-            key={index} />,
+            removeAchievement={this.props.removeAchievement} />,
         )}
         <Button
           color="secondary"

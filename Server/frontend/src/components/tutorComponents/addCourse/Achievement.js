@@ -1,6 +1,6 @@
 import '../../../styles/course-forms.css';
 
-import { Accordion, AccordionDetails, AccordionSummary, FormHelperText, InputLabel,
+import { Accordion, AccordionDetails, AccordionSummary, Button, FormHelperText, InputLabel,
    MenuItem, Select, TextField, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React, { Component } from 'react';
@@ -123,6 +123,12 @@ export class AddAchievement extends Component {
                 {get(errors, `achievements[${index}].conditionType`, false) &&
                   <FormHelperText error>{errors.achievements[index].conditionType}</FormHelperText>}
               </div>
+            </div>
+            <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
+              <Button
+                color='secondary'
+                onClick={() => this.props.removeAchievement(index)}
+              >Usuń tę odznakę</Button>
             </div>
           </div>
 

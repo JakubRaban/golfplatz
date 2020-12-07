@@ -118,20 +118,6 @@ export class ChapterPassing extends Component {
     }
   }
 
-  // tick() {
-  //   const current = this.state.timeLimit;
-  //   if (current === 0) {
-  //     this.transition();
-  //   } else {
-  //     this.setState({ timeLimit: current - 1 });
-  //   }
-  // }
-
-  // transition() {
-  //   clearInterval(this.timer);
-  //   // call timeout
-  // }
-
   onOpenAnswerChange = (id) => (e) => {
     const tmpQuestions = this.state.openQuestions;
     tmpQuestions.set(id, e.target.value);

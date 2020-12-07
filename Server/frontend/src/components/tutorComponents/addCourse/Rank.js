@@ -1,7 +1,7 @@
 import '../../../styles/course-forms.css';
 
 import React from 'react';
-import { Accordion, AccordionDetails, AccordionSummary, 
+import { Accordion, AccordionDetails, AccordionSummary, Button,
   FormHelperText, InputLabel, TextField, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { get } from 'lodash';
@@ -57,6 +57,12 @@ export class Rank extends React.Component {
                   helperText={index !== 0 ? get(errors, `ranks[${index}].lowerThresholdPercent`, '') : 'To będzie najgorsza ranga. Dodaj kolejne dla wyższych progów punktowych.'} variant="outlined"
                   onChange={(e) => this.props.handleChange('lowerThresholdPercent', index, e.target.value)} />
               </div>
+            </div>
+            <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
+              <Button
+                color='secondary'
+                onClick={() => this.props.removeRank(index)}
+              >Usuń tę rangę</Button>
             </div>
           </div>
         </AccordionDetails>
