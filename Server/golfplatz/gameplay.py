@@ -13,7 +13,7 @@ from .scoring import ScoreAggregator
 
 
 def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
-    AccomplishedChapter.objects.filter(chapter=chapter, participant=participant).delete()
+    AccomplishedChapter.objects.filter(chapter=chapter, student=participant).delete()
     AccomplishedAdventure.objects.filter(adventure__chapter=chapter, student=participant).delete()
     AccomplishedChapter.objects.create(chapter=chapter, student=participant)
     return chapter.initial_adventure
