@@ -6,6 +6,7 @@ import {
   ADD_COURSE,
   ADD_COURSE_GROUPS,
   ADD_PLOT_PARTS,
+  ADD_PLOT_PARTS_FROM_COURSE_VIEW,
   DELETE_ADVENTURE,
   ERRORS,
   EXPORT_CSV,
@@ -63,15 +64,18 @@ export default function (state = initialState, action) {
         courses: [...state.courses, action.payload],
       };
     case ADD_PLOT_PARTS:
-      const detailedPlotParts = state.courseDetailed.plotParts;
       return {
         ...state,
         plotParts: [...state.plotParts, action.payload],
+      };
+    case ADD_PLOT_PARTS_FROM_COURSE_VIEW:
+      return {
+        ...state,
         courseDetailed: {
           ...state.courseDetailed,
-          plotParts: [...detailedPlotParts, ...action.payload]
+          plotParts: [...state.courseDetailed.plotParts, ...action.payload]
         }
-      };
+      }
     case ADD_COURSE_GROUPS:
       return {
         ...state,

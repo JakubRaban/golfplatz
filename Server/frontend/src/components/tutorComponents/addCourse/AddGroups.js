@@ -16,7 +16,7 @@ class AddGroups extends React.Component {
             group={group}
             handleChange={this.props.handleGroupChange}
             index={index}
-            key={index}/>,
+            key={index}/>
         )}
         <Button
           color="secondary"
