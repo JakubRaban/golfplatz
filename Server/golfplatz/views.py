@@ -218,21 +218,12 @@ class ParticipantScoreView(APIView):
         return Response(StudentScoreSerializer(StudentScore(student, course)).data)
 
 
-class CourseRankingTutorView(APIView):
-    permission_classes = [IsTutor]
+class CourseRankingView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, course_id):
         course = Course.objects.get(pk=course_id)
-        ranking = course.generate_ranking_for_tutor()
-        return Response(RankingElementSerializer(ranking, many=True).data)
-
-
-class CourseRankingStudentView(APIView):
-    permission_classes = [IsStudent]
-
-    def get(self, request, course_id):
-        course = Course.objects.get(pk=course_id)
-        ranking = course.generate_ranking_for_tutor()
+        ranking = course.generate_ranking()
         return Response({
             'student_ranking_visibility': course.student_ranking_visibility_strategy,
             'ranking': RankingElementSerializer(ranking, many=True).data

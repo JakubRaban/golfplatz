@@ -11,7 +11,7 @@ import compose from 'recompose/compose';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 import { logout } from '../../actions/auth.js';
-import { getAchievements, getAllRanks, getStudentRank, getStudentRanking, getStudentMarks } from '../../actions/course.js';
+import { getAchievements, getAllRanks, getStudentRank, getRanking, getStudentMarks } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import GameCardSummary from './GameCardSummary.js'
 import Ranking from './Ranking.js';
@@ -52,7 +52,7 @@ export class GameCard extends Component {
     await this.props.getAchievements(this.props.match.params.id);
     await this.props.getAllRanks(this.props.match.params.id);
     await this.props.getStudentRank(this.props.match.params.id);
-    await this.props.getStudentRanking(this.props.match.params.id);
+    await this.props.getRanking(this.props.match.params.id);
     await this.props.getStudentMarks(this.props.match.params.id);
   }
 
@@ -124,6 +124,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getAchievements, getAllRanks, getStudentRank, getStudentRanking, getStudentMarks }),
+  connect(mapStateToProps, { logout, getAchievements, getAllRanks, getStudentRank, getRanking, getStudentMarks }),
   withStyles(styles),
 )(GameCard);
