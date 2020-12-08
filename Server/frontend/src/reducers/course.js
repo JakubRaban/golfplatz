@@ -64,13 +64,12 @@ export default function (state = initialState, action) {
       };
     case ADD_PLOT_PARTS:
       const detailedPlotParts = state.courseDetailed.plotParts;
-      const plotPart = Array.isArray(action.payload) ? action.payload[0] : action.payload;
       return {
         ...state,
         plotParts: [...state.plotParts, action.payload],
         courseDetailed: {
           ...state.courseDetailed,
-          plotParts: [...detailedPlotParts, plotPart]
+          plotParts: [...detailedPlotParts, ...action.payload]
         }
       };
     case ADD_COURSE_GROUPS:

@@ -262,8 +262,8 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
   return "ok";
 }
 
-export const addPlotPart = (courseId, plotPart) => (dispatch, getState) => {
-  axios.post(`/api/courses/${courseId}/plot_parts/`, [plotPart], tokenConfig(getState)).then((res) => {
+export const addPlotPart = (courseId, plotParts) => (dispatch, getState) => {
+  axios.post(`/api/courses/${courseId}/plot_parts/`, plotParts, tokenConfig(getState)).then((res) => {
     dispatch({
       type: ADD_PLOT_PARTS,
       payload: res.data,

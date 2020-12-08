@@ -34,10 +34,7 @@ import AddPlotParts from "../addCourse/AddPlotParts";
 
 class NewPlotPartModal extends Component {
   state = {
-    plotPart: {
-      name: '',
-      introduction: '',
-    },
+    plotParts: [{ name: '', introduction: '' }],
     errors: {}
   }
 
@@ -47,23 +44,31 @@ class NewPlotPartModal extends Component {
     this.setState({ plotParts });
   }
 
-  handleChange = (name, index, value) => {
-    const { plotPart } = this.state;
-    plotPart[name] = value;
-    this.setState({ plotPart }, () => console.log(this.state));
+  addNewPlotPart = () => {
+    const { plotParts } = this.state;
+    plotParts.push({ name: '', introduction: '' });
+    this.setState({ plotParts });
   }
 
-  checkErrors = () => {
-    const { errors } = this.state;
-    if(isEmpty(this.state.plotPart.name)) setWith(errors, `plotParts[0].name`, 'Nazwa części fabuły nie może być pusta');
-    if(isEmpty(this.state.plotPart.introduction)) setWith(errors, `plotParts[0].introduction`, 'Opis części fabuły nie może być pusty');
-    console.log(this.state);
+  // handleChange = (name, index, value) => {
+  //   const { plotPart } = this.state;
+  //   plotPart[name] = value;
+  //   this.setState({ plotPart }, () => console.log(this.state));
+  // }
+
+  checkErrors = async () => {
+    const errors = {};
+    this.state.plotParts.forEach((plotPart, i) => {
+      if (isEmpty(plotPart.name)) setWith(errors, `plotParts[${i}].name`, 'Nazwa części fabuły nie może być pusta');
+      if (isEmpty(plotPart.introduction)) setWith(errors, `plotParts[${i}].introduction`, 'Opis części fabuły nie może być pusty');
+    });
+    await this.setState({ errors });
   }
 
   onConfirm = async () => {
     await this.checkErrors();
     if (empty(this.state.errors)) {
-      this.props.onSubmit(this.state.plotPart);
+      this.props.onSubmit(this.state.plotParts);
       this.props.close();
     }
   }
@@ -72,7 +77,8 @@ class NewPlotPartModal extends Component {
     return (
       <Dialog open={this.props.show} onClose={this.toggle}>
         <DialogContent>
-          <AddPlotParts plotPart={this.state.plotPart} errors={this.state.errors} index={0} handleChange={this.handleChange} />
+          {/*<AddPlotParts plotPart={this.state.plotPart} errors={this.state.errors} index={0} handleChange={this.handleChange} />*/}
+          <AddPlotParts plotParts={this.state.plotParts} errors={this.state.errors} handlePlotPartChange={this.handlePlotPartChange} addNewPlotPart={this.addNewPlotPart} />
           <Button variant="contained" color="primary" onClick={this.onConfirm}>Zatwierdź</Button>
         </DialogContent>
       </Dialog>
@@ -180,8 +186,8 @@ export class CourseDetails extends Component {
     this.setState({chapters});
   }
 
-  handleSubmitNewPlotPart = async (plotPart) => {
-    await this.props.addPlotPart(this.props.course.id, plotPart);
+  handleSubmitNewPlotParts = async (plotParts) => {
+    await this.props.addPlotPart(this.props.course.id, plotParts);
   }
 
   render() {
@@ -199,7 +205,7 @@ export class CourseDetails extends Component {
       <>
         {this.state.loaded ?
           <ThemeProvider theme={this.theme}>
-            <NewPlotPartModal show={this.state.newPlotPartModalShown} close={() => this.setState({ newPlotPartModalShown: false })} onSubmit={(plotPart) => {this.handleSubmitNewPlotPart(plotPart)}} />
+            <NewPlotPartModal show={this.state.newPlotPartModalShown} close={() => this.setState({ newPlotPartModalShown: false })} onSubmit={(plotParts) => {this.handleSubmitNewPlotParts(plotParts)}} />
             <div className={classes.root}>
               <CssBaseline/>
               <NavBar logout={this.props.logout} title={'Szczegóły kursu'} returnLink={'/courses'}/>
