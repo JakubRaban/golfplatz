@@ -50,12 +50,6 @@ class NewPlotPartModal extends Component {
     this.setState({ plotParts });
   }
 
-  // handleChange = (name, index, value) => {
-  //   const { plotPart } = this.state;
-  //   plotPart[name] = value;
-  //   this.setState({ plotPart }, () => console.log(this.state));
-  // }
-
   checkErrors = async () => {
     const errors = {};
     this.state.plotParts.forEach((plotPart, i) => {
@@ -77,7 +71,6 @@ class NewPlotPartModal extends Component {
     return (
       <Dialog open={this.props.show} onClose={this.toggle}>
         <DialogContent>
-          {/*<AddPlotParts plotPart={this.state.plotPart} errors={this.state.errors} index={0} handleChange={this.handleChange} />*/}
           <AddPlotParts plotParts={this.state.plotParts} errors={this.state.errors} handlePlotPartChange={this.handlePlotPartChange} addNewPlotPart={this.addNewPlotPart} />
           <Button variant="contained" color="primary" onClick={this.onConfirm}>Zatwierdź</Button>
         </DialogContent>
