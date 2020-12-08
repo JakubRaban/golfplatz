@@ -30,7 +30,7 @@ export class PlotPart extends React.Component {
             <TextField className="input-class" value={plotPart.introduction} name="introduction"
               error={get(errors, `plotParts[${index}].introduction`, false)} type="text"
               helperText={get(errors, `plotParts[${index}].introduction`, '')} variant="outlined"
-              onChange={() => this.props.handleChange('introduction', index, event.target.value)}/>
+              onChange={(e) => this.props.handleChange('introduction', index, e.target.value)} />
           </div>
         </div>
       </div>

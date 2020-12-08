@@ -34,7 +34,9 @@ import {
   START_CHAPTER,
   UPDATE_ADVENTURE,
   ADD_WEIGHTS,
-  TOGGLE_PLOT_PART_LOCK, SET_ACTIVE_COURSE,
+  TOGGLE_PLOT_PART_LOCK,
+  SET_ACTIVE_COURSE,
+  ADD_PLOT_PARTS_FROM_COURSE_VIEW,
 }
   from './types.js';
 import {DELETE_COURSE} from "./types";
@@ -262,6 +264,15 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
     })
 
   return "ok";
+}
+
+export const addPlotPart = (courseId, plotParts) => (dispatch, getState) => {
+  axios.post(`/api/courses/${courseId}/plot_parts/`, plotParts, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: ADD_PLOT_PARTS_FROM_COURSE_VIEW,
+      payload: res.data,
+    });
+  })
 }
 
 const deleteCourse = (id) => (dispatch, getState) => {

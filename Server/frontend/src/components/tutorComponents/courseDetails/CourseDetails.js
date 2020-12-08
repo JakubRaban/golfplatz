@@ -1,36 +1,93 @@
 /* eslint-disable react/no-direct-mutation-state */
 import '../../../styles/course-forms.css';
 
-import { Button, Collapse, CssBaseline, IconButton, Dialog, List, ListItem, ListItemText, LinearProgress,
-  Table, TableBody, TableCell, TableHead, TableRow, Typography} from '@material-ui/core/';
+import {
+  Button, Collapse, CssBaseline, IconButton, Dialog, List, ListItem, ListItemText, LinearProgress,
+  Table, TableBody, TableCell, TableHead, TableRow, Typography
+} from '@material-ui/core/';
 import EditIcon from '@material-ui/icons/Edit';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import React, { Component } from 'react';
-import { isEmpty as empty } from 'lodash';
+import Modal from '@material-ui/core/Modal';
+import React, {Component} from 'react';
+import {isEmpty as empty} from 'lodash';
 import isEmpty from 'validator/lib/isEmpty.js';
-import { setWith } from 'lodash';
-import { connect } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
+import {setWith} from 'lodash';
+import {connect} from 'react-redux';
+import {Link, Redirect} from 'react-router-dom';
 import compose from 'recompose/compose';
-import { createMuiTheme, ThemeProvider, withStyles } from '@material-ui/core/styles';
+import {createMuiTheme, ThemeProvider, withStyles} from '@material-ui/core/styles';
 
-import { logout } from '../../../actions/auth.js';
-import { getPalette } from '../../../actions/color.js';
-import { addChapters, getCourse } from '../../../actions/course.js';
-import { styles } from '../../../styles/style.js';
+import {logout} from '../../../actions/auth.js';
+import {getPalette} from '../../../actions/color.js';
+import {addChapters, getCourse} from '../../../actions/course.js';
+import {styles} from '../../../styles/style.js';
 import NavBar from '../../common/navbars/NavBar.js';
 import AddChapter from './../AddChapter.js';
 import ToggleLockButton from './ToggleLockButton';
 import FormErrorMessage from "../../common/FormErrorMessage";
+import PlotPart from "../addCourse/PlotPart";
+import {addPlotPart} from "../../../actions/course";
+import DialogContent from "@material-ui/core/DialogContent";
+import AddPlotParts from "../addCourse/AddPlotParts";
+
+
+class NewPlotPartModal extends Component {
+  state = {
+    plotParts: [{ name: '', introduction: '' }],
+    errors: {}
+  }
+
+  handlePlotPartChange = (input, index, value) => {
+    const { plotParts } = this.state;
+    plotParts[index][input] = value;
+    this.setState({ plotParts });
+  }
+
+  addNewPlotPart = () => {
+    const { plotParts } = this.state;
+    plotParts.push({ name: '', introduction: '' });
+    this.setState({ plotParts });
+  }
+
+  checkErrors = async () => {
+    const errors = {};
+    this.state.plotParts.forEach((plotPart, i) => {
+      if (isEmpty(plotPart.name)) setWith(errors, `plotParts[${i}].name`, 'Nazwa części fabuły nie może być pusta');
+      if (isEmpty(plotPart.introduction)) setWith(errors, `plotParts[${i}].introduction`, 'Opis części fabuły nie może być pusty');
+    });
+    await this.setState({ errors });
+  }
+
+  onConfirm = async () => {
+    await this.checkErrors();
+    if (empty(this.state.errors)) {
+      this.props.onSubmit(this.state.plotParts);
+      this.props.close();
+    }
+  }
+
+  render() {
+    return (
+      <Dialog open={this.props.show} onClose={this.toggle}>
+        <DialogContent>
+          <AddPlotParts plotParts={this.state.plotParts} errors={this.state.errors} handlePlotPartChange={this.handlePlotPartChange} addNewPlotPart={this.addNewPlotPart} />
+          <Button variant="contained" color="primary" onClick={this.onConfirm}>Zatwierdź</Button>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+}
+
 
 export class CourseDetails extends Component {
   state = {
-    chapters: [{ name: '', description: '' }],
+    chapters: [{name: '', description: ''}],
     errors: {},
     loaded: false,
     open: [],
     openDialog: false,
+    newPlotPartModalShown: false,
   };
 
   theme = createMuiTheme();
@@ -43,7 +100,7 @@ export class CourseDetails extends Component {
     if (prevProps.course !== this.props.course) {
       this.setPalette(this.props.course);
       this.setState({
-        chapters: [{ name: '', description: '' }],
+        chapters: [{name: '', description: ''}],
         open: new Array(this.props.course.plotParts.length).fill(false),
         openDialog: false,
       });
@@ -62,7 +119,7 @@ export class CourseDetails extends Component {
         },
       },
     });
-    await this.setState({ loaded: true });
+    await this.setState({loaded: true});
   }
 
   checkErrors = async () => {
@@ -73,17 +130,17 @@ export class CourseDetails extends Component {
       if (isEmpty(chapter.description)) setWith(errors, `chapters[${i}].description`, 'Opis rozdziału nie może być pusty');
     });
 
-    await this.setState({ errors });
+    await this.setState({errors});
   }
 
   onSubmit = async (plotPartId) => {
     await this.checkErrors();
 
     if (empty(this.state.errors)) {
-      const { chapters } = this.state;
+      const {chapters} = this.state;
       this.updateChapters(chapters, plotPartId);
     }
-   };
+  };
 
   async updateChapters(chapters, plotPartId) {
     await this.props.addChapters(chapters, plotPartId);
@@ -94,7 +151,7 @@ export class CourseDetails extends Component {
     const open = [...this.state.open];
     const assignHelper = open[i];
     open[i] = !assignHelper;
-    this.setState({ open });
+    this.setState({open});
   };
 
   handleClickOpen = () => {
@@ -111,22 +168,26 @@ export class CourseDetails extends Component {
   };
 
   addNewChapter = () => {
-    const { chapters } = this.state;
-    chapters.push({ name: '', description: '' });
-    this.setState({ chapters });
+    const {chapters} = this.state;
+    chapters.push({name: '', description: ''});
+    this.setState({chapters});
   }
 
   handleChapterChange = (input, index, value) => {
-    const { chapters } = this.state;
+    const {chapters} = this.state;
     chapters[index][input] = value;
-    this.setState({ chapters });
+    this.setState({chapters});
+  }
+
+  handleSubmitNewPlotParts = async (plotParts) => {
+    await this.props.addPlotPart(this.props.course.id, plotParts);
   }
 
   render() {
-    const { classes } = this.props;
+    const {classes} = this.props;
 
     if (!this.props.isAuthenticated) {
-      return <Redirect to='/login' />;
+      return <Redirect to='/login'/>;
     }
     if (this.props.user.groups[0] === 1) {
       return (
@@ -137,117 +198,121 @@ export class CourseDetails extends Component {
       <>
         {this.state.loaded ?
           <ThemeProvider theme={this.theme}>
+            <NewPlotPartModal show={this.state.newPlotPartModalShown} close={() => this.setState({ newPlotPartModalShown: false })} onSubmit={(plotParts) => {this.handleSubmitNewPlotParts(plotParts)}} />
             <div className={classes.root}>
-              <CssBaseline />
-              <NavBar logout={this.props.logout} title={'Szczegóły kursu'} returnLink={'/courses'} />
+              <CssBaseline/>
+              <NavBar logout={this.props.logout} title={'Szczegóły kursu'} returnLink={'/courses'}/>
               <main className={classes.content}>
-                <div className={classes.appBarSpacer} />
-                  <div style={{ margin: '5px' }}>
-                    <Typography variant='h5' gutterBottom>
-                      Oglądasz szczegóły kursu '{this.props.course.name}'
-                    </Typography>
-                    <Typography variant='h6' gutterBottom>
-                      Zajęcia odbywają się o następujących porach:
-                    </Typography>
-                    <Table>
-                      <TableBody>
-                        { this.props.course.courseGroups.map((group, i) =>
-                          <TableRow key={i}>
-                            <TableCell>
-                              {group.groupName}
-                              <br/>
-                              Kod zapisu dla studentów: <b>{group.accessCode}</b>
-                            </TableCell>
-                          </TableRow>,
-                        )}
-                      </TableBody>
-                    </Table>
-                    <Typography variant='h6' gutterBottom>
-                      Części fabuły:
-                    </Typography>
-                    { this.props.course.plotParts.map((plotPart, i) =>
-                      <React.Fragment key={i}>
-                        <Typography variant='subtitle1' gutterBottom>
-                          Część {i + 1}:
-                        </Typography>
-                        <ToggleLockButton plotPart={plotPart} />
-                        <List>
-                          <ListItem>
-                            <ListItemText primary='Nazwa' secondary={plotPart.name} />
-                          </ListItem>
-                          <ListItem>
-                            <ListItemText primary='Opis' secondary={plotPart.introduction} />
-                          </ListItem>
-                          <ListItem button onClick={this.handleClick(i)}>
-                            <ListItemText primary='Rozdziały' />
-                            {this.state.open[i] ? <ExpandLess /> : <ExpandMore />}
-                          </ListItem>
-                          <Collapse in={this.state.open[i]} timeout='auto' unmountOnExit>
-                            <List component='div' disablePadding>
-                              <Table>
-                                <TableHead>
+                <div className={classes.appBarSpacer}/>
+                <div style={{margin: '5px'}}>
+                  <Typography variant='h5' gutterBottom>
+                    Oglądasz szczegóły kursu '{this.props.course.name}'
+                  </Typography>
+                  <Typography variant='h6' gutterBottom>
+                    Zajęcia odbywają się o następujących porach:
+                  </Typography>
+                  <Table>
+                    <TableBody>
+                      {this.props.course.courseGroups.map((group, i) =>
+                        <TableRow key={i}>
+                          <TableCell>
+                            {group.groupName}
+                            <br/>
+                            Kod zapisu dla studentów: <b>{group.accessCode}</b>
+                          </TableCell>
+                        </TableRow>,
+                      )}
+                    </TableBody>
+                  </Table>
+                  <Typography variant='h6' gutterBottom>
+                    Części fabuły:
+                  </Typography>
+                  {this.props.course.plotParts.map((plotPart, i) =>
+                    <React.Fragment key={i}>
+                      <Typography variant='subtitle1' gutterBottom>
+                        Część {i + 1}:
+                      </Typography>
+                      <ToggleLockButton plotPart={plotPart}/>
+                      <List>
+                        <ListItem>
+                          <ListItemText primary='Nazwa' secondary={plotPart.name}/>
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText primary='Opis' secondary={plotPart.introduction}/>
+                        </ListItem>
+                        <ListItem button onClick={this.handleClick(i)}>
+                          <ListItemText primary='Rozdziały'/>
+                          {this.state.open[i] ? <ExpandLess/> : <ExpandMore/>}
+                        </ListItem>
+                        <Collapse in={this.state.open[i]} timeout='auto' unmountOnExit>
+                          <List component='div' disablePadding>
+                            <Table>
+                              <TableHead>
+                                <TableRow>
+                                  <TableCell>Nazwa rozdziału</TableCell>
+                                  <TableCell>Opis</TableCell>
+                                  <TableCell/>
+                                </TableRow>
+                              </TableHead>
+                              {this.props.course.plotParts[i].chapters.map((chapter, j) =>
+                                <TableBody key={j}>
                                   <TableRow>
-                                    <TableCell>Nazwa rozdziału</TableCell>
-                                    <TableCell>Opis</TableCell>
-                                    <TableCell />
+                                    <TableCell>{chapter.name}</TableCell>
+                                    <TableCell>{chapter.description}</TableCell>
+                                    <TableCell>
+                                      <IconButton component={Link} to={`/chapters/${chapter.id}/`}
+                                                  color='inherit'
+                                                  aria-label='Zobacz rozdział'>
+                                        <EditIcon/>
+                                      </IconButton>
+                                    </TableCell>
                                   </TableRow>
-                                </TableHead>
-                                { this.props.course.plotParts[i].chapters.map((chapter, j) =>
-                                  <TableBody key={j}>
-                                    <TableRow>
-                                      <TableCell>{chapter.name}</TableCell>
-                                      <TableCell>{chapter.description}</TableCell>
-                                      <TableCell>
-                                        <IconButton component={Link} to={`/chapters/${chapter.id}/`}
-                                          color='inherit'
-                                          aria-label='Zobacz rozdział'>
-                                          <EditIcon/>
-                                        </IconButton>
-                                      </TableCell>
-                                    </TableRow>
-                                  </TableBody>,
-                                )}
-                              </Table>
-                              <ListItem>
-                                <Button variant='outlined' color='primary' onClick={this.handleClickOpen}>
-                                  Dodaj rozdział
-                                </Button>
-                                <Dialog fullWidth maxWidth='sm' open={this.state.openDialog} onClose={this.handleClose}>
-                                  <div style={{ margin: '10px' }}>
-                                    { this.state.chapters.map((chapter, index) =>
-                                      <AddChapter
-                                        errors={this.state.errors}
-                                        chapter={chapter}
-                                        handleChange={this.handleChapterChange}
-                                        index={index}
-                                        key={index} />,
-                                    )}
+                                </TableBody>,
+                              )}
+                            </Table>
+                            <ListItem>
+                              <Button variant='outlined' color='primary' onClick={this.handleClickOpen}>
+                                Dodaj rozdział
+                              </Button>
+                              <Dialog fullWidth maxWidth='sm' open={this.state.openDialog} onClose={this.handleClose}>
+                                <div style={{margin: '10px'}}>
+                                  {this.state.chapters.map((chapter, index) =>
+                                    <AddChapter
+                                      errors={this.state.errors}
+                                      chapter={chapter}
+                                      handleChange={this.handleChapterChange}
+                                      index={index}
+                                      key={index}/>,
+                                  )}
+                                  <Button
+                                    color='secondary'
+                                    variant='outlined'
+                                    onClick={this.addNewChapter}
+                                  >Dodaj kolejny rozdział</Button>
+                                  <div style={{float: 'right'}}>
                                     <Button
-                                      color='secondary'
-                                      variant='outlined'
-                                      onClick={this.addNewChapter}
-                                    >Dodaj kolejny rozdział</Button>
-                                    <div style={{ float: 'right' }}>
-                                      <Button
-                                        color='primary'
-                                        variant='contained'
-                                        onClick={() => this.onSubmit(plotPart.id)}
-                                      >Dalej
-                                      </Button>
-                                    </div>
+                                      color='primary'
+                                      variant='contained'
+                                      onClick={() => this.onSubmit(plotPart.id)}
+                                    >Dalej
+                                    </Button>
                                   </div>
-                                  {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}}/>}
-                                </Dialog>
-                              </ListItem>
-                            </List>
-                          </Collapse>
-                        </List>
-                      </React.Fragment>,
-                    ) }
-                  </div>
+                                </div>
+                                {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}}/>}
+                              </Dialog>
+                            </ListItem>
+                          </List>
+                        </Collapse>
+                      </List>
+                    </React.Fragment>,
+                  )}
+                  <Button color="primary" variant="contained" onClick={() => this.setState({ newPlotPartModalShown: true })}>
+                    Dodaj nową część fabuły
+                  </Button>
+                </div>
               </main>
             </div>
-          </ThemeProvider> : <LinearProgress />
+          </ThemeProvider> : <LinearProgress/>
         }
       </>
     );
@@ -263,6 +328,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default compose(
-  connect(mapStateToProps, { getCourse, addChapters, logout, getPalette }),
+  connect(mapStateToProps, {getCourse, addPlotPart, addChapters, logout, getPalette}),
   withStyles(styles),
 )(CourseDetails);
