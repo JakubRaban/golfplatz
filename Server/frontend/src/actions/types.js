@@ -42,3 +42,4 @@ export const SET_THEME_COLOR = 'SET_THEME_COLOR';
 export const IS_FRESH = 'IS_FRESH';
 export const GRADE_MANUAL = 'GRADE_MANUAL';
 export const GET_SYSTEM_KEY = 'GET_SYSTEM_KEY';
+export const SET_ACTIVE_COURSE = 'SET_ACTIVE_COURSE';

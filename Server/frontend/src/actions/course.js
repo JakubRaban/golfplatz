@@ -32,7 +32,9 @@ import {
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE, ADD_WEIGHTS, TOGGLE_PLOT_PART_LOCK,
+  UPDATE_ADVENTURE,
+  ADD_WEIGHTS,
+  TOGGLE_PLOT_PART_LOCK, SET_ACTIVE_COURSE,
 }
   from './types.js';
 import {DELETE_COURSE} from "./types";
@@ -352,6 +354,14 @@ export const getCourses = () => (dispatch, getState) => {
   });
 };
 
+export const getStudentCourses = () => (dispatch, getState) => {
+  axios.get('/api/student_courses/flat/', tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_COURSES,
+      payload: res.data,
+    })
+  })
+}
 
 export const getCourse = (id) => (dispatch, getState) => {
   axios.get(`/api/courses/${id}/`, tokenConfig(getState)).then((res) => {
@@ -408,4 +418,17 @@ export const getSystemKey = () => (dispatch, getState) => {
       payload: res.data,
     });
   });
+};
+
+export const enroll = (code) => (dispatch, getState) => {
+  axios.post(`/api/course_groups/enroll/${code}/`, '', tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: SET_ACTIVE_COURSE,
+      payload: { course: res.data.course, themeColors: [], palette: [] },
+    });
+    Alerts.success(`Pomyślnie zapisano do grupy ${res.data.groupName} w kursie ${res.data.course.name}`)
+  })
+    .catch((err) => {
+      Alerts.error("Zapisanie do grupy nie powiodło się, spróbuj ponownie")
+    });
 };
