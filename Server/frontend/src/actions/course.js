@@ -262,6 +262,15 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
   return "ok";
 }
 
+export const addPlotPart = (courseId, plotPart) => (dispatch, getState) => {
+  axios.post(`/api/courses/${courseId}/plot_parts/`, [plotPart], tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: ADD_PLOT_PARTS,
+      payload: res.data,
+    });
+  })
+}
+
 const deleteCourse = (id) => (dispatch, getState) => {
   axios.delete(`/api/courses/${id}/`, tokenConfig(getState)).then((res) => {
     dispatch({
