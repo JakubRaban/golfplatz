@@ -424,7 +424,7 @@ export const enroll = (code) => (dispatch, getState) => {
   axios.post(`/api/course_groups/enroll/${code}/`, '', tokenConfig(getState)).then((res) => {
     dispatch({
       type: SET_ACTIVE_COURSE,
-      payload: res.data.course,
+      payload: { course: res.data.course, themeColors: [], palette: [] },
     });
     Alerts.success(`Pomyślnie zapisano do grupy ${res.data.groupName} w kursie ${res.data.course.name}`)
   })

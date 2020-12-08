@@ -27,7 +27,7 @@ class DashboardNavbar extends Component {
 
   render() {
     const { classes, courses, handleChange } = this.props;
-    console.log("ac", this.props.activeCourse);
+
     return (
       <AppBar position='absolute' className={classes.appBar}>
         <Toolbar className={classes.toolbar}>

@@ -50,12 +50,11 @@ export class TutorDashboard extends Component {
   componentDidMount() {
     this.props.getSystemKey();
     this.props.getCourses();
-    this.setPalette(this.props.activeCourse);
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.courses !== this.props.courses) {
-      this.setState({ loaded: true });
+      this.setPalette(this.props.activeCourse);
     }
   }
 
@@ -71,6 +70,7 @@ export class TutorDashboard extends Component {
         },
       },
     });
+    this.setState({ loaded: true });
   }
 
   handleAddGradesDialogClose = () => {
@@ -103,7 +103,6 @@ export class TutorDashboard extends Component {
   render() {
     const { classes, palette } = this.props;
     const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
-    console.log(this.props);
     return (
       <>
         {this.state.loaded ?
