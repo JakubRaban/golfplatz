@@ -268,7 +268,7 @@ const mapStateToProps = (state) => ({
   user: state.auth.user,
   adventurePart: state.course.adventurePart,
   achievements: state.course.achievements,
-  rank: state.course.rank,
+  rank: state.course.studentRank,
   palette: state.color.palette,
   themeColors: state.color.themeColors,
 });
