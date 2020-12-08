@@ -15,12 +15,7 @@ import { styles } from '../../../styles/style.js';
 import SystemKeyModal from '../SystemKeyModal.js';
 
 class DashboardNavbar extends Component {
-  state = { selectedCourse: '', showSystemKeyModal: false };
-
-  handleSelect = (e) => {
-    this.setState({ selectedCourse: e.target.value});
-    this.props.handleChange(e.target.value);
-  }
+  state = { showSystemKeyModal: false };
 
   closeSystemKeyModal = () => {
     this.setState({ showSystemKeyModal: false });
@@ -31,7 +26,8 @@ class DashboardNavbar extends Component {
   }
 
   render() {
-    const { classes, courses } = this.props;
+    const { classes, courses, handleChange } = this.props;
+
     return (
       <AppBar position='absolute' className={classes.appBar}>
         <Toolbar className={classes.toolbar}>
@@ -41,15 +37,9 @@ class DashboardNavbar extends Component {
           <div className={classes.dropdown}>
             <Select
               displayEmpty
-              value={this.state.selectedCourse}
-              onChange={this.handleSelect}
+              value={this.props.activeCourse?.name || ''}
+              onChange={handleChange}
               input={<Input />}
-              renderValue={(selected) => {
-                if (selected.length === 0) {
-                  return <em>Wybierz aktywny kurs</em>;
-                }
-                return selected;
-              }}
             >
               <MenuItem disabled value=''>
                 <em>Wybierz aktywny kurs:</em>

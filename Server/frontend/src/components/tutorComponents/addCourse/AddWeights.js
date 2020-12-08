@@ -9,7 +9,7 @@ class AddWeights extends React.Component {
     return (
       <div style={{margin: '10px'}}>
         <Typography variant="h6" gutterBottom>
-          Wagi kategorii przygód:
+          Określ wagi kategorii przygód:
         </Typography>
         <div className="row">
           <div className="col-25">

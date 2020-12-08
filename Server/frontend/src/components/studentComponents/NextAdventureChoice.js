@@ -6,14 +6,15 @@ import { connect } from 'react-redux';
 
 export class NextAdventureChoice extends Component {
   render() {
+    console.log(this.props);
     return (
       <div>
         <Typography variant="subtitle1" gutterBottom>
-          {this.props.adventurePart.choice.choiceDescription}
+          {this.props.adventurePart.choice.description}
         </Typography>
         {this.props.adventurePart.choice.pathChoices.map((pathChoice, i) =>
           <Button key={i} variant="contained" onClick={this.props.onSubmit(pathChoice.toAdventure)}>
-            {pathChoice.pathDescription}
+            {pathChoice.description}
           </Button>,
         )}
       </div>

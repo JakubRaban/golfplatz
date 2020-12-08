@@ -73,7 +73,7 @@ export class AddCourse extends Component {
   handleAchievementChange = (input, index, value) => {
     const { achievements } = this.state;
     achievements[index][input] = value;
-    this.setState({ achievements }, () => console.log(this.state.achievements));
+    this.setState({ achievements });
   }
 
   addNewCourseGroup = () => {
@@ -104,6 +104,18 @@ export class AddCourse extends Component {
     const { ranks } = this.state;
     ranks.push({ name: '', image: '', lowerThresholdPercent: '0' });
     this.setState({ ranks });
+  }
+
+  removeRank = (index) => {
+    const { ranks } = this.state;
+    ranks.splice(index, 1);
+    this.setState({ ranks });
+  }
+
+  removeAchievement = (index) => {
+    const { achievements } = this.state;
+    achievements.splice(index, 1);
+    this.setState({ achievements });
   }
 
   handleRankChange = (input, index, value) => {
@@ -224,6 +236,7 @@ export class AddCourse extends Component {
             addNewAchievement={this.addNewAchievement}
             errors={this.state.errors}
             handleAchievementChange={this.handleAchievementChange}
+            removeAchievement={this.removeAchievement}
           />
           <AddWeights
             weights={this.state.weights}
@@ -235,6 +248,7 @@ export class AddCourse extends Component {
             errors={this.state.errors}
             handleRankChange={this.handleRankChange}
             ranks={this.state.ranks}
+            removeRank={this.removeRank}
           />
           <ColorPicker
             color={this.state.themeColor}

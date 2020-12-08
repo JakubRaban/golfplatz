@@ -68,94 +68,120 @@ export class Adventure extends Component {
     this.props.onSubmit(time);
   }
 
+  showPointSourceCategory = () => {
+    switch(this.props.adventurePart.adventure.pointSource.category) {
+      case 'QUIZ':
+        return 'Kartkówka';
+      case 'GENERIC':
+        return 'Zadanie na zajęciach';
+      case 'ACTIVENESS':
+        return 'Aktywność';
+      case 'TEST':
+        return 'Kolokwium';
+      case 'HOMEWORK':
+        return 'Praca domowa';
+      default:
+        return '';
+    };
+  }
+
   render() {
-    console.log(this.props);
+    const { questions } = this.props.adventurePart.adventure.pointSource;
+
     return (
       <div>
         <Typography variant='h5' gutterBottom>
           {this.props.adventurePart.adventure.name}
         </Typography>
+        <Typography variant='h6' gutterBottom>
+          {this.showPointSourceCategory()}
+        </Typography>
         <Typography variant='subtitle1' gutterBottom>
           {this.props.adventurePart.adventure.taskDescription}
         </Typography>
-        {!this.props.submitted ?
-          <ReactTimer
-            direction='backward'
-            formatValue={value => `${value < 10 ? `0${value}` : value}`}
-            initialTime={this.props.timeLimit * 1000}
-            checkpoints={[
-              {
-                time: 0,
-                callback: () => this.handleSubmit(0),
-              },
-            ]}
-          >
-            {(timer) => (
+        {questions.length === 0 ?
+          <div style={{ display: 'block' }}>
+            <Button variant='contained' onClick={this.props.onNext}>Dalej</Button>
+          </div>
+          :
+          <>
+            {!this.props.submitted ?
+              <ReactTimer
+                direction={this.props.timeLimit ? 'backward' : 'forward'}
+                formatValue={value => `${value < 10 ? `0${value}` : value}`}
+                initialTime={this.props.timeLimit ? this.props.timeLimit * 1000 : 3}
+                checkpoints={[
+                  {
+                    time: 1,
+                    callback: () => this.handleSubmit(0),
+                  },
+                ]}
+              >
+                {(timer) => (
+                  <>
+                    <div>
+                      <ReactTimer.Hours />:<ReactTimer.Minutes />:<ReactTimer.Seconds />
+                    </div>
+                    {questions.map((question, i) =>
+                      <React.Fragment key={100+i}>
+                        <Typography variant='subtitle2' gutterBottom>
+                          {question.text}
+                        </Typography>
+                        {question.questionType === 'OPEN' ?
+                          <>
+                            {
+                              question.inputType === 'IMAGE' ?
+                                this.renderImageQuestion(question.id) : this.renderOpenQuestion(question.id)
+                            }
+                          </>:
+                          this.renderClosedQuestion(question, i)
+                        }
+                      </React.Fragment>,
+                    )}
+                    <div style={{ display: 'block' }}>
+                      <Button variant='contained' onClick={() => this.handleSubmit(timer.getTime())}>Zatwierdź</Button>
+                    </div>
+                  </>
+                )}
+              </ReactTimer> :
               <>
-                {this.props.adventurePart.adventure.timeLimit > 0 &&
-                  <div>
-                    <ReactTimer.Hours />:<ReactTimer.Minutes />:<ReactTimer.Seconds />
-                  </div>
-                }
-                {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
-                  <React.Fragment key={100+i}>
-                    <Typography variant='subtitle2' gutterBottom>
+                {questions.map((question, i) =>
+                  <React.Fragment key={1000 + i}>
+                    <Typography variant='subtitle1' gutterBottom>
                       {question.text}
                     </Typography>
-                    {question.questionType === 'OPEN' ?
-                      <>
-                        {
-                          question.inputType === 'IMAGE' ?
-                            this.renderImageQuestion(question.id) : this.renderOpenQuestion(question.id)
-                        }
-                      </>:
-                      this.renderClosedQuestion(question, i)
+                    {question.questionType === 'CLOSED' ?
+                      <FormControl component='fieldset'>
+                        <FormGroup>
+                          {question.answers.map((answer, j) =>
+                            <React.Fragment key={10000 + j}>
+                              <FormControlLabel
+                                control={<Checkbox checked={this.props.closedQuestions.get(question.id)[j].marked}
+                                  name='answer' />}
+                                label={answer.text}
+                              />
+                              {this.props.closedQuestions.get(question.id)[j].marked &&
+                                <Typography variant='subtitle2' gutterBottom>
+                                  {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
+                                </Typography>
+                              }
+                            </React.Fragment>,
+                          )}
+                        </FormGroup>
+                      </FormControl> :
+                      <Typography variant='subtitle2' gutterBottom>
+                        Twoja odpowiedź: {this.props.openQuestions.get(question.id)}
+                      </Typography>
                     }
                   </React.Fragment>,
                 )}
                 <div style={{ display: 'block' }}>
-                  <Button variant='contained' onClick={() => this.handleSubmit(timer.getTime())}>Zatwierdź</Button>
+                  <Button variant='contained' onClick={this.props.onNext}>Dalej</Button>
                 </div>
               </>
-            )}
-          </ReactTimer> :
-          <>
-            {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
-              <React.Fragment key={1000 + i}>
-                <Typography variant='subtitle1' gutterBottom>
-                  {question.text}
-                </Typography>
-                {question.questionType === 'CLOSED' ?
-                  <FormControl component='fieldset'>
-                    <FormGroup>
-                      {question.answers.map((answer, j) =>
-                        <React.Fragment key={10000 + j}>
-                          <FormControlLabel
-                            control={<Checkbox checked={this.props.closedQuestions.get(question.id)[j].marked}
-                              name='answer' />}
-                            label={answer.text}
-                          />
-                          {this.props.closedQuestions.get(question.id)[j].marked &&
-                            <Typography variant='subtitle2' gutterBottom>
-                              {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
-                            </Typography>
-                          }
-                        </React.Fragment>,
-                      )}
-                    </FormGroup>
-                  </FormControl> :
-                  <Typography variant='subtitle2' gutterBottom>
-                    Twoja odpowiedź: {this.props.openQuestions.get(question.id)}
-                  </Typography>
-                }
-              </React.Fragment>,
-            )}
-            <div style={{ display: 'block' }}>
-              <Button variant='contained' onClick={this.props.onNext}>Dalej</Button>
-            </div>
+            }
           </>
         }
-
       </div>
     );
   }

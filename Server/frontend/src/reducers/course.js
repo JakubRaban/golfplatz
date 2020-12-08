@@ -27,11 +27,12 @@ import {
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK, DELETE_COURSE,
+  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK, DELETE_COURSE, SET_ACTIVE_COURSE, LOGOUT_SUCCESS,
 }
   from '../actions/types.js';
 
 const initialState = {
+  activeCourse: undefined,
   courses: [],
   plotParts: [],
   courseGroups: [],
@@ -211,6 +212,13 @@ export default function (state = initialState, action) {
         ...state,
         errors: action.payload,
       };
+    case SET_ACTIVE_COURSE:
+      return {
+        ...state,
+        activeCourse: action.payload.course,
+      }
+    case LOGOUT_SUCCESS:
+      return initialState;
     default:
       return state;
   }

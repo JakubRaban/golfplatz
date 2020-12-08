@@ -37,7 +37,6 @@ export class Summary extends Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <div>
         <Typography variant="h5" gutterBottom>

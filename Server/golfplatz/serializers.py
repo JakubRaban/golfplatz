@@ -54,12 +54,6 @@ class CreateCourseSerializer(serializers.ModelSerializer):
         fields = ['name', 'description', 'theme_color']
 
 
-class CourseGroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CourseGroup
-        fields = '__all__'
-
-
 class AchievementSerializer(serializers.ModelSerializer):
     image = Base64ImageField(allow_null=True, required=False)
 
@@ -287,16 +281,24 @@ class CreatePlotPartSerializer(serializers.ModelSerializer):
         fields = ['name', 'introduction']
 
 
-class CourseSerializer(serializers.ModelSerializer):
-    plot_parts = PlotPartSerializer(many=True, read_only=True)
-    course_groups = CourseGroupSerializer(many=True, read_only=True)
-
+class CourseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'
 
 
-class CourseListSerializer(serializers.ModelSerializer):
+class CourseGroupSerializer(serializers.ModelSerializer):
+    course = CourseListSerializer()
+
+    class Meta:
+        model = CourseGroup
+        fields = '__all__'
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    plot_parts = PlotPartSerializer(many=True, read_only=True)
+    course_groups = CourseGroupSerializer(many=True, read_only=True)
+
     class Meta:
         model = Course
         fields = '__all__'
