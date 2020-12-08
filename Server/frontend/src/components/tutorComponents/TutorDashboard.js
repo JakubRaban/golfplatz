@@ -95,15 +95,15 @@ export class TutorDashboard extends Component {
     }
   }
 
-  handleCourseSelect = async (e) => {
+  handleCourseSelect = (e) => {
     const course = this.props.courses.find((course) => course.name === e.target.value)
-    await this.setPalette(course);
-    this.setPalette(this.props.activeCourse);
+    this.setPalette(course);
   }
 
   render() {
     const { classes, palette } = this.props;
     const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+    console.log(this.props);
     return (
       <>
         {this.state.loaded ?
@@ -184,7 +184,7 @@ const mapStateToProps = (state) => ({
   palette: state.color.palette,
   themeColors: state.color.themeColors,
   systemKey: state.course.systemKey,
-  activeCourse: state.course.active,
+  activeCourse: state.course.activeCourse,
 });
 
 export default compose(

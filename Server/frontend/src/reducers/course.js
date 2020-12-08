@@ -31,6 +31,7 @@ import {
   from '../actions/types.js';
 
 const initialState = {
+  activeCourse: undefined,
   courses: [],
   plotParts: [],
   courseGroups: [],
@@ -205,13 +206,10 @@ export default function (state = initialState, action) {
     case SET_ACTIVE_COURSE:
       return {
         ...state,
-        active: action.payload,
+        activeCourse: action.payload.course,
       }
     case LOGOUT_SUCCESS:
-      return {
-        ...state,
-        active: undefined,
-      }
+      return initialState;
     default:
       return state;
   }

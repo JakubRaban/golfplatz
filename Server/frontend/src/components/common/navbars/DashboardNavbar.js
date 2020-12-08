@@ -10,12 +10,9 @@ import React, { Component } from 'react';
 import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
-import compose from 'recompose/compose';
-import { connect } from 'react-redux';
 
 import { styles } from '../../../styles/style.js';
 import SystemKeyModal from '../SystemKeyModal.js';
-import {getPalette} from "../../../actions/color";
 
 class DashboardNavbar extends Component {
   state = { showSystemKeyModal: false };
@@ -44,7 +41,7 @@ class DashboardNavbar extends Component {
               onChange={handleChange}
               input={<Input />}
             >
-              <MenuItem disabled value={''}>
+              <MenuItem disabled value=''>
                 <em>Wybierz aktywny kurs:</em>
               </MenuItem>
               {courses.map((course, index) => (
@@ -77,6 +74,4 @@ class DashboardNavbar extends Component {
   }
 }
 
-export default compose(
-  withStyles(styles),
-)(DashboardNavbar);
+export default withStyles(styles)(DashboardNavbar);
