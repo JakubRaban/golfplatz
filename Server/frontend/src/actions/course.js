@@ -300,6 +300,15 @@ export const getStudentRanking = (courseId) => (dispatch, getState) => {
   })
 }
 
+export const getTutorRanking = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/ranking/tutor/`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_RANKING,
+      payload: res.data,
+    })
+  })
+}
+
 export const getStudentMarks = (courseId) => (dispatch, getState) => {
   axios.get(`api/courses/${courseId}/student_grades/`, tokenConfig(getState)).then((res) => {
     dispatch({
