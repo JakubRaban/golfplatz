@@ -47,7 +47,6 @@ export class StudentDashboard extends Component {
     enrollDialogOpen: false,
     loaded: false,
     enrollCode: '',
-    selectedCourseId: undefined,
   };
 
   componentDidMount() {
@@ -57,9 +56,6 @@ export class StudentDashboard extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.courses !== this.props.courses) {
       this.setPalette(this.props.activeCourse);
-    }
-    if (prevProps.activeCourse !== this.props.activeCourse) {
-      this.props.getStudentCourses();
     }
   }
 
@@ -83,7 +79,7 @@ export class StudentDashboard extends Component {
         },
       },
     });
-    this.setState({ loaded: true });
+    this.setState({ enrollDialogOpen: false, enrollCode: '', loaded: true });
   }
 
   handleCourseSelect = (e) => {
@@ -97,7 +93,7 @@ export class StudentDashboard extends Component {
 
   onEnrollCodeSubmit = async () => {
     await this.props.enroll(this.state.enrollCode);
-    this.handleEnrollDialogClose();
+    await this.props.getStudentCourses();
   }
 
   handleEnrollDialogClose = () => {
