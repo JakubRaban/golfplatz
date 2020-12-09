@@ -4,19 +4,21 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import compose from 'recompose/compose';
-import { CssBaseline, Typography } from '@material-ui/core';
+import { CssBaseline, Tab, Tabs, Typography } from '@material-ui/core';
 import MaterialTable from 'material-table';
 import { saveAs } from 'file-saver';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import { getCourseGrades, exportGrades } from '../../actions/course.js';
+import { getCourseGrades, exportGrades, getTutorRanking } from '../../actions/course.js';
 import { logout } from '../../actions/auth.js';
 import { styles } from '../../styles/style.js';
 import NavBar from '../common/navbars/NavBar.js';
+import TutorRanking from './TutorRanking.js';
+import GradesDetails from './GradesDetails.js';
 
 export class Grades extends Component {
-  state = { columns: [{ title: 'Student', field: 'studentName' }], data: [], loaded: false };
+  state = { loaded: false, mode: 'grades' };
 
   theme = createMuiTheme({
     palette: {
@@ -29,37 +31,19 @@ export class Grades extends Component {
     },
   });
 
-  componentDidMount() {
-    this.props.getCourseGrades(this.props.match.params.id);
+  async componentDidMount() {
+    await this.props.getTutorRanking(this.props.match.params.id);
+    await this.props.getCourseGrades(this.props.match.params.id);
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.courseGrades !== this.props.courseGrades) {
-      this.mapToColumns();
       this.setState({ loaded: true });
     }
   }
 
-  mapToColumns = () => {
-    const data = [];
-    const columns = [...this.state.columns];
-    this.props.courseGrades.chapters.forEach((chapter, index) => {
-      columns.push({ title: chapter, field: `chapter${index}`});
-    })
-    this.props.courseGrades.studentsScores.map((score) => {
-      const row = {
-        studentName: score.username, 
-      }
-
-      this.props.courseGrades.chapters.forEach((chapter, index) => {
-        const studentScore = score[chapter];
-        console.log(studentScore);
-        row[`chapter${index}`] = studentScore === undefined ? 'Nie ukończył' : `${studentScore}%`;
-      });
-      
-      data.push(row);
-    });
-    this.setState({ data, columns, loaded: true });
+  handleChange = (e, mode) => {
+    this.setState({ mode });
   }
 
   getCourseName() {
@@ -69,7 +53,16 @@ export class Grades extends Component {
 
   export = async () => {
     await this.props.exportGrades(this.props.match.params.id);
-    saveAs(this.props.csv, `wyniki-${this.props.courseGrades?.courseName}.csv`);
+    await saveAs(this.props.csv, `wyniki-${this.props.courseGrades?.courseName}.csv`);
+  }
+
+  renderTab() {
+    switch(this.state.mode) {
+      case 'grades':
+        return <GradesDetails courseGrades={this.props.courseGrades} export={this.export} />;
+      case 'ranking':
+        return <TutorRanking ranking={this.props.ranking} />;
+    }
   }
 
   render() {
@@ -92,49 +85,11 @@ export class Grades extends Component {
               <main className={classes.content}>
                 <div className={classes.appBarSpacer} />
                 <>
-                  {this.props.courseGrades.studentsScores.length === 0 ?
-                    <Typography component='h6' variant='h6'>Żaden z uczestników kursu nie ukończył jeszcze ani jednego rozdziału</Typography> :
-                    <MaterialTable
-                      title="Bohaterowie minionych epok"
-                      columns={this.state.columns}
-                      data={this.state.data}
-                      options={{
-                        actionsColumnIndex: -1,
-                        exportButton: true,
-                        exportCsv: () => this.export(),
-                        pageSize: this.props.courseGrades.studentsScores.length,
-                      }}
-                      localization={{
-                        pagination: {
-                          labelDisplayedRows: '{from}-{to} z {count}',
-                          labelRowsSelect: 'wyników',
-                          firstAriaLabel: 'Pierwsza strona',
-                          firstTooltip: 'Pierwsza strona',
-                          previousAriaLabel: 'Poprzednia strona',
-                          previousTooltip: 'Poprzednia strona',
-                          nextAriaLabel: 'Następna strona',
-                          nextTooltip: 'Następna strona',
-                          lastAriaLabel: 'Ostatnia strona',
-                          lastTooltip: 'Ostatnia strona',
-                        },
-                        toolbar: {
-                          nRowsSelected: 'Wybrano {0} pozycji',
-                          searchPlaceholder: 'Wyszukaj',
-                          exportTitle: 'Wyeksportuj',
-                          exportAriaLabel: 'Wyeksportuj',
-                          exportName: 'Eksportuj jako CSV',
-                        },
-                        header: {
-                          actions: 'Opcje',
-                        },
-                        body: {
-                          emptyDataSourceMessage: 'Brak danych',
-                          filterRow: {
-                            filterTooltip: 'Filtruj',
-                          },
-                        },
-                      }}
-                    />}
+                  <Tabs value={this.state.mode} onChange={this.handleChange}>
+                    <Tab label='Oceny' value='grades'/>
+                    <Tab label='Ranking' value='ranking'/>
+                  </Tabs>
+                  {this.renderTab()}
                 </>
               </main>
             </div>
@@ -152,9 +107,10 @@ const mapStateToProps = (state) => ({
   csv: state.course.csv,
   palette: state.color.palette,
   themeColors: state.color.themeColors,
+  ranking: state.course.ranking,
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getCourseGrades, exportGrades }),
+  connect(mapStateToProps, { logout, getCourseGrades, exportGrades, getTutorRanking }),
   withStyles(styles),
 )(Grades);

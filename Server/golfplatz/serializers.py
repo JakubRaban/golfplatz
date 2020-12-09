@@ -94,6 +94,7 @@ class StudentGradesSerializer(serializers.Serializer):
 
 
 class RankingElementSerializer(serializers.Serializer):
+    position = serializers.IntegerField()
     student_score = StudentScoreSerializer()
     course_group_name = serializers.CharField()
     student = ParticipantBasicDataSerializer()
