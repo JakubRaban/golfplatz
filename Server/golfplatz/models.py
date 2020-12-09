@@ -322,17 +322,10 @@ class Adventure(models.Model):
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
     time_limit = models.PositiveIntegerField(default=0)
-    max_points_possible = models.IntegerField()
     done_by_students = models.ManyToManyField('Participant', through='AccomplishedAdventure')
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['chapter', 'name'], name='adventure_name_constraint')]
-
-    def save(self, *args, **kwargs):
-        self.max_points_possible = sum([
-            question.max_points_possible for question in Question.objects.filter(point_source__adventure=self)
-        ])
-        super(Adventure, self).save(*args, **kwargs)
 
     def get_time_modifier(self, time_in_seconds: int):
         hundred_percent = 100
@@ -359,6 +352,10 @@ class Adventure(models.Model):
         a = (p1[1] - p2[1]) / (p1[0] - p2[0])
         b = p1[1] - a * p1[0]
         return a, b
+
+    @property
+    def max_points_possible(self):
+        return sum(question.max_points_possible for question in self.point_source.questions.all())
 
     @property
     def paths_from_here(self):
