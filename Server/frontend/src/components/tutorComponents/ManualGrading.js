@@ -114,7 +114,6 @@ export class ManualGrading extends Component {
         <Redirect to="/"/>
       );
     }
-    console.log(this.state);
     return (
       <>
         {this.state.loaded ?
@@ -129,19 +128,20 @@ export class ManualGrading extends Component {
                   <div key={i} style={{ margin: '10px' }}>
                     {question.grades.length !== 0 &&
                       <>
-                        <Typography variant='subtitle1'>{question.text}</Typography>
-                        <Typography variant='body1'>Punktacja: {question.pointsPerIncorrectAnswer}-{question.pointsPerCorrectAnswer}</Typography>
-                        {question.grades.map((grade, j) =>
-                          <React.Fragment key={100+j}>
-                            <Typography variant='subtitle2'>{grade.student}:</Typography>
-                            {this.renderStudentAnswer(grade)}
-                          </React.Fragment>
-                        )}
+                        <Typography variant='subtitle1'>{question.text} ({question.pointsPerIncorrectAnswer}/{question.pointsPerCorrectAnswer})</Typography>
+                        <div>
+                          {question.grades.map((grade, j) =>
+                            <div key={100+j} style={{ display: 'inlineBlock' }}>
+                              <Typography variant='subtitle2'>{grade.student}:</Typography>
+                              {this.renderStudentAnswer(grade)}
+                            </div>
+                          )}
+                        </div>
                       </>
                     }
                   </div>
                   )}
-                  <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
+                  <div style={{ float: 'right', margin: '10px' }}>
                     <Button
                       color='primary'
                       variant='contained'

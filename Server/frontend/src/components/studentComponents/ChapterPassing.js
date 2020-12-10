@@ -221,9 +221,6 @@ export class ChapterPassing extends Component {
             <div style={{ margin: '5px' }}>
               {this.state.loading ? <LinearProgress /> :
                 <React.Fragment>
-                  <Typography variant='h4' gutterBottom>
-                    {this.props.adventurePart.chapterName}
-                  </Typography>
                   {this.state.answerMode &&
                     <Adventure 
                       closedQuestions={this.state.closedQuestions}

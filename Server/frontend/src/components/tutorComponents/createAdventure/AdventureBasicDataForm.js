@@ -11,10 +11,10 @@ class AdventureBasicDataForm extends React.Component {
     return (
       <FormGroup>
         <TextField label={'Nazwa przygody'} name={'name'} value={this.props.adventure.name} onChange={this.handleChange}
-                   error={this.props.errors.name} helperText={this.props.errors.name || ''}/>
+                   error={this.props.errors?.name} helperText={this.props.errors?.name || ''}/>
         <TextField label={'Opis przygody'} multiline rows={4} name={'taskDescription'} value={this.props.adventure.taskDescription}
-                   onChange={this.handleChange} error={this.props.errors.taskDescription} helperText={this.props.errors.taskDescription || ''}/>
-        <FormControl error={this.props.errors.category}>
+                   onChange={this.handleChange} error={this.props.errors?.taskDescription} helperText={this.props.errors?.taskDescription || ''}/>
+        <FormControl error={this.props.errors?.category}>
           <InputLabel id={'category-label'}>Kategoria przygody</InputLabel>
           <Select labelId={'category-label'} name={'category'} value={this.props.adventure.category} onChange={this.handleChange}>
             <MenuItem value={'NOT SELECTED'}>(wybierz)</MenuItem>
@@ -24,7 +24,7 @@ class AdventureBasicDataForm extends React.Component {
             <MenuItem value={'TEST'}>Kolokwium</MenuItem>
             <MenuItem value={'HOMEWORK'}>Praca domowa</MenuItem>
           </Select>
-          {this.props.errors.category && <FormHelperText error>{this.props.errors.category}</FormHelperText>}
+          {this.props.errors?.category && <FormHelperText error>{this.props.errors?.category}</FormHelperText>}
         </FormControl>
       </FormGroup>
     );

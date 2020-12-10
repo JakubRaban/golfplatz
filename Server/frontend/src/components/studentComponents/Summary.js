@@ -38,83 +38,84 @@ export class Summary extends Component {
 
   render() {
     return (
-      <div>
-        <Typography variant="h5" gutterBottom>
-          Podsumowanie Twoich wyników:
+      <>
+        <Typography variant='h5' gutterBottom>
+          {this.props.adventurePart.chapterName} - Podsumowanie Twoich wyników:
         </Typography>
-        {this.props.adventurePart.summary.map((sum, i) =>
-          <React.Fragment key={i}>
-            <Typography variant="h6" gutterBottom>
-              {sum.adventureName}
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-              Udzieliłeś odpowiedzi w ciągu: <Typography variant="subtitle2" gutterBottom>{sum.answerTime}</Typography>
-            </Typography>
-            {sum.questionSummaries.map((question, j) =>
-              <React.Fragment key={i * j}>
-                <Typography variant="subtitle1" gutterBottom>
-                  {question.text}
+        <div style={{ width: '100%', margin: '5px', padding: '5px' }}>
+          {this.props.adventurePart.summary.map((sum, i) =>
+            <div key={i} style={{ margin: '5px' }}>
+              <div style={{ display: 'flex' }}>
+                <Typography variant='h6' gutterBottom>
+                  {sum.adventureName}
                 </Typography>
-                {question.isAutoChecked ?
-                  <Typography variant="subtitle2" gutterBottom>
-                    {question.pointsScored}/{question.maxPoints}
-                  </Typography> :
-                  <Typography variant="subtitle2" gutterBottom>
-                    To pytanie zostanie ocenione przez prowadzącego.
-                  </Typography>
-                }
-              </React.Fragment>,
-            )}
-          </React.Fragment>,
-        )}
-        { this.state.achievementsLoaded &&
-          this.props.achievements.achievements.map((achievement) => 
-            <>
-              <Typography variant="h5" gutterBottom>Zdobyto odznakę!</Typography>
-              <Card style={{width: '350px', margin: '5px'}}>
-                <CardMedia
-                  style={{height: '140px'}}
-                  component='img'
-                  src={achievement.image}
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="h2">
-                    {achievement.name}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                    Przyznawana za {this.getDescription(achievement)}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </>
-          ) 
-        }
-        {
-          this.state.rankLoaded &&
-            <>
-              <Typography variant="h5" gutterBottom>Zaktualizowano rangę!</Typography>
+                <Typography variant='body1' gutterBottom>
+                  Udzieliłeś odpowiedzi w ciągu: <Typography variant='subtitle2' gutterBottom>{sum.answerTime}</Typography>
+                </Typography>
+              </div>
+              {sum.questionSummaries.map((question, j) =>
+                <div key={i * j + 15000}style={{ display: 'flex' }}>                    
+                  {question.isAutoChecked ?
+                    <Typography variant='subtitle2' gutterBottom>
+                      {question.text} ({question.pointsScored}/{question.maxPoints})
+                    </Typography> :
+                    <Typography variant='subtitle2' gutterBottom>
+                      {question.text} - To pytanie zostanie ocenione przez prowadzącego.
+                    </Typography>
+                  }
+                </div>
+              )}
+            </div>,
+          )}
+          { this.state.achievementsLoaded &&
+            this.props.achievements.achievements.map((achievement) => 
+              <>
+                <Typography variant='h5' gutterBottom>Zdobyto odznakę!</Typography>
+                <Card style={{width: '350px', margin: '5px'}}>
+                  <CardMedia
+                    style={{height: '140px'}}
+                    component='img'
+                    src={achievement.image}
+                  />
+                  <CardContent>
+                    <Typography gutterBottom variant='h5' component='h2'>
+                      {achievement.name}
+                    </Typography>
+                    <Typography variant='body2' color='textSecondary' component='p'>
+                      Przyznawana za {this.getDescription(achievement)}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </>
+            ) 
+          }
+          {
+            this.state.rankLoaded &&
+              <>
+                <Typography variant='h5' gutterBottom>Zaktualizowano rangę!</Typography>
 
-              <Card style={{display: 'flex'}}>
-                <CardMedia style={{height: '140px', width: '140px'}}
-                  image={this.props.rank.rank.image}
-                  title='Rank image'
-                />
-                <CardContent>
-                  <Typography component='h6' variant='h6'>
-                    Twoja ranga w kursie to: {this.props.rank.rank.name}
-                  </Typography>
-                  <Typography variant='subtitle1' color='textSecondary'>
-                    Oznacza to, że Twój wynik wynosi przynajmniej {this.props.rank.rank.lowerThresholdPercent}%.
-                  </Typography>
-                </CardContent>
-              </Card>
-            </>
-        }
-        <Button variant="contained" onClick={this.props.endChapter}>
-          Zakończ rozdział
-        </Button>
+                <Card style={{display: 'flex'}}>
+                  <CardMedia style={{height: '140px', width: '140px'}}
+                    image={this.props.rank.rank.image}
+                    title='Rank image'
+                  />
+                  <CardContent>
+                    <Typography component='h6' variant='h6'>
+                      Twoja ranga w kursie to: {this.props.rank.rank.name}
+                    </Typography>
+                    <Typography variant='subtitle1' color='textSecondary'>
+                      Oznacza to, że Twój wynik wynosi przynajmniej {this.props.rank.rank.lowerThresholdPercent}%.
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </>
+          }
+          <Button variant='contained' onClick={this.props.endChapter}>
+            Zakończ rozdział
+          </Button>
 
-      </div>
+        </div>
+      </>
     );
   }
 }

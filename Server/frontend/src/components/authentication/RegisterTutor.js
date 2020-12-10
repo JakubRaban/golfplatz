@@ -143,19 +143,21 @@ export class RegisterTutor extends Component {
                 variant='filled'
               />
             </div>
-            {!this.props.fresh && <div className='systemKey'>
-              <TextField
-                error={errors.systemKey}
-                fullWidth
-                helperText={errors.systemKey || ''}
-                label='Klucz rejestracji prowadzącego'
-                name='systemKey'
-                onChange={this.onChange}
-                type='password'
-                value={systemKey}
-                variant='filled'
-              />
-            </div>}
+            {!this.props.fresh &&
+              <div className='systemKey'>
+                <TextField
+                  error={errors.systemKey}
+                  fullWidth
+                  helperText={errors.systemKey || ''}
+                  label='Klucz rejestracji prowadzącego'
+                  name='systemKey'
+                  onChange={this.onChange}
+                  type='password'
+                  value={systemKey}
+                  variant='filled'
+                />
+              </div>
+            }
             <div className="button-container">
               <Button className="login-button" type="submit">
                 Zarejestruj się
