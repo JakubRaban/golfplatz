@@ -22,6 +22,7 @@ import AddGroupsAndPlot from './AddGroupsAndPlot.js';
 import AddRanks from './AddRanks.js';
 import AddWeights from './AddWeights.js';
 import ColorPicker from "./ColorPicker";
+import SelectRankingMode from "./SelectRankingMode";
 import FormErrorMessage from "../../common/FormErrorMessage";
 
 export class AddCourse extends Component {
@@ -40,6 +41,7 @@ export class AddCourse extends Component {
     },
     achievements: [],
     ranks: [],
+    rankingMode: 'FULL',
     themeColor: MAIN_COLOR,
     errors: {},
   };
@@ -130,6 +132,10 @@ export class AddCourse extends Component {
     this.setState({weights});
   }
 
+  handleRankingModeChange = (e) => {
+    this.setState({ rankingMode: e.target.value });
+  }
+
   changeColor = (color) => {
     this.setState({ themeColor: color.hex });
   }
@@ -180,8 +186,8 @@ export class AddCourse extends Component {
     }
 
     if (empty(this.state.errors)) {
-      const { name, description, courseGroups, plotParts, achievements, ranks, weights, themeColor } = this.state;
-      const course = { name, description, themeColor };
+      const { name, description, courseGroups, plotParts, achievements, ranks, weights, rankingMode, themeColor } = this.state;
+      const course = { name, description, themeColor, rankingMode };
       const result = await this.props.addCourse(course, courseGroups, plotParts, achievements, ranks, weights);
       console.log(result, typeof result);
       if (result === "ok") {
@@ -249,6 +255,10 @@ export class AddCourse extends Component {
             handleRankChange={this.handleRankChange}
             ranks={this.state.ranks}
             removeRank={this.removeRank}
+          />
+          <SelectRankingMode
+            rankingMode={this.state.rankingMode}
+            handleChange={this.handleRankingModeChange}
           />
           <ColorPicker
             color={this.state.themeColor}

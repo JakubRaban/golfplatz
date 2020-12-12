@@ -99,7 +99,7 @@ class Course(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
-    student_ranking_visibility_strategy = models.CharField(
+    ranking_mode = models.CharField(
         max_length=20, choices=RankingVisibilityStrategy.choices, default=RankingVisibilityStrategy.FULL
     )
     theme_color = models.CharField(max_length=7, validators=[RegexValidator(regex=r'^#[0-9a-f]{6}$')])
@@ -118,12 +118,12 @@ class Course(models.Model):
         return ranking_elements
 
     def generate_ranking_for_student(self, participant: Participant):
-        if self.student_ranking_visibility_strategy == self.RankingVisibilityStrategy.OFF:
+        if self.ranking_mode == self.RankingVisibilityStrategy.OFF:
             return []
         ranking_elements = [RankingElement(course_group_student.student, self, index + 1) for index, course_group_student in
                             enumerate(CourseGroupStudents.objects.filter(course_group__course=self))]
         ranking_elements.sort(key=lambda element: element.student_score.score_percent, reverse=True)
-        if self.student_ranking_visibility_strategy == self.RankingVisibilityStrategy.FULL:
+        if self.ranking_mode == self.RankingVisibilityStrategy.FULL:
             return ranking_elements
         for index, element in enumerate(ranking_elements):
             if element.student == participant:
@@ -131,10 +131,10 @@ class Course(models.Model):
                 break
         else:
             student_position = len(ranking_elements)
-        if self.student_ranking_visibility_strategy == self.RankingVisibilityStrategy.PARTICIPANT_AND_TOP:
+        if self.ranking_mode == self.RankingVisibilityStrategy.PARTICIPANT_AND_TOP:
             return [ranking_element for index, ranking_element in enumerate(ranking_elements)
                     if index <= 2 or student_position - 1 <= index <= student_position + 1]
-        elif self.student_ranking_visibility_strategy == self.RankingVisibilityStrategy.PARTICIPANT:
+        elif self.ranking_mode == self.RankingVisibilityStrategy.PARTICIPANT:
             return [ranking_element for index, ranking_element in enumerate(ranking_elements)
                     if student_position - 1 <= index <= student_position + 1]
 

@@ -51,7 +51,7 @@ class ParticipantBasicDataSerializer(serializers.ModelSerializer):
 class CreateCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['name', 'description', 'theme_color']
+        fields = ['name', 'description', 'theme_color', 'ranking_mode']
 
 
 class AchievementSerializer(serializers.ModelSerializer):
