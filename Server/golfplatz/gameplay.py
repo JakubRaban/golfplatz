@@ -49,11 +49,14 @@ def do_post_chapter_operations(adventure: Adventure, student: Participant, calcu
 
 def calculate_score_and_achievements(student: Participant, current_chapter: Chapter, acc_chapter: AccomplishedChapter, current_chapter_acc_adventures: Set[AccomplishedAdventure]):
     if all(acc_adventure.is_fully_graded for acc_adventure in current_chapter_acc_adventures):
-        score_aggregator = ScoreAggregator(get_accomplished_adventures_for_student(student, current_chapter.course).values(
-            'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
+        student_adventures = get_accomplished_adventures_for_student(student, current_chapter.course)
+        max_points_possible_list = [acc_adventure.adventure.max_points_possible for acc_adventure in student_adventures]
+        values_list = student_adventures.values(
+            'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__point_source__category',
             'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
-            'adventure__point_source__category'
-        ), Weight.objects.filter(course=current_chapter.course))
+        )
+        values = [{'adventure__max_points_possible': x, **y} for x, y in zip(max_points_possible_list, values_list)]
+        score_aggregator = ScoreAggregator(values, Weight.objects.filter(course=current_chapter.course))
         total_points = score_aggregator.points_for_chapter(current_chapter)
         acc_chapter.save_points_scored(total_points)
         acc_chapter.mark_recalculating_started()

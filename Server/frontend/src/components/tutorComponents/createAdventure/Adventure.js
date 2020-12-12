@@ -81,7 +81,6 @@ class Adventure extends React.Component {
         timeLimit: '0',
         timerRulesEnabled: false,
         timerRules: [{ ...this.emptyTimerRule }],
-        errors: {}
       };
       this.state.isNew = true;
       this.state.questions[0].answers = [];
@@ -89,6 +88,7 @@ class Adventure extends React.Component {
     }
     this.state.isAddingAdventure = false;
     this.state.isAdded = false;
+    this.state.errors = {};
   }
 
   submitForm = async () => {

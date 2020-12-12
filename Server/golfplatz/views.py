@@ -127,7 +127,7 @@ class AchievementView(APIView):
         serializer.is_valid(raise_exception=True)
         course = Course.objects.get(pk=course_id)
         new_achievements = [Achievement.objects.create(course=course, **serialized_achievements)
-                          for serialized_achievements in serializer.validated_data]
+                            for serialized_achievements in serializer.validated_data]
         return Response(AchievementSerializer(new_achievements, many=True).data)
 
 
@@ -386,7 +386,16 @@ class AdventureView(APIView):
         serializer = CreateAdventuresSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         chapter = Chapter.objects.get(pk=chapter_id)
-        new_adventure = serializer.save(chapter=chapter)
+        new_adventure: Adventure = serializer.save(chapter=chapter)
+        chapter_adventures = chapter.adventures.all()
+        if chapter_adventures.count() == 1:
+            new_adventure.is_initial = True
+            new_adventure.save()
+            chapter.points_for_max_grade = new_adventure.max_points_possible
+            chapter.complete()
+        else:
+            chapter_adventures.update(is_initial=False)
+            chapter.uncomplete()
         return Response(AdventureSerializer(new_adventure).data)
 
 
@@ -477,14 +486,18 @@ class AdventureAnswerView(APIView):
         image_questions_data = data['image_questions']
         closed_questions, open_questions, image_questions = [], [], []
         for question_data in closed_questions_data:
-            closed_questions.append((Question.objects.get(pk=question_data['question_id']),
-                                     set([Answer.objects.get(pk=answer_id)
-                                          for answer_id in question_data['marked_answers']])))
+            question = Question.objects.get(pk=question_data['question_id'])
+            if question.point_source_id == adventure_id:
+                closed_questions.append((question, set([Answer.objects.get(pk=answer_id)
+                                         for answer_id in question_data['marked_answers']])))
         for question_data in open_questions_data:
-            open_questions.append((Question.objects.get(pk=question_data['question_id']),
-                                   question_data['given_answer']))
+            question = Question.objects.get(pk=question_data['question_id'])
+            if question.point_source_id == adventure_id:
+                open_questions.append((question, question_data['given_answer']))
         for question_data in image_questions_data:
-            image_questions.append((Question.objects.get(pk=question_data['question_id']), question_data['image']))
+            question = Question.objects.get(pk=question_data['question_id'])
+            if question.point_source_id == adventure_id:
+                image_questions.append((question, question_data['image']))
         next_stage = process_answers(self.request.user,
                                      current_adventure,
                                      data['start_time'], data['answer_time'],

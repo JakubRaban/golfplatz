@@ -209,7 +209,7 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Adventure
-        exclude = ['chapter', 'is_initial', 'max_points_possible']
+        exclude = ['chapter', 'is_initial']
 
     def validate_time_limit(self, value):
         try:
