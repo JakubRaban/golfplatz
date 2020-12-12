@@ -91,13 +91,16 @@ class Participant(AbstractUser):
 
 class Course(models.Model):
     class RankingVisibilityStrategy(models.TextChoices):
-        RANKS_ONLY = 'RANKS_ONLY', 'Ranks only'
+        FULL = 'FULL', 'Full'
+        PARTICIPANT_AND_TOP = 'PARTICIPANT_AND_TOP', 'Participant and top'
+        PARTICIPANT = 'PARTICIPANT', 'Participant'
+        OFF = 'OFF', 'Off'
 
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
     student_ranking_visibility_strategy = models.CharField(
-        max_length=20, choices=RankingVisibilityStrategy.choices, default=RankingVisibilityStrategy.RANKS_ONLY
+        max_length=20, choices=RankingVisibilityStrategy.choices, default=RankingVisibilityStrategy.FULL
     )
     theme_color = models.CharField(max_length=7, validators=[RegexValidator(regex=r'^#[0-9a-f]{6}$')])
 
@@ -108,11 +111,32 @@ class Course(models.Model):
     def max_points_possible(self):
         return sum([plot_part.max_points_possible for plot_part in self.plot_parts.all()])
 
-    def generate_ranking(self):
-        ranking_elements = [RankingElement(course_group_student.student, self) for course_group_student in
-                            CourseGroupStudents.objects.filter(course_group__course=self)]
+    def generate_ranking_for_tutor(self):
+        ranking_elements = [RankingElement(course_group_student.student, self, index + 1) for index, course_group_student in
+                            enumerate(CourseGroupStudents.objects.filter(course_group__course=self))]
         ranking_elements.sort(key=lambda element: element.student_score.score_percent, reverse=True)
         return ranking_elements
+
+    def generate_ranking_for_student(self, participant: Participant):
+        if self.student_ranking_visibility_strategy == self.RankingVisibilityStrategy.OFF:
+            return []
+        ranking_elements = [RankingElement(course_group_student.student, self, index + 1) for index, course_group_student in
+                            enumerate(CourseGroupStudents.objects.filter(course_group__course=self))]
+        ranking_elements.sort(key=lambda element: element.student_score.score_percent, reverse=True)
+        if self.student_ranking_visibility_strategy == self.RankingVisibilityStrategy.FULL:
+            return ranking_elements
+        for index, element in enumerate(ranking_elements):
+            if element.student == participant:
+                student_position = index
+                break
+        else:
+            student_position = len(ranking_elements)
+        if self.student_ranking_visibility_strategy == self.RankingVisibilityStrategy.PARTICIPANT_AND_TOP:
+            return [ranking_element for index, ranking_element in enumerate(ranking_elements)
+                    if index <= 2 or student_position - 1 <= index <= student_position + 1]
+        elif self.student_ranking_visibility_strategy == self.RankingVisibilityStrategy.PARTICIPANT:
+            return [ranking_element for index, ranking_element in enumerate(ranking_elements)
+                    if student_position - 1 <= index <= student_position + 1]
 
     def get_all_students_grades(self, username_header_name='username'):
         acc_chapters = AccomplishedChapter.objects.filter(chapter__plot_part__course=self, is_completed=True)
@@ -635,7 +659,8 @@ class StudentScore:
 
 
 class RankingElement:
-    def __init__(self, student: Participant, course: Course):
+    def __init__(self, student: Participant, course: Course, position: int):
+        self.position = position
         self.student_score = StudentScore(student, course)
         self.student = student
         self.course_group_name = CourseGroup.objects.get(course=course, students=student).group_name
