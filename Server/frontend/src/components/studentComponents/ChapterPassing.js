@@ -19,7 +19,13 @@ import { NextAdventureChoice } from './NextAdventureChoice.js';
 import { Summary } from './Summary.js';
 
 export class ChapterPassing extends Component {
-  adventureAnswer = {};
+  adventureAnswer = {
+    startTime: this.startTime.toISOString(),
+    answerTime: 0,
+    closedQuestions: [],
+    openQuestions: [],
+    imageQuestions: [],
+  };;
 
   constructor(props) {
     super(props);
