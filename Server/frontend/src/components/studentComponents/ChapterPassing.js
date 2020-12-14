@@ -20,7 +20,7 @@ import { Summary } from './Summary.js';
 
 export class ChapterPassing extends Component {
   adventureAnswer = {
-    startTime: this.startTime.toISOString(),
+    startTime: new Date().toISOString(),
     answerTime: 0,
     closedQuestions: [],
     openQuestions: [],
