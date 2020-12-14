@@ -478,7 +478,9 @@ class AdventureAnswerView(APIView):
 
     def post(self, request, adventure_id):
         serializer = AdventureAnswerSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        print(serializer.initial_data)
+        if not serializer.is_valid():
+            print(serializer.errors)
         data = serializer.validated_data
         current_adventure = Adventure.objects.get(pk=adventure_id)
         closed_questions_data = data['closed_questions']
