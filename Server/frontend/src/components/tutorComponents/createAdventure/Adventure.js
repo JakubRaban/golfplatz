@@ -230,42 +230,44 @@ class Adventure extends React.Component {
             title={this.state.isNew ? 'Stwórz nową przygodę' : 'Edytuj przygodę'} returnLink={`/chapters/${this.props.chapter.id}`} />
           <main className={classes.content}>
             <div className={classes.appBarSpacer}/>
-            <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData} errors={this.state.errors}/>
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                <Typography className={classes.heading}>Pytania</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <AdventureQuestionsFormList questions={this.state.questions}
-                  addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion}
-                  deleteQuestion={this.deleteQuestion}
-                  addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer}
-                  deleteAnswer={this.deleteAnswer}
-                  errors={this.state.errors}/>
-              </AccordionDetails>
-            </Accordion>
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-                <Typography className={classes.heading}>Ograniczenia czasowe</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <div>
+            <div style={{ margin: '10px', padding: '5px' }}>
+              <AdventureBasicDataForm adventure={this.state} updateForm={this.updateBasicData} errors={this.state.errors}/>
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                  <Typography className={classes.heading}>Pytania</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <AdventureQuestionsFormList questions={this.state.questions}
+                    addQuestion={this.addNewQuestion} updateQuestion={this.updateQuestion}
+                    deleteQuestion={this.deleteQuestion}
+                    addAnswer={this.addNewAnswer} updateAnswer={this.updateAnswer}
+                    deleteAnswer={this.deleteAnswer}
+                    errors={this.state.errors}/>
+                </AccordionDetails>
+              </Accordion>
+              <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
+                  <Typography className={classes.heading}>Ograniczenia czasowe</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
                   <div>
-                    <TimeLimitForm hasTimeLimit={this.state.hasTimeLimit} setHasTimeLimit={this.setHasTimeLimit}
-                      timeLimit={this.state.timeLimit} setTimeLimit={this.setTimeLimit} errors={this.state.errors}/>
+                    <div>
+                      <TimeLimitForm hasTimeLimit={this.state.hasTimeLimit} setHasTimeLimit={this.setHasTimeLimit}
+                        timeLimit={this.state.timeLimit} setTimeLimit={this.setTimeLimit} errors={this.state.errors}/>
+                    </div>
+                    <div>
+                      <TimerRulesFormList timerRules={this.state.timerRules} enableTimerRules={this.enableTimerRules}
+                        timerRulesEnabled={this.state.timerRulesEnabled}
+                        addTimerRule={this.addTimerRule} updateTimerRule={this.updateTimerRule}
+                        deleteTimerRule={this.deleteTimerRule} errors={this.state.errors}/>
+                    </div>
                   </div>
-                  <div>
-                    <TimerRulesFormList timerRules={this.state.timerRules} enableTimerRules={this.enableTimerRules}
-                      timerRulesEnabled={this.state.timerRulesEnabled}
-                      addTimerRule={this.addTimerRule} updateTimerRule={this.updateTimerRule}
-                      deleteTimerRule={this.deleteTimerRule} errors={this.state.errors}/>
-                  </div>
-                </div>
-              </AccordionDetails>
-            </Accordion>
-            <Button color={'primary'} onClick={this.submitForm}>Zatwierdź i zapisz</Button>
-            {!empty(this.state.errors) && <FormErrorMessage />}
-            {this.state.isAddingAdventure && <CircularProgress />}
+                </AccordionDetails>
+              </Accordion>
+              <Button color={'primary'} onClick={this.submitForm}>Zatwierdź i zapisz</Button>
+              {!empty(this.state.errors) && <FormErrorMessage />}
+              {this.state.isAddingAdventure && <CircularProgress />}
+            </div>
           </main>
         </div>
       </ThemeProvider>

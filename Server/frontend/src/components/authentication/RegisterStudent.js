@@ -82,7 +82,7 @@ export class RegisterStudent extends Component {
             Rejestracja studenta
           </Typography>
           <form onSubmit={this.onSubmit}>
-          <div className='firstName'>
+            <div className='firstName'>
               <TextField 
                 error={errors.firstName}
                 fullWidth

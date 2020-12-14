@@ -6,18 +6,25 @@ import { connect } from 'react-redux';
 
 export class NextAdventureChoice extends Component {
   render() {
-    console.log(this.props);
+
     return (
-      <div>
-        <Typography variant="subtitle1" gutterBottom>
-          {this.props.adventurePart.choice.description}
+      <>
+        <Typography variant='h5' gutterBottom>
+          {this.props.adventurePart.chapterName}
         </Typography>
-        {this.props.adventurePart.choice.pathChoices.map((pathChoice, i) =>
-          <Button key={i} variant="contained" onClick={this.props.onSubmit(pathChoice.toAdventure)}>
-            {pathChoice.description}
-          </Button>,
-        )}
-      </div>
+        <div style={{ marginLeft: '5px' }}>
+          <Typography variant='subtitle1' gutterBottom>
+            {this.props.adventurePart.choice.description}
+          </Typography>
+          {this.props.adventurePart.choice.pathChoices.map((pathChoice, i) =>
+            <div style={{ display: 'inlineBlock', margin: '10px' }}>
+              <Button key={i} variant='contained' onClick={this.props.onSubmit(pathChoice.toAdventure)}>
+                {pathChoice.description}
+              </Button>
+            </div>
+          )}
+        </div>
+      </>
     );
   }
 }
