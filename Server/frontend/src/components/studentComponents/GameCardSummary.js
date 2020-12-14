@@ -46,7 +46,7 @@ export class GameCardSummary extends Component {
   }
 
   renderAchievement = (achievement, index, accomplished = false) => {
-    const cardMediaStyle = accomplished ? {height: '140px'} : {height: '140px', opacity: '10%'};
+    const cardMediaStyle = accomplished ? {height: '270px'} : {height: '270px', opacity: '10%'};
 
     return (
       <Card key={index + 100*accomplished} style={{width: '350px', margin: '5px'}}>
