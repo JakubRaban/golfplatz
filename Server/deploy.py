@@ -11,8 +11,8 @@ steps = [
     'heroku login',
     'echo Now login to heroku',
     'pause' if windows else 'read -p "Press enter to continue"',
-    'cd .. && git subtree push --prefix Server heroku master',
-    'git reset --hard HEAD~1',
+    # 'cd .. && git subtree push --prefix Server heroku master',
+    # 'git reset --hard HEAD~1',
 ]
 
 for step in steps:
