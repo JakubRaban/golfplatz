@@ -243,7 +243,7 @@ class CourseRankingStudentView(APIView):
         course = Course.objects.get(pk=course_id)
         ranking = course.generate_ranking_for_tutor()
         return Response({
-            'student_ranking_visibility': course.student_ranking_visibility_strategy,
+            'student_ranking_visibility': course.ranking_mode,
             'ranking': RankingElementSerializer(ranking, many=True).data
         })
 
