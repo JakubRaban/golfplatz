@@ -49,7 +49,7 @@ export class Summary extends Component {
                 {sum.adventureName}
               </Typography>
               <Typography variant='body1' gutterBottom>
-                Udzieliłeś odpowiedzi w ciągu: {sum.answerTime}
+                Udzieliłeś odpowiedzi w ciągu: {sum.answerTime} sekund
               </Typography>
               {sum.questionSummaries.map((question, j) =>
                 <div key={i * j + 15000}style={{ display: 'flex' }}>                    
