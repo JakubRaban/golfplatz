@@ -45,14 +45,12 @@ export class Summary extends Component {
         <div style={{ width: '100%', margin: '5px', padding: '5px' }}>
           {this.props.adventurePart.summary.map((sum, i) =>
             <div key={i} style={{ margin: '5px' }}>
-              <div style={{ display: 'flex' }}>
-                <Typography variant='h6' gutterBottom>
-                  {sum.adventureName}
-                </Typography>
-                <Typography variant='body1' gutterBottom>
-                  Udzieliłeś odpowiedzi w ciągu: <Typography variant='subtitle2' gutterBottom>{sum.answerTime}</Typography>
-                </Typography>
-              </div>
+              <Typography variant='h6' gutterBottom>
+                {sum.adventureName}
+              </Typography>
+              <Typography variant='body1' gutterBottom>
+                Udzieliłeś odpowiedzi w ciągu: {sum.answerTime}
+              </Typography>
               {sum.questionSummaries.map((question, j) =>
                 <div key={i * j + 15000}style={{ display: 'flex' }}>                    
                   {question.isAutoChecked ?
