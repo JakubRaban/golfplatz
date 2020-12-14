@@ -14,6 +14,8 @@ import ReactTimer from 'react-compound-timer';
 export class Adventure extends Component {
   handleImage = (id) => (e) => {
     const file = e.target.files[0];
+    console.log(e);
+    console.log(e.target.files);
     const reader = new FileReader();
     reader.onloadend = () => {
       this.props.onImageAnswerChange(id, reader.result);
