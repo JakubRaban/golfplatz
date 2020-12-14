@@ -14,8 +14,6 @@ import ReactTimer from 'react-compound-timer';
 export class Adventure extends Component {
   handleImage = (id) => (e) => {
     const file = e.target.files[0];
-    console.log(e);
-    console.log(e.target.files);
     const reader = new FileReader();
     reader.onloadend = () => {
       this.props.onImageAnswerChange(id, reader.result);
@@ -93,78 +91,14 @@ export class Adventure extends Component {
         <Typography variant='h5' gutterBottom>
           {this.props.adventurePart.chapterName}
         </Typography>
-        {!this.props.submitted ?
-          <ReactTimer
-            direction='backward'
-            formatValue={value => `${value < 10 ? `0${value}` : value}`}
-            initialTime={this.props.timeLimit*1000}
-            checkpoints={[
-              {
-                time: 1,
-                callback: () => this.handleSubmit(0),
-              }
-            ]}
-          >
-            {(timer) => (
-              <>
-                {this.props.adventurePart.adventure.timeLimit > 0 &&
-                  <div>
-                    <ReactTimer.Hours />:<ReactTimer.Minutes />:<ReactTimer.Seconds />
-                  </div>
-                }
-                {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
-                  <React.Fragment key={100+i}>
-                    <Typography variant='subtitle2' gutterBottom>
-                      {question.text}
-                    </Typography>
-                    {question.questionType === 'OPEN' ?
-                      <>
-                        {
-                          question.inputType === 'IMAGE' ?
-                            this.renderImageQuestion(question.id) : this.renderOpenQuestion(question.id)
-                        }
-                      </>:
-                      this.renderClosedQuestion(question, i)
-                    }
-                  </React.Fragment>,
-                )}
-                <div style={{ display: 'block' }}>
-                  <Button variant='contained' onClick={() => this.handleSubmit(timer.getTime())}>Zatwierdź</Button>
-                </div>
-              </>
-            )}
-          </ReactTimer> :
-          <>
-            {this.props.adventurePart.adventure.pointSource.questions.map((question, i) =>
-              <React.Fragment key={1000 + i}>
-                <Typography variant='subtitle1' gutterBottom>
-                  {question.text}
-                </Typography>
-                {question.questionType === 'CLOSED' ?
-                  <FormControl component='fieldset'>
-                    <FormGroup>
-                      {question.answers.map((answer, j) =>
-                        <React.Fragment key={10000 + j}>
-                          <FormControlLabel
-                            control={<Checkbox checked={this.props.closedQuestions.get(question.id)[j].marked}
-                              name='answer' />}
-                            label={answer.text}
-                          />
-                          {this.props.closedQuestions.get(question.id)[j].marked &&
-                            <Typography variant='subtitle2' gutterBottom>
-                              {answer.isCorrect ? question.messageAfterCorrectAnswer : question.messageAfterIncorrectAnswer}
-                            </Typography>
-                          }
-                        </React.Fragment>,
-                      )}
-                    </FormGroup>
-                  </FormControl> :
-                  <Typography variant='subtitle2' gutterBottom>
-                    Twoja odpowiedź: {this.props.openQuestions.get(question.id)}
-                  </Typography>
-                }
-              </React.Fragment>,
-            )}
+        <div style={{ marginLeft: '5px' }}>
+          <Typography variant='h6' gutterBottom>
+            {this.props.adventurePart.adventure.name} - {this.showPointSourceCategory()}
+          </Typography>
+          <Typography variant='subtitle1' gutterBottom>
+            {this.props.adventurePart.adventure.taskDescription}
+          </Typography>
+          {questions.length === 0 ?
             <div style={{ display: 'block' }}>
               <Button variant='contained' onClick={this.props.onNext}>Dalej</Button>
             </div>
