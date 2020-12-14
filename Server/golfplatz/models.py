@@ -1,9 +1,6 @@
-import calendar
-import csv
 import functools
 import re
 from collections import defaultdict
-from datetime import datetime
 from decimal import Decimal
 from random import randint
 from typing import List, Tuple, Set
@@ -12,11 +9,19 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser, Group
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Max, F, Sum
+from django.db.models import Max, Sum
 from django.utils.timezone import now
 from knox.models import AuthToken
 
 from .managers import ParticipantManager
+
+
+class Category(models.TextChoices):
+    QUIZ = 'QUIZ', 'Quiz'
+    GENERIC = 'GENERIC', 'Generic lab exercise'
+    ACTIVENESS = 'ACTIVENESS', 'Activeness'
+    TEST = 'TEST', 'Test'
+    HOMEWORK = 'HOMEWORK', 'Homework or project'
 
 
 def get_random_access_code(length=8):
@@ -86,13 +91,16 @@ class Participant(AbstractUser):
 
 class Course(models.Model):
     class RankingVisibilityStrategy(models.TextChoices):
-        RANKS_ONLY = 'RANKS_ONLY', 'Ranks only'
+        FULL = 'FULL', 'Full'
+        PARTICIPANT_AND_TOP = 'PARTICIPANT_AND_TOP', 'Participant and top'
+        PARTICIPANT = 'PARTICIPANT', 'Participant'
+        OFF = 'OFF', 'Off'
 
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
-    student_ranking_visibility_strategy = models.CharField(
-        max_length=20, choices=RankingVisibilityStrategy.choices, default=RankingVisibilityStrategy.RANKS_ONLY
+    ranking_mode = models.CharField(
+        max_length=20, choices=RankingVisibilityStrategy.choices, default=RankingVisibilityStrategy.FULL
     )
     theme_color = models.CharField(max_length=7, validators=[RegexValidator(regex=r'^#[0-9a-f]{6}$')])
 
@@ -103,11 +111,32 @@ class Course(models.Model):
     def max_points_possible(self):
         return sum([plot_part.max_points_possible for plot_part in self.plot_parts.all()])
 
-    def generate_ranking(self):
-        ranking_elements = [RankingElement(course_group_student.student, self) for course_group_student in
-                            CourseGroupStudents.objects.filter(course_group__course=self)]
+    def generate_ranking_for_tutor(self):
+        ranking_elements = [RankingElement(course_group_student.student, self, index + 1) for index, course_group_student in
+                            enumerate(CourseGroupStudents.objects.filter(course_group__course=self))]
         ranking_elements.sort(key=lambda element: element.student_score.score_percent, reverse=True)
         return ranking_elements
+
+    def generate_ranking_for_student(self, participant: Participant):
+        if self.ranking_mode == self.RankingVisibilityStrategy.OFF:
+            return []
+        ranking_elements = [RankingElement(course_group_student.student, self, index + 1) for index, course_group_student in
+                            enumerate(CourseGroupStudents.objects.filter(course_group__course=self))]
+        ranking_elements.sort(key=lambda element: element.student_score.score_percent, reverse=True)
+        if self.ranking_mode == self.RankingVisibilityStrategy.FULL:
+            return ranking_elements
+        for index, element in enumerate(ranking_elements):
+            if element.student == participant:
+                student_position = index
+                break
+        else:
+            student_position = len(ranking_elements)
+        if self.ranking_mode == self.RankingVisibilityStrategy.PARTICIPANT_AND_TOP:
+            return [ranking_element for index, ranking_element in enumerate(ranking_elements)
+                    if index <= 2 or student_position - 1 <= index <= student_position + 1]
+        elif self.ranking_mode == self.RankingVisibilityStrategy.PARTICIPANT:
+            return [ranking_element for index, ranking_element in enumerate(ranking_elements)
+                    if student_position - 1 <= index <= student_position + 1]
 
     def get_all_students_grades(self, username_header_name='username'):
         acc_chapters = AccomplishedChapter.objects.filter(chapter__plot_part__course=self, is_completed=True)
@@ -161,6 +190,7 @@ class Achievement(models.Model):
     how_many = models.PositiveSmallIntegerField()
     in_a_row = models.BooleanField()
     condition_type = models.CharField(max_length=10, choices=ConditionType.choices)
+    adventure_category_included = models.CharField(max_length=10, choices=Category.choices, null=True)
     percentage = models.PositiveSmallIntegerField()
     accomplished_by_students = models.ManyToManyField('Participant', through='AccomplishedAchievement')
 
@@ -183,13 +213,6 @@ class Rank(models.Model):
 
 
 class Weight(models.Model):
-    class Category(models.TextChoices):
-        QUIZ = 'QUIZ', 'Quiz'
-        GENERIC = 'GENERIC', 'Generic lab exercise'
-        ACTIVENESS = 'ACTIVENESS', 'Activeness'
-        TEST = 'TEST', 'Test'
-        HOMEWORK = 'HOMEWORK', 'Homework or project'
-
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     category = models.CharField(max_length=10, choices=Category.choices)
     weight = models.PositiveIntegerField()
@@ -323,17 +346,10 @@ class Adventure(models.Model):
     task_description = models.TextField()
     is_initial = models.BooleanField(default=False)
     time_limit = models.PositiveIntegerField(default=0)
-    max_points_possible = models.IntegerField()
     done_by_students = models.ManyToManyField('Participant', through='AccomplishedAdventure')
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['chapter', 'name'], name='adventure_name_constraint')]
-
-    def save(self, *args, **kwargs):
-        self.max_points_possible = sum([
-            question.max_points_possible for question in Question.objects.filter(point_source__adventure=self)
-        ])
-        super(Adventure, self).save(*args, **kwargs)
 
     def get_time_modifier(self, time_in_seconds: int):
         hundred_percent = 100
@@ -360,6 +376,10 @@ class Adventure(models.Model):
         a = (p1[1] - p2[1]) / (p1[0] - p2[0])
         b = p1[1] - a * p1[0]
         return a, b
+
+    @property
+    def max_points_possible(self):
+        return sum(question.max_points_possible for question in self.point_source.questions.all())
 
     @property
     def paths_from_here(self):
@@ -471,7 +491,7 @@ class AccomplishedChapter(models.Model):
 
 class PointSource(models.Model):
     adventure = models.OneToOneField(Adventure, on_delete=models.CASCADE, primary_key=True, related_name='point_source')
-    category = models.CharField(max_length=10, choices=Weight.Category.choices)
+    category = models.CharField(max_length=10, choices=Category.choices)
 
 
 class Answer(models.Model):
@@ -636,7 +656,8 @@ class StudentScore:
 
 
 class RankingElement:
-    def __init__(self, student: Participant, course: Course):
+    def __init__(self, student: Participant, course: Course, position: int):
+        self.position = position
         self.student_score = StudentScore(student, course)
         self.student = student
         self.course_group_name = CourseGroup.objects.get(course=course, students=student).group_name

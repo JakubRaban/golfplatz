@@ -12,6 +12,8 @@ import { logout } from '../../actions/auth.js';
 import { gradeManual } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import NavBar from '../common/navbars/NavBar.js';
+import isDecimal from "validator/es/lib/isDecimal";
+import FormErrorMessage from "../common/FormErrorMessage";
 
 export class ManualGrading extends Component {
   state = { addedGrades: [], errors: {}, loaded: false };
@@ -51,7 +53,7 @@ export class ManualGrading extends Component {
   checkErrors = async () => {
     const errors = {}
     this.state.addedGrades.forEach((addedGrade, i) => {
-      if (empty(addedGrade.points)) setWith(errors, `addedGrades[${i}].points`, 'Ocena nie może być pusta');
+      if (!isDecimal(addedGrade.points, {decimal_digits: '1,3', locale: 'pl-PL'})) setWith(errors, `addedGrades[${i}].points`, 'Ocena nie może być pusta');
     });
     console.log(errors);
     await this.setState({ errors })
@@ -112,7 +114,6 @@ export class ManualGrading extends Component {
         <Redirect to="/"/>
       );
     }
-    console.log(this.state);
     return (
       <>
         {this.state.loaded ?
@@ -127,25 +128,28 @@ export class ManualGrading extends Component {
                   <div key={i} style={{ margin: '10px' }}>
                     {question.grades.length !== 0 &&
                       <>
-                        <Typography variant='subtitle1'>{question.text}</Typography>
-                        <Typography variant='body1'>Punktacja: {question.pointsPerIncorrectAnswer}-{question.pointsPerCorrectAnswer}</Typography>
-                        {question.grades.map((grade, j) =>
-                          <React.Fragment key={100+j}>
-                            <Typography variant='subtitle2'>{grade.student}:</Typography>
-                            {this.renderStudentAnswer(grade)}
-                          </React.Fragment>
-                        )}
+                        <Typography variant='subtitle1'>{question.text} ({question.pointsPerIncorrectAnswer}/{question.pointsPerCorrectAnswer})</Typography>
+                        <div>
+                          {question.grades.map((grade, j) =>
+                            <div key={100+j} style={{ display: 'inlineBlock' }}>
+                              <Typography variant='subtitle2'>{grade.student}:</Typography>
+                              {this.renderStudentAnswer(grade)}
+                            </div>
+                          )}
+                        </div>
                       </>
                     }
                   </div>
                   )}
-                  <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
+                  <div style={{ float: 'right', margin: '10px' }}>
                     <Button
                       color='primary'
                       variant='contained'
                       onClick={this.submitGrades}
-                    >Dodaj oceny</Button>
+                    >Dodaj oceny
+                    </Button>
                   </div>
+                  {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}} />}
                 </>
               </main>
             </div>

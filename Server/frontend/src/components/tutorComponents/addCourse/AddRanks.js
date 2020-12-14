@@ -20,6 +20,7 @@ export class AddRanks extends Component {
             index={index}
             key={index}
             rank={rank}
+            removeRank={this.props.removeRank}
           />,
         )}
         <Button

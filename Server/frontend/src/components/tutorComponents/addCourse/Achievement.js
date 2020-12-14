@@ -1,6 +1,6 @@
 import '../../../styles/course-forms.css';
 
-import { Accordion, AccordionDetails, AccordionSummary, FormHelperText, InputLabel,
+import { Accordion, AccordionDetails, AccordionSummary, Button, FormHelperText, InputLabel,
    MenuItem, Select, TextField, Typography } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import React, { Component } from 'react';
@@ -37,7 +37,7 @@ export class AddAchievement extends Component {
               <TextField className="input-class" value={achievement.name} variant="outlined"
                 error={get(errors, `achievements[${index}].name`, false)} name="name"
                 helperText={get(errors, `achievements[${index}].name`, '')} type="text"
-                onChange={() => this.props.handleChange('name', index, event.target.value)} />
+                onChange={(e) => this.props.handleChange('name', index, e.target.value)} />
               </div>
             </div>
             <div className="row">
@@ -73,11 +73,11 @@ export class AddAchievement extends Component {
                 <TextField className="input-class" value={achievement.howMany} variant="outlined"
                   error={get(errors, `achievements[${index}].howMany`, false)} name="howMany"
                   helperText={get(errors, `achievements[${index}].howMany`, '')} type="number"
-                  onChange={() => this.props.handleChange('howMany', index, event.target.value)} />
+                  onChange={(e) => this.props.handleChange('howMany', index, e.target.value)} />
               </div>
               <div className="col-10">
                 <input value={achievement.inARow} type="checkbox"
-                  name="inARow" onChange={() => this.props.handleChange('inARow', index, event.target.checked)}/>
+                  name="inARow" onChange={(e) => this.props.handleChange('inARow', index, e.target.checked)}/>
               </div>
             </div>
             <div className="row">
@@ -103,10 +103,35 @@ export class AddAchievement extends Component {
                 <TextField className="input-class" value={achievement.percentage} variant="outlined"
                   error={get(errors, `achievements[${index}].percentage`, false)} name="percentage"
                   helperText={get(errors, `achievements[${index}].percentage`, '')} type="number"
-                  onChange={() => this.props.handleChange('percentage', index, event.target.value)} />
+                  onChange={(e) => this.props.handleChange('percentage', index, e.target.value)} />
               </div>
             </div>
+            <div className="row">
+              <div className="col-50">
+                <InputLabel className="label-class">Jakie kategorie przygód uwzględniać przy sprawdzaniu odznaki?</InputLabel>
+              </div>
+              <div className="col-50">
+                <Select name={'adventureCategoryIncluded'} value={achievement.adventureCategoryIncluded}
+                  onChange={this.handleSelect}>
+                  <MenuItem value={'ALL'}>Wszystkie</MenuItem>
+                  <MenuItem value={'QUIZ'}>Kartkówki</MenuItem>
+                  <MenuItem value={'GENERIC'}>Zadania na zajęciach</MenuItem>
+                  <MenuItem value={'ACTIVENESS'}>Aktywność</MenuItem>
+                  <MenuItem value={'TEST'}>Kolokwia</MenuItem>
+                  <MenuItem value={'HOMEWORK'}>Prace domowe</MenuItem>
+                </Select>
+                {get(errors, `achievements[${index}].conditionType`, false) &&
+                  <FormHelperText error>{errors.achievements[index].conditionType}</FormHelperText>}
+              </div>
+            </div>
+            <div style={{ float: 'right', marginBottom: '10px', marginRight: '5px' }}>
+              <Button
+                color='secondary'
+                onClick={() => this.props.removeAchievement(index)}
+              >Usuń tę odznakę</Button>
+            </div>
           </div>
+
         </AccordionDetails>
       </Accordion>
     );

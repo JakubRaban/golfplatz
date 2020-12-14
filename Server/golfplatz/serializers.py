@@ -51,13 +51,7 @@ class ParticipantBasicDataSerializer(serializers.ModelSerializer):
 class CreateCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['name', 'description', 'theme_color']
-
-
-class CourseGroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CourseGroup
-        fields = '__all__'
+        fields = ['name', 'description', 'theme_color', 'ranking_mode']
 
 
 class AchievementSerializer(serializers.ModelSerializer):
@@ -100,6 +94,7 @@ class StudentGradesSerializer(serializers.Serializer):
 
 
 class RankingElementSerializer(serializers.Serializer):
+    position = serializers.IntegerField()
     student_score = StudentScoreSerializer()
     course_group_name = serializers.CharField()
     student = ParticipantBasicDataSerializer()
@@ -214,7 +209,7 @@ class CreateAdventuresSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Adventure
-        exclude = ['chapter', 'is_initial', 'max_points_possible']
+        exclude = ['chapter', 'is_initial']
 
     def validate_time_limit(self, value):
         try:
@@ -287,16 +282,24 @@ class CreatePlotPartSerializer(serializers.ModelSerializer):
         fields = ['name', 'introduction']
 
 
-class CourseSerializer(serializers.ModelSerializer):
-    plot_parts = PlotPartSerializer(many=True, read_only=True)
-    course_groups = CourseGroupSerializer(many=True, read_only=True)
-
+class CourseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = '__all__'
 
 
-class CourseListSerializer(serializers.ModelSerializer):
+class CourseGroupSerializer(serializers.ModelSerializer):
+    course = CourseListSerializer()
+
+    class Meta:
+        model = CourseGroup
+        fields = '__all__'
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    plot_parts = PlotPartSerializer(many=True, read_only=True)
+    course_groups = CourseGroupSerializer(many=True, read_only=True)
+
     class Meta:
         model = Course
         fields = '__all__'

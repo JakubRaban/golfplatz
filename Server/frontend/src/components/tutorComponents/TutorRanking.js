@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 
-export class Ranking extends Component {
+export class TutorRanking extends Component {
   state = { data: [], loaded: false };
   columns = [
     { title: 'Pozycja', field: 'position' },
@@ -29,16 +29,12 @@ export class Ranking extends Component {
 
   mapToColumns = () => {
     const data = [];
-    const participantAndTopMode = this.props.ranking.studentRankingVisibility === 'PARTICIPANT_AND_TOP';
-    const highestRank = this.props.ranking.ranking[0].studentScore.rank.name;
-
-    this.props.ranking.ranking.map((r) => {
-      const isHighestRank = r.studentScore.rank.name === highestRank; 
+    this.props.ranking.map((r) => {
       data.push({
         position: r.position,
         studentName: `${r.student.firstName} ${r.student.lastName}`,
         courseGroupName: r.courseGroupName,
-        scorePercent: !participantAndTopMode || isHighestRank ? r.studentScore.scorePercent : '-',
+        scorePercent: r.studentScore.scorePercent,
         chaptersDone: r.studentScore.chaptersDone,
         rank: r.studentScore.rank ? <img alt={r.studentScore.rank.name} src={r.studentScore.rank.image} style={{ height: '50px', width: '50px' }} title={r.studentScore.rank.name} /> : null,
       })
@@ -51,11 +47,11 @@ export class Ranking extends Component {
       <>
         {this.state.loaded &&
         <>
-          {this.props.ranking.ranking.length === 0 ?
+          {this.props.ranking.length === 0 ?
           <Typography component='h6' variant='h6'>Tutaj pojawi się ranking walczących</Typography> :
           <MaterialTable
             title="Bohaterowie minionych epok"
-            columns={this.columns.filter((column) => column.field !== 'rank' || this.props.ranks.length > 0)}
+            columns={this.columns}
             data={this.state.data}
             options={{
               actionsColumnIndex: -1,
@@ -100,4 +96,4 @@ const mapStateToProps = (state) => ({
   ranks: state.course.ranks,
 })
 
-export default connect(mapStateToProps)(Ranking);
+export default connect(mapStateToProps)(TutorRanking);

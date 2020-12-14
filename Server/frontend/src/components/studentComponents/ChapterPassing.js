@@ -118,20 +118,6 @@ export class ChapterPassing extends Component {
     }
   }
 
-  // tick() {
-  //   const current = this.state.timeLimit;
-  //   if (current === 0) {
-  //     this.transition();
-  //   } else {
-  //     this.setState({ timeLimit: current - 1 });
-  //   }
-  // }
-
-  // transition() {
-  //   clearInterval(this.timer);
-  //   // call timeout
-  // }
-
   onOpenAnswerChange = (id) => (e) => {
     const tmpQuestions = this.state.openQuestions;
     tmpQuestions.set(id, e.target.value);
@@ -162,7 +148,7 @@ export class ChapterPassing extends Component {
   }
 
   onSubmitAnswer = (timeElapsed) => {
-    const answerTime = this.state.timeLimit - timeElapsed/1000;
+    const answerTime = this.props.adventurePart.adventure.timeLimit ? this.state.timeLimit - timeElapsed/1000 : timeElapsed/1000;
 
     const closedQuestions = [];
     const openQuestions = [];
@@ -178,7 +164,13 @@ export class ChapterPassing extends Component {
       imageQuestions.push({ questionId: key, image: value})
     })
 
-    this.adventureAnswer = { startTime: this.startTime.toISOString(), answerTime, closedQuestions, openQuestions, imageQuestions };
+    this.adventureAnswer = {
+      startTime: this.startTime.toISOString(),
+      answerTime: Math.round(answerTime),
+      closedQuestions,
+      openQuestions,
+      imageQuestions
+    };
     console.log(this.adventureAnswer);
 
     this.setState({
@@ -204,6 +196,7 @@ export class ChapterPassing extends Component {
 
   render() {
     const { classes } = this.props;
+    console.log(this.props);
 
     if (!this.props.isAuthenticated) {
       return <Redirect to='/login' />;
@@ -228,9 +221,6 @@ export class ChapterPassing extends Component {
             <div style={{ margin: '5px' }}>
               {this.state.loading ? <LinearProgress /> :
                 <React.Fragment>
-                  <Typography variant='h4' gutterBottom>
-                    {this.props.adventurePart.chapterName}
-                  </Typography>
                   {this.state.answerMode &&
                     <Adventure 
                       closedQuestions={this.state.closedQuestions}
@@ -275,7 +265,7 @@ const mapStateToProps = (state) => ({
   user: state.auth.user,
   adventurePart: state.course.adventurePart,
   achievements: state.course.achievements,
-  rank: state.course.rank,
+  rank: state.course.studentRank,
   palette: state.color.palette,
   themeColors: state.color.themeColors,
 });

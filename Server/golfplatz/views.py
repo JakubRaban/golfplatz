@@ -47,6 +47,12 @@ class CourseListView(APIView):
         return Response(courses.data)
 
 
+class StudentCourseListView(APIView):
+    def get(self, request):
+        courses = CourseListSerializer(Course.objects.filter(course_groups__students=self.request.user), many=True)
+        return Response(courses.data)
+
+
 class RegisterStudentView(APIView):
     def post(self, request):
         return save_participant(request, group_name='student')
@@ -98,12 +104,15 @@ class CourseGroupEnrollmentView(APIView):
     permission_classes = [IsStudent]
 
     def post(self, request, access_code):
-        course_group = CourseGroup.objects.filter(access_code=access_code)
-        if not course_group:
-            return Response(status=400)
         student = self.request.user
-        CourseGroupStudents.objects.create(student=student, course_group=course_group[0])
-        return Response()
+        course_groups = CourseGroup.objects.filter(access_code=access_code)
+        if course_groups.count() == 0:
+            return Response(status=400)
+        course_group = course_groups[0]
+        if CourseGroupStudents.objects.filter(student=student, course_group__course=course_group.course).count() != 0:
+            return Response(status=400)
+        CourseGroupStudents.objects.create(student=student, course_group=course_group)
+        return Response(CourseGroupSerializer(course_group).data)
 
 
 class AchievementView(APIView):
@@ -118,7 +127,7 @@ class AchievementView(APIView):
         serializer.is_valid(raise_exception=True)
         course = Course.objects.get(pk=course_id)
         new_achievements = [Achievement.objects.create(course=course, **serialized_achievements)
-                          for serialized_achievements in serializer.validated_data]
+                            for serialized_achievements in serializer.validated_data]
         return Response(AchievementSerializer(new_achievements, many=True).data)
 
 
@@ -218,12 +227,21 @@ class ParticipantScoreView(APIView):
         return Response(StudentScoreSerializer(StudentScore(student, course)).data)
 
 
-class CourseRankingView(APIView):
-    permission_classes = [IsAuthenticated]
+class CourseRankingTutorView(APIView):
+    permission_classes = [IsTutor]
 
     def get(self, request, course_id):
         course = Course.objects.get(pk=course_id)
-        ranking = course.generate_ranking()
+        ranking = course.generate_ranking_for_tutor()
+        return Response(RankingElementSerializer(ranking, many=True).data)
+
+
+class CourseRankingStudentView(APIView):
+    permission_classes = [IsStudent]
+
+    def get(self, request, course_id):
+        course = Course.objects.get(pk=course_id)
+        ranking = course.generate_ranking_for_tutor()
         return Response({
             'student_ranking_visibility': course.student_ranking_visibility_strategy,
             'ranking': RankingElementSerializer(ranking, many=True).data
@@ -368,7 +386,16 @@ class AdventureView(APIView):
         serializer = CreateAdventuresSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         chapter = Chapter.objects.get(pk=chapter_id)
-        new_adventure = serializer.save(chapter=chapter)
+        new_adventure: Adventure = serializer.save(chapter=chapter)
+        chapter_adventures = chapter.adventures.all()
+        if chapter_adventures.count() == 1:
+            new_adventure.is_initial = True
+            new_adventure.save()
+            chapter.points_for_max_grade = new_adventure.max_points_possible
+            chapter.complete()
+        else:
+            chapter_adventures.update(is_initial=False)
+            chapter.uncomplete()
         return Response(AdventureSerializer(new_adventure).data)
 
 
@@ -459,14 +486,18 @@ class AdventureAnswerView(APIView):
         image_questions_data = data['image_questions']
         closed_questions, open_questions, image_questions = [], [], []
         for question_data in closed_questions_data:
-            closed_questions.append((Question.objects.get(pk=question_data['question_id']),
-                                     set([Answer.objects.get(pk=answer_id)
-                                          for answer_id in question_data['marked_answers']])))
+            question = Question.objects.get(pk=question_data['question_id'])
+            if question.point_source_id == adventure_id:
+                closed_questions.append((question, set([Answer.objects.get(pk=answer_id)
+                                         for answer_id in question_data['marked_answers']])))
         for question_data in open_questions_data:
-            open_questions.append((Question.objects.get(pk=question_data['question_id']),
-                                   question_data['given_answer']))
+            question = Question.objects.get(pk=question_data['question_id'])
+            if question.point_source_id == adventure_id:
+                open_questions.append((question, question_data['given_answer']))
         for question_data in image_questions_data:
-            image_questions.append((Question.objects.get(pk=question_data['question_id']), question_data['image']))
+            question = Question.objects.get(pk=question_data['question_id'])
+            if question.point_source_id == adventure_id:
+                image_questions.append((question, question_data['image']))
         next_stage = process_answers(self.request.user,
                                      current_adventure,
                                      data['start_time'], data['answer_time'],
@@ -519,6 +550,13 @@ class ManualGradingView(APIView):
         grade_dict = {data['grade']: data['points'] for data in grade_data}
         grade_answers_manually(adventure, grade_dict)
         return Response()
+
+
+class SystemKeyView(APIView):
+    permission_classes = [IsTutor]
+
+    def get(self, request):
+        return Response({'system_key': SystemKey.get()})
 
 
 class WhoAmIView(generics.RetrieveAPIView):

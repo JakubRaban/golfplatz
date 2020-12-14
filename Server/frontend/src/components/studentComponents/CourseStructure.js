@@ -6,7 +6,7 @@ import {Redirect} from 'react-router-dom';
 import NavBar from '../common/navbars/NavBar.js';
 import compose from 'recompose/compose';
 import {CssBaseline, List, ListItem, ListItemText, ListSubheader, Typography} from '@material-ui/core';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import {createMuiTheme, ThemeProvider} from '@material-ui/core/styles';
 
 import {getCourseStructure} from '../../actions/course.js';
 import {logout} from '../../actions/auth.js';
@@ -17,7 +17,7 @@ function ListItemLink(props) {
 }
 
 export class CourseStructure extends Component {
-  state = { loaded: false };
+  state = {loaded: false};
 
   static propTypes = {
     isAuthenticated: PropTypes.bool,
@@ -41,7 +41,7 @@ export class CourseStructure extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.courseStructure !== this.props.courseStructure) {
-      this.setState({ loaded: true });
+      this.setState({loaded: true});
     }
   }
 
@@ -74,9 +74,9 @@ export class CourseStructure extends Component {
             <ListItem>
               <ListItemText primary='Rozdziały:'/>
             </ListItem>
-            {plotPart.chapters.map((chapter, i) =>
+            {plotPart.chapters.map((chapter, i, chapters) =>
               <List key={100 + i} component='div' disablePadding>
-                {this.renderChapter(chapter)}
+                {this.renderChapter(i, chapter, chapters)}
               </List>
             )}
           </>
@@ -90,16 +90,23 @@ export class CourseStructure extends Component {
     )
   }
 
-  renderChapter = (chapter) => {
-    return chapter.accomplishedChapters.length > 0 && chapter.accomplishedChapters[0].isCompleted ?
-      (<ListItem>
+  renderChapter = (index, chapter, chapters) => {
+    const prevChapter = index > 0 ? chapters[index - 1] : undefined
+    return chapter.accomplishedChapters.length > 0 && chapter.accomplishedChapters[0].isCompleted ? (
+      <ListItem>
         <ListItemText secondary={
           `${chapter.name} - Ukończono: ${new Date(chapter.accomplishedChapters[0].timeCompleted).toLocaleString('pl-PL')}`
         }/>
-      </ListItem>) :
-      (<ListItemLink href={`/#/open-chapter/${chapter.id}`}>
+      </ListItem>
+    ) : prevChapter && (prevChapter.accomplishedChapters.length === 0 || !prevChapter.accomplishedChapters[0].isCompleted) ? (
+      <ListItem>
+        <ListItemText secondary={`${chapter.name} - przejdź poprzednie rozdziały zanim zaczniesz ten`} />
+      </ListItem>
+    ) : (
+      <ListItemLink href={`/#/open-chapter/${chapter.id}`}>
         <ListItemText secondary={chapter.name} secondaryTypographyProps={{color: 'primary'}}/>
-      </ListItemLink>);
+      </ListItemLink>
+    );
   }
 
   render() {

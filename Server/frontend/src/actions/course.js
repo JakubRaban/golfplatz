@@ -25,13 +25,18 @@ import {
   GET_RANK,
   GET_RANKING,
   GET_STUDENT_MARKS,
+  GET_SYSTEM_KEY,
   GET_ALL_RANKS,
   GET_UNCHECKED_GRADES,
   GRADE_MANUAL,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE, ADD_WEIGHTS, TOGGLE_PLOT_PART_LOCK,
+  UPDATE_ADVENTURE,
+  ADD_WEIGHTS,
+  TOGGLE_PLOT_PART_LOCK,
+  SET_ACTIVE_COURSE,
+  ADD_PLOT_PARTS_FROM_COURSE_VIEW,
 }
   from './types.js';
 import {DELETE_COURSE} from "./types";
@@ -261,6 +266,15 @@ async function makeAllCourseRequests(course, courseGroups, plotParts, achievemen
   return "ok";
 }
 
+export const addPlotPart = (courseId, plotParts) => (dispatch, getState) => {
+  axios.post(`/api/courses/${courseId}/plot_parts/`, plotParts, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: ADD_PLOT_PARTS_FROM_COURSE_VIEW,
+      payload: res.data,
+    });
+  })
+}
+
 const deleteCourse = (id) => (dispatch, getState) => {
   axios.delete(`/api/courses/${id}/`, tokenConfig(getState)).then((res) => {
     dispatch({
@@ -288,8 +302,17 @@ export const getAllRanks = (courseId) => (dispatch, getState) => {
   });
 }
 
-export const getRanking = (courseId) => (dispatch, getState) => {
-  axios.get(`api/courses/${courseId}/ranking/`, tokenConfig(getState)).then((res) => {
+export const getStudentRanking = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/ranking/student/`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_RANKING,
+      payload: res.data,
+    })
+  })
+}
+
+export const getTutorRanking = (courseId) => (dispatch, getState) => {
+  axios.get(`api/courses/${courseId}/ranking/tutor/`, tokenConfig(getState)).then((res) => {
     dispatch({
       type: GET_RANKING,
       payload: res.data,
@@ -351,6 +374,14 @@ export const getCourses = () => (dispatch, getState) => {
   });
 };
 
+export const getStudentCourses = () => (dispatch, getState) => {
+  axios.get('/api/student_courses/flat/', tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_COURSES,
+      payload: res.data,
+    })
+  })
+}
 
 export const getCourse = (id) => (dispatch, getState) => {
   axios.get(`/api/courses/${id}/`, tokenConfig(getState)).then((res) => {
@@ -398,4 +429,26 @@ export const chooseNextAdventure = (id) => (dispatch, getState) => {
       payload: res.data,
     });
   });
+};
+
+export const getSystemKey = () => (dispatch, getState) => {
+  axios.get(`/api/get_system_key/`, tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: GET_SYSTEM_KEY,
+      payload: res.data,
+    });
+  });
+};
+
+export const enroll = (code) => (dispatch, getState) => {
+  axios.post(`/api/course_groups/enroll/${code}/`, '', tokenConfig(getState)).then((res) => {
+    dispatch({
+      type: SET_ACTIVE_COURSE,
+      payload: { course: res.data.course, themeColors: [], palette: [] },
+    });
+    Alerts.success(`Pomyślnie zapisano do grupy ${res.data.groupName} w kursie ${res.data.course.name}`)
+  })
+    .catch((err) => {
+      Alerts.error("Zapisanie do grupy nie powiodło się, spróbuj ponownie")
+    });
 };

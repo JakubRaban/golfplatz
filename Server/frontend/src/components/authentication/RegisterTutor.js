@@ -14,6 +14,7 @@ import { isEmpty as empty } from 'lodash';
 import isEmpty from 'validator/lib/isEmpty.js';
 
 import { registerTutor } from '../../actions/auth.js';
+import FormErrorMessage from "../common/FormErrorMessage";
 
 
 export class RegisterTutor extends Component {
@@ -142,24 +143,27 @@ export class RegisterTutor extends Component {
                 variant='filled'
               />
             </div>
-            {!this.props.fresh && <div className='systemKey'>
-              <TextField
-                error={errors.systemKey}
-                fullWidth
-                helperText={errors.systemKey || ''}
-                label='Klucz rejestracji prowadzącego'
-                name='systemKey'
-                onChange={this.onChange}
-                type='password'
-                value={systemKey}
-                variant='filled'
-              />
-            </div>}
+            {!this.props.fresh &&
+              <div className='systemKey'>
+                <TextField
+                  error={errors.systemKey}
+                  fullWidth
+                  helperText={errors.systemKey || ''}
+                  label='Klucz rejestracji prowadzącego'
+                  name='systemKey'
+                  onChange={this.onChange}
+                  type='password'
+                  value={systemKey}
+                  variant='filled'
+                />
+              </div>
+            }
             <div className="button-container">
               <Button className="login-button" type="submit">
                 Zarejestruj się
               </Button>
             </div>
+            {!empty(this.props.errors) && <FormErrorMessage style={{textAlign: 'right'}} />}
             {!this.props.fresh && <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
               <Typography color="textPrimary">Masz już konto? </Typography>
               <Link to="/login">Zaloguj się!</Link>

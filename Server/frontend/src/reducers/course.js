@@ -6,6 +6,7 @@ import {
   ADD_COURSE,
   ADD_COURSE_GROUPS,
   ADD_PLOT_PARTS,
+  ADD_PLOT_PARTS_FROM_COURSE_VIEW,
   DELETE_ADVENTURE,
   ERRORS,
   EXPORT_CSV,
@@ -20,16 +21,18 @@ import {
   GET_RANK,
   GET_RANKING,
   GET_STUDENT_MARKS,
+  GET_SYSTEM_KEY,
   GET_UNCHECKED_GRADES,
   GRADE_MANUAL,
   NEXT_ADVENTURE,
   PATHS_WITH_DESCRIPTIONS,
   START_CHAPTER,
-  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK, DELETE_COURSE,
+  UPDATE_ADVENTURE, TOGGLE_PLOT_PART_LOCK, DELETE_COURSE, SET_ACTIVE_COURSE, LOGOUT_SUCCESS,
 }
   from '../actions/types.js';
 
 const initialState = {
+  activeCourse: undefined,
   courses: [],
   plotParts: [],
   courseGroups: [],
@@ -51,6 +54,7 @@ const initialState = {
   ranking: {},
   studentRank: {},
   studentMarks: {},
+  systemKey: undefined,
 };
 
 export default function (state = initialState, action) {
@@ -65,6 +69,14 @@ export default function (state = initialState, action) {
         ...state,
         plotParts: [...state.plotParts, action.payload],
       };
+    case ADD_PLOT_PARTS_FROM_COURSE_VIEW:
+      return {
+        ...state,
+        courseDetailed: {
+          ...state.courseDetailed,
+          plotParts: [...state.courseDetailed.plotParts, ...action.payload]
+        }
+      }
     case ADD_COURSE_GROUPS:
       return {
         ...state,
@@ -190,11 +202,23 @@ export default function (state = initialState, action) {
           plotParts,
         },
       };
+    case GET_SYSTEM_KEY:
+      return {
+        ...state,
+        systemKey: action.payload,
+      };
     case ERRORS:
       return {
         ...state,
         errors: action.payload,
       };
+    case SET_ACTIVE_COURSE:
+      return {
+        ...state,
+        activeCourse: action.payload.course,
+      }
+    case LOGOUT_SUCCESS:
+      return initialState;
     default:
       return state;
   }

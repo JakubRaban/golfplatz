@@ -17,10 +17,11 @@ import { withRouter } from 'react-router-dom';
 
 import { logout } from '../../actions/auth.js';
 import { getPalette } from '../../actions/color.js';
-import { getCourses } from '../../actions/course.js';
+import { getStudentCourses } from '../../actions/course.js';
 import { styles } from '../../styles/style.js';
 import DashboardNavbar from '../common/navbars/DashboardNavbar.js';
-import ChooseCourseDialog from '../common/ChooseCourseDialog.js';
+import EnrollDialog from './EnrollDialog.js';
+import { enroll } from "../../actions/course";
 
 function Copyright() {
   return (
@@ -39,45 +40,35 @@ export class StudentDashboard extends Component {
   theme = createMuiTheme();
 
   constructor(props) {
-    props.getPalette('#3f51b5');
     super(props);
   }
 
   state = {
-    dialogOpen: false,
-    dialogOpen2: false,
+    enrollDialogOpen: false,
     loaded: false,
-    selectedCourseId: undefined,
+    enrollCode: '',
   };
 
   componentDidMount() {
-    this.props.getCourses();
+    this.props.getStudentCourses();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.courses !== this.props.courses) {
-      this.setState({ loaded: true });
+      this.setPalette(this.props.activeCourse);
     }
   }
 
-  // handleDialogClose = () => {
-  //   this.setState({ dialogOpen: false });
-  // }
-
   handleGameCardOpen = () => {
-    this.props.history.push(`/game-card/${this.state.selectedCourseId}`);
+    this.props.history.push(`/game-card/${this.props.activeCourse.id}`);
   }
 
-  // handleDialog2Close = () => {
-  //   this.setState({ dialogOpen2: false });
-  // }
-
   handleCourseStructureOpen = () => {
-    this.props.history.push(`/course-structure/${this.state.selectedCourseId}`);
+    this.props.history.push(`/course-structure/${this.props.activeCourse.id}`);
   }
 
   setPalette = async (course) => {
-    await this.props.getPalette(course.themeColor);
+    await this.props.getPalette(course);
     this.theme = await createMuiTheme({
       palette: {
         primary: {
@@ -88,13 +79,29 @@ export class StudentDashboard extends Component {
         },
       },
     });
-    await this.setState({ selectedCourseId: course.id });
+    this.setState({ enrollDialogOpen: false, enrollCode: '', loaded: true });
   }
 
-  handleCourseSelect = (selectedCourseName) => {
-    const selectedCourse = this.props.courses.find((course) => course.name === selectedCourseName);
+  handleCourseSelect = (e) => {
+    const course = this.props.courses.find((course) => course.name === e.target.value);
+    this.setPalette(course);
+  }
 
-    this.setPalette(selectedCourse);
+  handleEnrollCodeChange = (e) => {
+    this.setState({ enrollCode: e.target.value });
+  }
+
+  onEnrollCodeSubmit = async () => {
+    await this.props.enroll(this.state.enrollCode);
+    await this.props.getStudentCourses();
+  }
+
+  handleEnrollDialogClose = () => {
+    this.setState({ enrollDialogOpen: false, enrollCode: '' });
+  }
+
+  handleEnrollDialogOpen = () => {
+    this.setState({ enrollDialogOpen: true });
   }
 
   render() {
@@ -118,7 +125,9 @@ export class StudentDashboard extends Component {
               <DashboardNavbar
                 courses={this.props.courses}
                 handleChange={this.handleCourseSelect}
+                isTutor={false}
                 logout={this.props.logout}
+                activeCourse={this.props.activeCourse}
                 title={'Panel uczestnika kursu'}
               />
               <main className={classes.content}>
@@ -126,24 +135,22 @@ export class StudentDashboard extends Component {
                 <Container maxWidth="lg" className={classes.container}>
                   <Grid container spacing={3}>
                     <Grid item xs={12} md={8} lg={12}>
-                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[0]}` }}>
-                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.state.selectedCourseId} onClick={this.handleGameCardOpen}>
-                          Podejrzyj kartę gry
-                        </Button>
-                      </Paper>
-                    </Grid>
-                    <Grid item xs={12} md={8} lg={6}>
-                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[1]}`}}>
-                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.state.selectedCourseId} onClick={this.handleCourseStructureOpen}>
+                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[0]}`}}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.props.activeCourse} onClick={this.handleCourseStructureOpen}>
                           Podejmij wyzwanie!
                         </Button>
                       </Paper>
                     </Grid>
                     <Grid item xs={12} md={8} lg={6}>
-                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[2]}`}}>
-                        <Button disabled>
-                          Zapisz się do kursu
+                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[1]}` }}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} disabled={!this.props.activeCourse} onClick={this.handleGameCardOpen}>
+                          Podejrzyj kartę gry
                         </Button>
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={8} lg={6}>
+                      <Paper className={fixedHeightPaper} style={{ backgroundColor: `#${palette[2]}`}}>
+                        <Button style={{ color: this.theme.palette.primary.contrastText }} onClick={this.handleEnrollDialogOpen}>Zapisz się do kursu</Button>
                       </Paper>
                     </Grid>
                   </Grid>
@@ -151,6 +158,13 @@ export class StudentDashboard extends Component {
                     <Copyright />
                   </Box>
                 </Container>
+                <EnrollDialog
+                  enrollCode={this.state.enrollCode}
+                  onChange={this.handleEnrollCodeChange}
+                  onClose={this.handleEnrollDialogClose}
+                  onEnrollCodeSubmit={this.onEnrollCodeSubmit}
+                  open={this.state.enrollDialogOpen}
+                />
                 {/* <ChooseCourseDialog courses={this.props.courses} link='game-card' onClose={this.handleDialogClose} open={this.state.dialogOpen} title='Wybierz kurs, którego kartę gry chcesz zobaczyć'/>
                 <ChooseCourseDialog courses={this.props.courses} link='course-structure' onClose={this.handleDialog2Close} open={this.state.dialogOpen2} title='Wybierz kurs, którego rozdział chcesz przejść'/> */}
               </main>
@@ -168,9 +182,10 @@ const mapStateToProps = (state) => ({
   courses: state.course.courses,
   palette: state.color.palette,
   themeColors: state.color.themeColors,
+  activeCourse: state.course.activeCourse,
 });
 
 export default compose(
-  connect(mapStateToProps, { logout, getCourses, getPalette }),
+  connect(mapStateToProps, { logout, getStudentCourses, getPalette, enroll }),
   withStyles(styles),
 )(withRouter(StudentDashboard));

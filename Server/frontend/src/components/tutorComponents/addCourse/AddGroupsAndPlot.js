@@ -1,55 +1,17 @@
 import '../../../styles/course-forms.css';
 
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import React, { Component } from 'react';
 
-import CourseGroup from './CourseGroup.js';
-import PlotPart from './PlotPart.js';
+import AddGroups from "./AddGroups";
+import AddPlotParts from "./AddPlotParts";
 
 export class AddGroupsAndPlot extends Component {
 
   render() {
     return (
       <>
-        <div style={{ margin: '10px' }}>
-          <Typography variant="h6" gutterBottom>
-            Napisz kiedy odbywają się zajęcia:
-          </Typography>
-          {this.props.groups.map((group, index) =>
-            <CourseGroup
-              errors={this.props.errors}
-              group={group}
-              handleChange={this.props.handleGroupChange}
-              index={index}
-              key={index} />,
-          )}
-          <Button
-            color="secondary"
-            variant='outlined'
-            onClick={this.props.addNewCourseGroup}
-          >Dodaj kolejny termin zajęć</Button>
-        </div>
-        <div style={{ margin: '10px' }}>
-          <Typography variant="h6" gutterBottom>
-            Dodaj części fabuły do kursu:
-          </Typography>
-          {this.props.plotParts.map((plotPart, index) =>
-            <PlotPart
-              errors={this.props.errors}
-              handleChange={this.props.handlePlotPartChange}
-              index={index}
-              key={index}
-              plotPart={plotPart}
-            />,
-          )}        
-          <Button
-            color="secondary"
-            variant='outlined'
-            onClick={this.props.addNewPlotPart}
-          >Dodaj kolejną część fabuły
-          </Button>           
-        </div>
+        <AddGroups groups={this.props.groups} errors={this.props.errors} handleGroupChange={this.props.handleGroupChange} addNewCourseGroup={this.props.addNewCourseGroup}/>
+        <AddPlotParts plotParts={this.props.plotParts} errors={this.props.errors} handlePlotPartChange={this.props.handlePlotPartChange} addNewPlotPart={this.props.addNewPlotPart} />
       </>
     );
   }

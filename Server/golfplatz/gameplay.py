@@ -13,17 +13,20 @@ from .scoring import ScoreAggregator
 
 
 def start_chapter(participant: Participant, chapter: Chapter) -> Adventure:
+    AccomplishedChapter.objects.filter(chapter=chapter, student=participant).delete()
+    AccomplishedAdventure.objects.filter(adventure__chapter=chapter, student=participant).delete()
     AccomplishedChapter.objects.create(chapter=chapter, student=participant)
     return chapter.initial_adventure
 
 
 def process_answers(participant: Participant, adventure: Adventure, start_time: datetime, answer_time: int, closed_question_answers: List[Tuple[Question, Set[Answer]]], open_question_answers: List[Tuple[Question, str]], image_questions_answers: List[Tuple[Question, str]]):
     points_gained = grade_answers_automatically(participant, closed_question_answers, open_question_answers, image_questions_answers)
+    questions = [qa[0] for qa in closed_question_answers + open_question_answers + image_questions_answers]
     AccomplishedAdventure.objects.create(student=participant, adventure=adventure, adventure_started_time=start_time,
                                          time_elapsed_seconds=answer_time,
                                          total_points_for_questions_awarded=points_gained,
                                          applied_time_modifier_percent=adventure.get_time_modifier(answer_time),
-                                         is_fully_graded=adventure.is_auto_checked)
+                                         is_fully_graded=all(question.is_auto_checked for question in questions))
     next_stage = _get_next_stage(adventure)
     if not next_stage:
         summary = do_post_chapter_operations(adventure, student=participant)
@@ -46,11 +49,14 @@ def do_post_chapter_operations(adventure: Adventure, student: Participant, calcu
 
 def calculate_score_and_achievements(student: Participant, current_chapter: Chapter, acc_chapter: AccomplishedChapter, current_chapter_acc_adventures: Set[AccomplishedAdventure]):
     if all(acc_adventure.is_fully_graded for acc_adventure in current_chapter_acc_adventures):
-        score_aggregator = ScoreAggregator(get_accomplished_adventures_for_student(student, current_chapter.course).values(
-            'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__max_points_possible',
+        student_adventures = get_accomplished_adventures_for_student(student, current_chapter.course)
+        max_points_possible_list = [acc_adventure.adventure.max_points_possible for acc_adventure in student_adventures]
+        values_list = student_adventures.values(
+            'total_points_for_questions_awarded', 'applied_time_modifier_percent', 'adventure__point_source__category',
             'adventure__chapter', 'adventure__chapter__plot_part', 'time_elapsed_seconds', 'adventure__time_limit',
-            'adventure__point_source__category'
-        ), Weight.objects.filter(course=current_chapter.course))
+        )
+        values = [{'adventure__max_points_possible': x, **y} for x, y in zip(max_points_possible_list, values_list)]
+        score_aggregator = ScoreAggregator(values, Weight.objects.filter(course=current_chapter.course))
         total_points = score_aggregator.points_for_chapter(current_chapter)
         acc_chapter.save_points_scored(total_points)
         acc_chapter.mark_recalculating_started()

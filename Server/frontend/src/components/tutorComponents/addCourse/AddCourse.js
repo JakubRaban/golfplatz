@@ -22,6 +22,8 @@ import AddGroupsAndPlot from './AddGroupsAndPlot.js';
 import AddRanks from './AddRanks.js';
 import AddWeights from './AddWeights.js';
 import ColorPicker from "./ColorPicker";
+import SelectRankingMode from "./SelectRankingMode";
+import FormErrorMessage from "../../common/FormErrorMessage";
 
 export class AddCourse extends Component {
   state = {
@@ -39,6 +41,7 @@ export class AddCourse extends Component {
     },
     achievements: [],
     ranks: [],
+    rankingMode: 'FULL',
     themeColor: MAIN_COLOR,
     errors: {},
   };
@@ -50,6 +53,7 @@ export class AddCourse extends Component {
     howMany: '0',
     inARow: false,
     conditionType: 'NOT SELECTED',
+    adventureCategoryIncluded: 'ALL',
     percentage: '0',
   }
 
@@ -104,6 +108,18 @@ export class AddCourse extends Component {
     this.setState({ ranks });
   }
 
+  removeRank = (index) => {
+    const { ranks } = this.state;
+    ranks.splice(index, 1);
+    this.setState({ ranks });
+  }
+
+  removeAchievement = (index) => {
+    const { achievements } = this.state;
+    achievements.splice(index, 1);
+    this.setState({ achievements });
+  }
+
   handleRankChange = (input, index, value) => {
     const { ranks } = this.state;
     ranks[index][input] = value;
@@ -114,6 +130,10 @@ export class AddCourse extends Component {
     const {weights} = this.state;
     weights[categoryName] = value;
     this.setState({weights});
+  }
+
+  handleRankingModeChange = (e) => {
+    this.setState({ rankingMode: e.target.value });
   }
 
   changeColor = (color) => {
@@ -149,7 +169,7 @@ export class AddCourse extends Component {
       if (isEmpty(rank.name))
         setWith(errors, `ranks[${i}].name`, 'Nazwa rangi nie może być pusta');
       if (isEmpty(rank.image))
-        setWith(errors, `ranks[${i}].image`, 'Prześlij obrazek rangi');
+        setWith(errors, `rank[${i}].image`, 'Prześlij obrazek odznaki');
       if(!isInt(rank.lowerThresholdPercent, { min: 0, max: 100 }))
         setWith(errors, `ranks[${i}].lowerThresholdPercent`, 'Podaj liczbę całkowitą od 0 do 100');
     });
@@ -161,10 +181,13 @@ export class AddCourse extends Component {
 
   onSubmit = async () => {
     await this.checkErrors();
+    for (const achievement of this.state.achievements) {
+      if (achievement.adventureCategoryIncluded === 'ALL') achievement.adventureCategoryIncluded = null;
+    }
 
     if (empty(this.state.errors)) {
-      const { name, description, courseGroups, plotParts, achievements, ranks, weights, themeColor } = this.state;
-      const course = { name, description, themeColor };
+      const { name, description, courseGroups, plotParts, achievements, ranks, weights, rankingMode, themeColor } = this.state;
+      const course = { name, description, themeColor, rankingMode };
       const result = await this.props.addCourse(course, courseGroups, plotParts, achievements, ranks, weights);
       console.log(result, typeof result);
       if (result === "ok") {
@@ -219,6 +242,7 @@ export class AddCourse extends Component {
             addNewAchievement={this.addNewAchievement}
             errors={this.state.errors}
             handleAchievementChange={this.handleAchievementChange}
+            removeAchievement={this.removeAchievement}
           />
           <AddWeights
             weights={this.state.weights}
@@ -230,6 +254,11 @@ export class AddCourse extends Component {
             errors={this.state.errors}
             handleRankChange={this.handleRankChange}
             ranks={this.state.ranks}
+            removeRank={this.removeRank}
+          />
+          <SelectRankingMode
+            rankingMode={this.state.rankingMode}
+            handleChange={this.handleRankingModeChange}
           />
           <ColorPicker
             color={this.state.themeColor}
@@ -242,6 +271,7 @@ export class AddCourse extends Component {
               onClick={this.onSubmit}
             >Potwierdź i wyślij</Button>
           </div>
+          {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}}/>}
         </main>
       </div>
     );

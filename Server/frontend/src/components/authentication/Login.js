@@ -14,6 +14,7 @@ import isEmpty from 'validator/lib/isEmpty.js';
 
 import { login, isFresh } from '../../actions/auth.js';
 import CircularProgress from "@material-ui/core/CircularProgress";
+import FormErrorMessage from "../common/FormErrorMessage";
 
 
 export class Login extends Component {
@@ -102,6 +103,7 @@ export class Login extends Component {
                 Zaloguj się
               </Button>
             </div>
+            {!empty(this.state.errors) && <FormErrorMessage style={{textAlign: 'right'}} />}
             <Typography> Nie masz konta? </Typography>
 
             <Breadcrumbs separator={<NavigateNextIcon fontSize='small' />} aria-label='breadcrumb'>
