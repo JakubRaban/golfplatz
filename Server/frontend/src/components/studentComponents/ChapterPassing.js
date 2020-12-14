@@ -177,7 +177,6 @@ export class ChapterPassing extends Component {
       openQuestions,
       imageQuestions
     };
-    console.log(this.adventureAnswer);
 
     this.setState({
       submitted: true,
@@ -186,6 +185,8 @@ export class ChapterPassing extends Component {
 
   onNext = (e) => {
     this.setState({ loading: true });
+    console.log(this.adventureAnswer);
+    
     this.props.addAdventureAnswer(this.props.adventurePart.adventure.id, this.adventureAnswer);
   }
 
