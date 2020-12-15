@@ -115,14 +115,18 @@ class Course(models.Model):
         ranking_elements = [RankingElement(course_group_student.student, self, index + 1) for index, course_group_student in
                             enumerate(CourseGroupStudents.objects.filter(course_group__course=self))]
         ranking_elements.sort(key=lambda element: element.student_score.score_percent, reverse=True)
+        ranking_elements = [RankingElement(element.student, self, index + 1) for index, element in
+                            enumerate(ranking_elements)]
         return ranking_elements
 
     def generate_ranking_for_student(self, participant: Participant):
         if self.ranking_mode == self.RankingVisibilityStrategy.OFF:
             return []
-        ranking_elements = [RankingElement(course_group_student.student, self, index + 1) for index, course_group_student in
-                            enumerate(CourseGroupStudents.objects.filter(course_group__course=self))]
+        ranking_elements = [RankingElement(course_group_student.student, self, None) for course_group_student in
+                            CourseGroupStudents.objects.filter(course_group__course=self)]
         ranking_elements.sort(key=lambda element: element.student_score.score_percent, reverse=True)
+        ranking_elements = [RankingElement(element.student, self, index + 1) for index, element in
+                            enumerate(ranking_elements)]
         if self.ranking_mode == self.RankingVisibilityStrategy.FULL:
             return ranking_elements
         for index, element in enumerate(ranking_elements):
